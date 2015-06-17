@@ -1,0 +1,8 @@
+/**
+ * 
+ */
+/**
+ * @author Stefan
+ *
+ */
+package pluginManagement;
