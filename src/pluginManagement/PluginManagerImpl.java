@@ -36,9 +36,9 @@ class PluginManagerImpl implements PluginManager {
 	}
 
 	@Override
-	public Runnable getPluginSender(String pluginID, String endpoint,
+	public Runnable getPluginSender(String pluginID, String address,
 			String message, PluginParams pluginParams) {
-		return pluginLoader.getPluginByID(pluginID).getSender(endpoint, message, pluginParams);
+		return pluginLoader.getPluginByID(pluginID).getSender(address, message, pluginParams);
 	}
 	
 

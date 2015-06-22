@@ -19,7 +19,7 @@ public interface PluginManager {
 	
 	// dient praktisch als Factory fuer die Plugins --> liefert Instanziierung
 	// des Plugins mit dem entsprechenden Namen
-	public Runnable getPluginSender(String pluginID, String endpoint, String message, PluginParams pluginParams);
+	public Runnable getPluginSender(String pluginID, String address, String message, PluginParams pluginParams);
 
 	public void addPlugin();
 
