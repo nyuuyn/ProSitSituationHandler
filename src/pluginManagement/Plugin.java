@@ -18,7 +18,7 @@ public interface Plugin {
 
 	public void getParamDescriptions();
 
-	public void sendMessage(String Endpoints, String Message,
+	public Runnable getSender(String Endpoints, String Message,
 			PluginParams optionalParams);
 
 	// uberhaupt noetig? Params? Implementierung?
