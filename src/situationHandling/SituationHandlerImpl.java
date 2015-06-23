@@ -1,7 +1,9 @@
 package situationHandling;
 
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
@@ -10,6 +12,9 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.impl.DefaultProducerTemplate;
 
+import pluginManagement.PluginManager;
+import pluginManagement.PluginManagerFactory;
+import situationHandler.plugin.PluginParams;
 import situationHandling.storage.RuleStorage;
 import situationManagement.Situation;
 
@@ -41,7 +46,6 @@ public class SituationHandlerImpl extends RouteBuilder implements
 		// threadExecutor.submit(new ActionExecutor(da));
 		//
 		// }
-		
 
 	}
 
@@ -53,7 +57,7 @@ public class SituationHandlerImpl extends RouteBuilder implements
 		try {
 			pt.start();
 
-			String body = exchange.getIn().getBody(String.class);
+			String soapBody = exchange.getIn().getBody(String.class);
 
 			// xpath should be: name(/soapenv:envelope/soapenv:body/*)
 			// leider kein valides XML im Body dann gehts nicht
@@ -66,9 +70,20 @@ public class SituationHandlerImpl extends RouteBuilder implements
 			// body, String.class);
 			// exchange.getIn().setBody(ret, String.class);
 
-			String ret = pt.requestBody("http://localhost:4434/miniwebservice",
-					body, String.class);
-			exchange.getIn().setBody(ret, String.class);
+			PluginManager pm = PluginManagerFactory.getManager();
+			PluginParams params = new PluginParams();
+
+			params.setParam("Http method", "POST");
+
+			// TODO: Momentan ist das doch noch relativ synchron (egal, falls
+			// Camel jedes mal ein neues Objekt erstellt
+			Future<Map<String, String>> response = threadExecutor.submit(pm
+					.getPluginSender("situationHandler.http",
+							"http://localhost:4435/miniwebservice", soapBody,
+							params));
+			
+
+			exchange.getIn().setBody(response.get().get("body"), String.class);
 
 			pt.stop();
 		} catch (Exception e) {
