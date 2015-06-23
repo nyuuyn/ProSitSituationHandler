@@ -41,6 +41,7 @@ public class SituationHandlerImpl extends RouteBuilder implements
 		// threadExecutor.submit(new ActionExecutor(da));
 		//
 		// }
+		
 
 	}
 

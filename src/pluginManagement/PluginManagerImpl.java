@@ -1,6 +1,8 @@
 package pluginManagement;
 
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 import situationHandler.plugin.PluginParams;
 
@@ -36,7 +38,7 @@ class PluginManagerImpl implements PluginManager {
 	}
 
 	@Override
-	public Runnable getPluginSender(String pluginID, String address,
+	public Callable<Map<String,String>> getPluginSender(String pluginID, String address,
 			String message, PluginParams pluginParams) {
 		return pluginLoader.getPluginByID(pluginID).getSender(address, message, pluginParams);
 	}

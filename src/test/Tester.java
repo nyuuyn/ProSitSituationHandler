@@ -13,7 +13,11 @@ public class Tester {
 		PluginParams params = new PluginParams();
 		params.setParam("Email Subject", "Gmail Plugin Test");
 		
-		pm.getPluginSender("situationHandler.gmail", "stefan.fuerst.89@gmail.com", "Die Erste Mail vom Gmail Plugin", params).run();;
+		try {
+			pm.getPluginSender("situationHandler.gmail", "stefan.fuerst.89@gmail.com", "Die Erste Mail vom Gmail Plugin", params).call();
+		} catch (Exception e) {
+			e.printStackTrace();
+		};
 	
 	}
 
