@@ -14,7 +14,7 @@ public class Tester {
 		params.setParam("Email Subject", "Gmail Plugin Test");
 		
 		pm.getPluginSender("situationHandler.gmail", "stefan.fuerst.89@gmail.com", "Die Erste Mail vom Gmail Plugin", params).run();;
-
+	
 	}
 
 }
