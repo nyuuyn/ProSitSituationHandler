@@ -19,7 +19,7 @@ public class SituationHandlerRouteBuilder extends RouteBuilder {
 
 		// by using 0.0.0.0, the jetty server is exposed on all network
 		// interfaces
-		from("jetty:http://0.0.0.0:8080/SoapEndpoint?matchOnUriPrefix=true")
+		from("jetty:http://0.0.0.0:8080/SoapEndpoint?matchOnUriPrefix=true").to("stream:out")
 				.bean(SituationHandlerImpl.class);
 		//
 		// rest("/say").get("/hello").to("direct:hello").get("/bye")

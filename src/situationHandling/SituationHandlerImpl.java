@@ -53,6 +53,10 @@ public class SituationHandlerImpl extends RouteBuilder implements
 	public void receivedOperationCall(Exchange exchange) {
 		CamelContext camelContext = getContext();
 
+		// TODO: Vorsicht dabei, jedes mal ein neues Producer Template zu
+		// erzeugen. Das braucht u.U sehr viele Ressourcen!
+		// http://camel.apache.org/why-does-camel-use-too-many-threads-with-producertemplate.html
+
 		ProducerTemplate pt = new DefaultProducerTemplate(camelContext);
 		try {
 			pt.start();
@@ -81,7 +85,6 @@ public class SituationHandlerImpl extends RouteBuilder implements
 					.getPluginSender("situationHandler.http",
 							"http://localhost:4435/miniwebservice", soapBody,
 							params));
-			
 
 			exchange.getIn().setBody(response.get().get("body"), String.class);
 
