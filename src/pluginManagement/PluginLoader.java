@@ -17,7 +17,6 @@ import java.util.Set;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.camel.util.FileUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
@@ -39,6 +38,13 @@ class PluginLoader {
 	private ServiceLoader<Plugin> serviceLoader;
 
 	private DynamicURLClassLoader urlClassLoader;
+
+	/**
+	 * 
+	 * TODO: Prinzipiell sollte das "unloaden funktionieren. Leider gibt es
+	 * irgendwo immer noch Instanzen von den Klassen, wodurch die JAR geöffnet
+	 * bleibt und sich nie löschen lässt.
+	 */
 
 	public PluginLoader() {
 		clearRuntimeDir();
@@ -70,7 +76,7 @@ class PluginLoader {
 				while (it.hasNext()) {
 					File file;
 					try {
-						
+
 						file = new File(it.next().toURI());
 						if (file.delete()) {
 							it.remove();
@@ -99,7 +105,13 @@ class PluginLoader {
 		return plugins.get(pluginID);
 	}
 
-	void addPlugin(String ID, String path) {
+	boolean addPlugin(String ID, String path) {
+		
+		if (plugins.containsKey(ID)){
+			logger.debug("Plugin: " + ID + " already exists. Nothing was added");
+			return false;
+		}
+		
 		logger.debug("Adding new plugin: " + ID + " at " + path);
 		File file = new File(PLUGIN_FOLDER + File.separator + RUNTIME_FOLDER);
 		if (!file.exists()) {
@@ -119,6 +131,7 @@ class PluginLoader {
 
 		serviceLoader.reload();
 		updatePluginCache();
+		return true;
 
 	}
 
@@ -138,22 +151,31 @@ class PluginLoader {
 
 	}
 
-	void removePlugin(String ID) {
+	boolean removePlugin(String ID) {
+		
+		if (!plugins.containsKey(ID)){
+			logger.debug("Plugin: " + ID + " does not exist. Nothing was removed");
+			return false;
+		}
 
 		logger.debug("Removing plugin " + ID);
 
 		toDelete.add(pluginUrls.get(ID));
 
 		pluginUrls.remove(ID);
+
 		plugins.remove(ID);
 		try {
 			urlClassLoader.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		
 
 		initLoaders();
 
+		return true;
 	}
 
 	private void updatePluginCache() {
@@ -194,14 +216,13 @@ class PluginLoader {
 		}
 
 	}
-	
-	private void clearRuntimeDir(){
-		File folder = new File(PLUGIN_FOLDER+ File.separator + RUNTIME_FOLDER);
+
+	private void clearRuntimeDir() {
+		File folder = new File(PLUGIN_FOLDER + File.separator + RUNTIME_FOLDER);
 
 		try {
 			FileUtils.deleteDirectory(folder);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

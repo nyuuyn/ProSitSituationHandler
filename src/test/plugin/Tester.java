@@ -67,6 +67,22 @@ public class Tester {
 		}
 
 		System.out.println(pm.getAllPluginIDs().size());
+		pm.removePlugin("situationHandler.http");
+		//trying to remove twice
+		pm.removePlugin("situationHandler.gmail");
+		pm.removePlugin("situationHandler.gmail");
+		
+		//trying to add twice
+		pm.addPlugin(
+				"situationHandler.http",
+				"C:\\Users\\Stefan\\workspace_Masterarbeit\\Situation Handler\\situationHandler.http.jar");
+
+		pm.addPlugin(
+				"situationHandler.http",
+				"C:\\Users\\Stefan\\workspace_Masterarbeit\\Situation Handler\\situationHandler.http.jar");
+
+		
+		System.out.println(pm.getAllPluginIDs().size());
 
 	}
 

@@ -24,8 +24,8 @@ public interface PluginManager {
 	public Callable<Map<String, String>> getPluginSender(String pluginID,
 			String address, String message, PluginParams pluginParams);
 
-	public void addPlugin(String ID, String path);
+	public boolean addPlugin(String ID, String path);
 
-	public void removePlugin(String ID);
+	public boolean removePlugin(String ID);
 
 }
