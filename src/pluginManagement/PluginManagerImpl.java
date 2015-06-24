@@ -45,14 +45,14 @@ class PluginManagerImpl implements PluginManager {
 	
 
 	@Override
-	public void addPlugin() {
-		pluginLoader.reload();
+	public void addPlugin(String ID, String path) {
+		pluginLoader.addPlugin(ID, path);
 
 	}
 
 	@Override
-	public void removePlugin() {
-		// TODO Auto-generated method stub
+	public void removePlugin(String ID) {
+		pluginLoader.removePlugin(ID);
 
 	}
 
