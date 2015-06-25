@@ -1,24 +1,49 @@
 package situationHandling.storage;
 
 import java.net.URL;
-import java.util.UUID;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table
 public class Endpoint {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private int endpointID;
+
+	// situation
+	private String situationName;
+	private String objectName;
+
+	// operation
+	private String operationName;
+	private String qualifier;
 
 	private URL endpointURL;
 
-	private Situation situation;
-
-	private Operation operation;
-	
-	private UUID endpointUUID;
-
-	public Endpoint(URL endpointURL, Situation situation, Operation operation,
-			UUID endpointUUID) {
+	public Endpoint(URL endpointURL, String situationName, String objectName,
+			String operationName, String qualifier) {
 		this.endpointURL = endpointURL;
-		this.situation = situation;
-		this.operation = operation;
-		this.endpointUUID = endpointUUID;
+		this.situationName = situationName;
+		this.objectName = objectName;
+		this.operationName = operationName;
+		this.qualifier = qualifier;
+	}
+
+	public Endpoint(URL endpointURL, Situation situation, Operation operation) {
+		this.endpointURL = endpointURL;
+
+		this.situationName = situation.getSituationName();
+		this.objectName = situation.getObjectName();
+
+		this.operationName = operation.getOperationName();
+		this.qualifier = operation.getQualifier();
+
 	}
 
 	public Endpoint() {
@@ -34,27 +59,69 @@ public class Endpoint {
 	}
 
 	public Situation getSituation() {
-		return situation;
+		return new Situation(situationName, objectName);
 	}
 
 	public void setSituation(Situation situation) {
-		this.situation = situation;
+		this.situationName = situation.getSituationName();
+		this.objectName = situation.getObjectName();
 	}
 
 	public Operation getOperation() {
-		return operation;
+		return new Operation(operationName, qualifier);
 	}
 
 	public void setOperation(Operation operation) {
-		this.operation = operation;
+		this.operationName = operation.getOperationName();
+		this.qualifier = operation.getQualifier();
 	}
 
-	public UUID getEndpointUUID() {
-		return endpointUUID;
+	public int getEndpointID() {
+		return endpointID;
 	}
 
-	public void setEndpointUUID(UUID endpointUUID) {
-		this.endpointUUID = endpointUUID;
+	public void setEndpointID(int endpointID) {
+		this.endpointID = endpointID;
 	}
-	
+
+	public String getSituationName() {
+		return situationName;
+	}
+
+	public void setSituationName(String situationName) {
+		this.situationName = situationName;
+	}
+
+	public String getObjectName() {
+		return objectName;
+	}
+
+	public void setObjectName(String objectName) {
+		this.objectName = objectName;
+	}
+
+	public String getOperationName() {
+		return operationName;
+	}
+
+	public void setOperationName(String operationName) {
+		this.operationName = operationName;
+	}
+
+	public String getQualifier() {
+		return qualifier;
+	}
+
+	public void setQualifier(String qualifier) {
+		this.qualifier = qualifier;
+	}
+
+	@Override
+	public String toString() {
+
+		return "[" + endpointID + " | " + situationName + " | " + objectName
+				+ " | " + operationName + " | " + qualifier + " | "
+				+ endpointURL.toString() + "]";
+	}
+
 }

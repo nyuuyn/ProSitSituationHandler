@@ -2,33 +2,33 @@ package situationHandling.storage;
 
 public class Situation {
 
-	private String situation;
-	private String object;
+	private String situationName;
+	private String objectName;
 
 	public Situation() {
 		super();
 	}
 
-	public Situation(String situation, String object) {
+	public Situation(String situationName, String objectName) {
 		super();
-		this.situation = situation;
-		this.object = object;
+		this.situationName = situationName;
+		this.objectName = objectName;
 	}
 
-	public String getSituation() {
-		return situation;
+	public String getSituationName() {
+		return situationName;
 	}
 
-	public void setSituation(String situation) {
-		this.situation = situation;
+	public void setSituationName(String situationName) {
+		this.situationName = situationName;
 	}
 
-	public String getObject() {
-		return object;
+	public String getObjectName() {
+		return objectName;
 	}
 
-	public void setObject(String object) {
-		this.object = object;
+	public void setObjectName(String objectName) {
+		this.objectName = objectName;
 	}
 
 }
