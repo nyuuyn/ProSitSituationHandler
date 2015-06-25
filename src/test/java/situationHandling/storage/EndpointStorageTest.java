@@ -4,12 +4,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 
-import situationHandling.storage.EndpointStorageAccess;
-import situationHandling.storage.Operation;
-import situationHandling.storage.Situation;
-import situationHandling.storage.StorageAccessFactory;
+import situationHandling.storage.datatypes.Operation;
+import situationHandling.storage.datatypes.Situation;
 
-public class StorageTest {
+public class EndpointStorageTest {
 
 	public static void main(String[] args) {
 

@@ -3,6 +3,10 @@ package situationHandling.storage;
 import java.net.URL;
 import java.util.List;
 
+import situationHandling.storage.datatypes.Endpoint;
+import situationHandling.storage.datatypes.Operation;
+import situationHandling.storage.datatypes.Situation;
+
 public interface EndpointStorageAccess {
 
 	public URL getEndpointURL(Situation situation, Operation operation);

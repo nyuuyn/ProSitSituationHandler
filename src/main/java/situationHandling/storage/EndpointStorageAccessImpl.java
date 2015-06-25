@@ -5,12 +5,15 @@ import java.net.URL;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.UUID;
 
 import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+
+import situationHandling.storage.datatypes.Endpoint;
+import situationHandling.storage.datatypes.Operation;
+import situationHandling.storage.datatypes.Situation;
 
 class EndpointStorageAccessImpl implements EndpointStorageAccess {
 

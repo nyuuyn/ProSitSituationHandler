@@ -1,57 +1,42 @@
 package situationHandling.storage;
 
-import java.util.LinkedList;
+import java.util.HashMap;
 import java.util.List;
 
-import org.apache.commons.collections4.map.MultiKeyMap;
+import situationHandling.storage.datatypes.Action;
+import situationHandling.storage.datatypes.Situation;
 
-//TODO: 1. DummyAction oder das richtige erstetzen
-//TODO: 2. Sicherstellen, dass das mit dem Remove usw. auch so geht (Oberflaeche!) --> eine Action muss eindeutig identifizierbar sein
+public class RuleStorageAccessImpl implements RuleStorageAccess {
 
-public class RuleStorageAccessImpl {
-
-	private MultiKeyMap<String, LinkedList<DummyAction>> storage;
-
-	public RuleStorageAccessImpl() {
-		storage = new MultiKeyMap<String, LinkedList<DummyAction>>();
-
+	@Override
+	public int addAction(Situation situation, Action action) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
-	// TODO: Weitere Params benoetigt, z.B. fuer SituationHandling abhaengig von
-	// Situation
-	public void addRule(String situation, String situationObject,
-			DummyAction action) {
-
-		LinkedList<DummyAction> actions;
-		if (storage.containsKey(situation, situationObject)) {
-			actions = storage.get(situation, situationObject);
-		} else {
-			actions = new LinkedList<DummyAction>();
-		}
-
-		actions.add(action);
-
-		storage.put(situation, situationObject, actions);
-
+	@Override
+	public boolean removeAction(Situation situation, int id) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
-	public List<DummyAction> getActionsForSituation(String situation,
-			String situationObject) {
-		if (storage.containsKey(situation, situationObject)) {
-			return storage.get(situation, situationObject);
-		} else {
-			return new LinkedList<DummyAction>();
-		}
-
+	@Override
+	public boolean updateAction(int actionID, String pluginID, String address,
+			String message, HashMap<String, String> params) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
-	public boolean removeAction(String situation, String situationObject,
-			DummyAction action) {
-		LinkedList<DummyAction> actions = storage.get(situation,
-				situationObject);
-		return actions.remove(action);
+	@Override
+	public List<Action> getActionsBySituation(Situation situation) {
+		// TODO Auto-generated method stub
+		return null;
 	}
-	
 
+	@Override
+	public List<Action> getAllActions() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

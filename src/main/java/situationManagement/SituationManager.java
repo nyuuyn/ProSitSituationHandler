@@ -2,7 +2,7 @@ package situationManagement;
 
 import java.util.List;
 
-import situationHandling.storage.Situation;
+import situationHandling.storage.datatypes.Situation;
 
 public interface SituationManager {
 	

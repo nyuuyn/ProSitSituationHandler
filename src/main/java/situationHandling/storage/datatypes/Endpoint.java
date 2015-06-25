@@ -1,4 +1,4 @@
-package situationHandling.storage;
+package situationHandling.storage.datatypes;
 
 import javax.persistence.*;
 
