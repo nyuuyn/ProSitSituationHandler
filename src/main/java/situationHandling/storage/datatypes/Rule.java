@@ -1,5 +1,7 @@
 package situationHandling.storage.datatypes;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -8,8 +10,16 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "rules")
-public class Rule {
+public class Rule implements Serializable {
 	
+
+	/**
+	 * Generated..
+	 */
+	private static final long serialVersionUID = -7865851304591856361L;
+
+	
+	//Das mit dem Composite Key hier nochmal überdenken...--> vielleicht kann man auch einfach einen combined Key als Foreign key nehmen?
 	@Id
 	@Column(name = "situation_name")
 	private String situationName;

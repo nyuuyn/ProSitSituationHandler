@@ -27,7 +27,7 @@ class HibernateUtil {
 		configuration.configure();
 		configuration.addAnnotatedClass(Endpoint.class);
 		configuration.addAnnotatedClass(Rule.class);
-		configuration.addAnnotatedClass(Action.class);
+	//	configuration.addAnnotatedClass(Action.class);
 
 		serviceRegistry = new StandardServiceRegistryBuilder().applySettings(
 				configuration.getProperties()).build();
