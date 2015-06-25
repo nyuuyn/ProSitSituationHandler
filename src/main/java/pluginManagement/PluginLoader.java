@@ -16,7 +16,6 @@ import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.jar.JarFile;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;

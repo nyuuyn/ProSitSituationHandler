@@ -1,14 +1,5 @@
 package routes;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-
-import javax.xml.soap.MessageFactory;
-import javax.xml.soap.SOAPException;
-import javax.xml.soap.SOAPMessage;
-
 import org.apache.camel.builder.RouteBuilder;
 
 import situationHandling.SituationHandlerImpl;

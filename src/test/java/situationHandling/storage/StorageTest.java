@@ -1,4 +1,4 @@
-package test.situationHandling.storage;
+package situationHandling.storage;
 
 import java.net.MalformedURLException;
 import java.net.URL;

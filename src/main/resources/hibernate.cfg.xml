@@ -27,7 +27,7 @@
 		<property name="format_sql">true</property>
 
 		<!-- List of XML mapping files -->
-		<mapping resource="src/situationHandling/storage/Endpoint.hbm.xml" />
+		<mapping resource="src/main/resources/situationHandling/storage/Endpoint.hbm.xml" />
 
 	</session-factory>
 </hibernate-configuration>

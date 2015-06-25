@@ -1,4 +1,4 @@
-package test.plugin;
+package pluginManagement;
 
 import java.util.Map;
 
