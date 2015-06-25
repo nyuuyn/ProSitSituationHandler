@@ -15,15 +15,15 @@ import org.apache.camel.impl.DefaultProducerTemplate;
 import pluginManagement.PluginManager;
 import pluginManagement.PluginManagerFactory;
 import situationHandler.plugin.PluginParams;
-import situationHandling.storage.RuleStorage;
-import situationManagement.Situation;
+import situationHandling.storage.RuleStorageAccessImpl;
+import situationHandling.storage.Situation;
 
 //TODO: Irgendwie ist das hier relativ scheisse --> durch das Public wird das Vorgehen mit der Factory usw aufgebrochen. Allerdings ist das noetig, um Situationen mit Camel zu handhaben. Alternativ koennte man hier auch zwei Klassen erstellen und das Pattern nur fuer eine aufbrechen. Zudem koennte man das geanze statische Zeug aufbrechen und die Objekte mit Spring injecten
 
 public class SituationHandlerImpl extends RouteBuilder implements
 		SituationHandler {
 
-	private static RuleStorage ruleStorage = new RuleStorage();;
+	private static RuleStorageAccessImpl ruleStorage = new RuleStorageAccessImpl();;
 
 	private static ExecutorService threadExecutor = Executors
 			.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
@@ -32,7 +32,7 @@ public class SituationHandlerImpl extends RouteBuilder implements
 
 	}
 
-	public RuleStorage getRuleStorage() {
+	public RuleStorageAccessImpl getRuleStorage() {
 		return ruleStorage;
 	}
 
@@ -74,7 +74,7 @@ public class SituationHandlerImpl extends RouteBuilder implements
 			// body, String.class);
 			// exchange.getIn().setBody(ret, String.class);
 
-			PluginManager pm = PluginManagerFactory.getManager();
+			PluginManager pm = PluginManagerFactory.getPluginManager();
 			PluginParams params = new PluginParams();
 
 			params.setParam("Http method", "POST");

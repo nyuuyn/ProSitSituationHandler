@@ -10,7 +10,7 @@ public class Tester {
 
 	public static void main(String[] args) {
 
-		PluginManager pm = PluginManagerFactory.getManager();
+		PluginManager pm = PluginManagerFactory.getPluginManager();
 
 		PluginParams params = new PluginParams();
 

@@ -8,11 +8,11 @@ import org.apache.commons.collections4.map.MultiKeyMap;
 //TODO: 1. DummyAction oder das richtige erstetzen
 //TODO: 2. Sicherstellen, dass das mit dem Remove usw. auch so geht (Oberflaeche!) --> eine Action muss eindeutig identifizierbar sein
 
-public class RuleStorage {
+public class RuleStorageAccessImpl {
 
 	private MultiKeyMap<String, LinkedList<DummyAction>> storage;
 
-	public RuleStorage() {
+	public RuleStorageAccessImpl() {
 		storage = new MultiKeyMap<String, LinkedList<DummyAction>>();
 
 	}

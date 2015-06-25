@@ -1,8 +1,7 @@
 package situationHandling.storage;
 
-import situationManagement.Situation;
 
-public interface SituationStorageAccess {
+public interface RuleStorageAccess {
 	
 	//TODO: Return Typen und Parameter richtig!
 	

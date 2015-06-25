@@ -2,7 +2,7 @@ package situationHandling;
 
 import org.apache.camel.Exchange;
 
-import situationManagement.Situation;
+import situationHandling.storage.Situation;
 
 public interface SituationHandler {
 	
