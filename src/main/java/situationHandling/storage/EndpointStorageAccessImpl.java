@@ -63,7 +63,6 @@ class EndpointStorageAccessImpl implements EndpointStorageAccess {
 		return endpointurl;
 	}
 
-	
 	@Override
 	public List<Endpoint> getAllEndpoints() {
 		logger.debug("Getting all Endpoints");
@@ -79,8 +78,7 @@ class EndpointStorageAccessImpl implements EndpointStorageAccess {
 
 			@SuppressWarnings("rawtypes")
 			Iterator it = queryResults.iterator();
-			
-			
+
 			while (it.hasNext()) {
 				endpoints.add((Endpoint) it.next());
 			}
@@ -124,14 +122,61 @@ class EndpointStorageAccessImpl implements EndpointStorageAccess {
 	}
 
 	@Override
-	public boolean removeEndpoint(int endpointID) {
-		return false;
+	public boolean deleteEndpoint(int endpointID) {
+		logger.debug("Deleting endpoint: " + endpointID);
+		Session session = HibernateUtil.getSessionFactory().openSession();
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
+			Endpoint endpoint = (Endpoint) session.get(Endpoint.class,
+					endpointID);
+			session.delete(endpoint);
+			tx.commit();
+		} catch (HibernateException e) {
+			if (tx != null)
+				tx.rollback();
+			e.printStackTrace();
+			return false;
+		} finally {
+			session.close();
+		}
+		return true;
 	}
 
 	@Override
 	public boolean updateEndpoint(int endpointID, Situation situation,
-			Operation operation, URL endpoint) {
-		return false;
+			Operation operation, URL endpointURL) {
+		
+		logger.debug("Updating endpoint: " + endpointID);
+		Session session = HibernateUtil.getSessionFactory().openSession();
+
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
+			Endpoint endpoint = (Endpoint) session.get(Endpoint.class,
+					endpointID);
+			if (situation != null){
+				endpoint.setSituation(situation);
+				
+			}
+			if(operation != null){
+				endpoint.setOperation(operation);
+			}
+			if (endpointURL != null){
+				endpoint.setEndpointURL(endpointURL.toString());
+			}
+			session.update(endpoint);
+			
+			tx.commit();
+		} catch (HibernateException e) {
+			if (tx != null)
+				tx.rollback();
+			e.printStackTrace();
+			return false;
+		} finally {
+			session.close();
+		}
+		return true;
 	}
 
 	private String addTicks(String param) {

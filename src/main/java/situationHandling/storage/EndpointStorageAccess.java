@@ -11,8 +11,8 @@ public interface EndpointStorageAccess {
 
 	public int addEndpoint(Operation operation, Situation situation, URL endpointURL);
 
-	public boolean removeEndpoint(int endpointID);
+	public boolean deleteEndpoint(int endpointID);
 
 	public boolean updateEndpoint(int endpointID, Situation situation,
-			Operation operation, URL endpoint);
+			Operation operation, URL endpointURL);
 }
