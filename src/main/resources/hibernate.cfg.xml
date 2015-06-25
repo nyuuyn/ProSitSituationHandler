@@ -25,8 +25,5 @@
 		<!-- Display and format all executed SQL to stdout -->
 		<!-- <property name="show_sql">true</property> <property name="format_sql">true</property> -->
 
-		<!-- List of XML mapping files -->
-		<mapping resource="situationHandling/storage/Endpoint.hbm.xml" />
-
 	</session-factory>
 </hibernate-configuration>

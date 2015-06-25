@@ -20,6 +20,7 @@ class HibernateUtil {
 
 		Configuration configuration = new Configuration();
 		configuration.configure();
+		configuration.addAnnotatedClass(Endpoint.class);
 
 		serviceRegistry = new StandardServiceRegistryBuilder().applySettings(
 				configuration.getProperties()).build();

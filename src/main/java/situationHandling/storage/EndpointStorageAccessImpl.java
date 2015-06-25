@@ -30,14 +30,16 @@ class EndpointStorageAccessImpl implements EndpointStorageAccess {
 			tx = session.beginTransaction();
 
 			@SuppressWarnings("rawtypes")
-			List endpoints = session.createSQLQuery(
-					"SELECT endpoint_url FROM endpoints WHERE situation_name =  "
-							+ addTicks(situation.getSituationName())
-							+ " AND object_name =  "
+
+
+			List endpoints = session.createQuery(
+					"SELECT E.endpointURL FROM Endpoint E WHERE E.situationName =  "
+							+addTicks(situation.getSituationName())
+							+ " AND E.objectName =  "
 							+ addTicks(situation.getObjectName())
-							+ " AND operation_name = "
+							+ " AND E.operationName = "
 							+ addTicks(operation.getOperationName())
-							+ " AND qualifier = "
+							+ " AND E.qualifier = "
 							+ addTicks(operation.getQualifier())).list();
 
 			if (endpoints.size() == 0) {

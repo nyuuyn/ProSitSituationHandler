@@ -1,23 +1,34 @@
 package situationHandling.storage;
 
+import javax.persistence.*;
 
+@Entity
+@Table(name = "endpoints")
 public class Endpoint {
 
-
+	@Id
+	@GeneratedValue
+	@Column(name = "id")
 	private int endpointID;
 
 	// situation
+	@Column(name = "situation_name")
 	private String situationName;
-	private String objectName;
+
+	@Column(name = "object_name")
+private String objectName;
 
 	// operation
+	@Column(name = "operation_name")
 	private String operationName;
+	@Column(name = "qualifier")
 	private String qualifier;
-
+	
+	@Column(name = "endpoint_URL")
 	private String endpointURL;
 
-	public Endpoint(String endpointURL, String situationName, String objectName,
-			String operationName, String qualifier) {
+	public Endpoint(String endpointURL, String situationName,
+			String objectName, String operationName, String qualifier) {
 		this.endpointURL = endpointURL;
 		this.situationName = situationName;
 		this.objectName = objectName;
