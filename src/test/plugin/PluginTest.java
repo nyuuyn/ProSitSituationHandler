@@ -6,7 +6,7 @@ import pluginManagement.PluginManager;
 import pluginManagement.PluginManagerFactory;
 import situationHandler.plugin.PluginParams;
 
-public class Tester {
+public class PluginTest {
 
 	public static void main(String[] args) {
 

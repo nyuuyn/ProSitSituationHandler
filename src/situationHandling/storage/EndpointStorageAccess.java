@@ -10,7 +10,7 @@ public interface EndpointStorageAccess {
 	
 	public List<Endpoint> getAllEndpoints ();
 
-	public UUID addEndpoint(Endpoint endpoint);
+	public int addEndpoint(Operation operation, Situation situation, URL endpointURL);
 
 	public boolean removeEndpoint(UUID endpointID);
 

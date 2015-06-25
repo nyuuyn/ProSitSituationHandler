@@ -4,6 +4,10 @@ import java.net.URL;
 import java.util.List;
 import java.util.UUID;
 
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+
 class EndpointStorageAccessImpl implements EndpointStorageAccess {
 
 	EndpointStorageAccessImpl() {
@@ -20,8 +24,24 @@ class EndpointStorageAccessImpl implements EndpointStorageAccess {
 	}
 
 	@Override
-	public UUID addEndpoint(Endpoint endpoint) {
-		return null;
+	public int addEndpoint(Operation operation, Situation situation, URL endpointURL) {
+		Session session = DatabaseSession.factory.openSession();
+		
+	      Transaction tx = null;
+	      Integer endpointID = null;
+	      try{
+	         tx = session.beginTransaction();
+	         Endpoint endpoint = new Endpoint(endpointURL.toString(), situation, operation);
+	         endpointID = (Integer) session.save(endpoint); 
+	         tx.commit();
+	      }catch (HibernateException e) {
+	         if (tx!=null) tx.rollback();
+	         e.printStackTrace(); 
+	      }finally {
+	         session.close(); 
+	      }
+	      return endpointID;
+		
 	}
 
 	@Override

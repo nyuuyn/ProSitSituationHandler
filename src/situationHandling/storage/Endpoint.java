@@ -1,19 +1,10 @@
 package situationHandling.storage;
 
-import java.net.URL;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
 
-@Entity
-@Table
 public class Endpoint {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+
 	private int endpointID;
 
 	// situation
@@ -24,9 +15,9 @@ public class Endpoint {
 	private String operationName;
 	private String qualifier;
 
-	private URL endpointURL;
+	private String endpointURL;
 
-	public Endpoint(URL endpointURL, String situationName, String objectName,
+	public Endpoint(String endpointURL, String situationName, String objectName,
 			String operationName, String qualifier) {
 		this.endpointURL = endpointURL;
 		this.situationName = situationName;
@@ -35,7 +26,7 @@ public class Endpoint {
 		this.qualifier = qualifier;
 	}
 
-	public Endpoint(URL endpointURL, Situation situation, Operation operation) {
+	public Endpoint(String endpointURL, Situation situation, Operation operation) {
 		this.endpointURL = endpointURL;
 
 		this.situationName = situation.getSituationName();
@@ -50,11 +41,11 @@ public class Endpoint {
 		super();
 	}
 
-	public URL getEndpointURL() {
+	public String getEndpointURL() {
 		return endpointURL;
 	}
 
-	public void setEndpointURL(URL endpointURL) {
+	public void setEndpointURL(String endpointURL) {
 		this.endpointURL = endpointURL;
 	}
 
