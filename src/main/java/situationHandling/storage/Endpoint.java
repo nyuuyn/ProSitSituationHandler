@@ -1,7 +1,6 @@
 package situationHandling.storage;
 
 
-
 public class Endpoint {
 
 

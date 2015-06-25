@@ -23,7 +23,7 @@ import org.apache.log4j.Logger;
 import situationHandler.plugin.Plugin;
 
 class PluginLoader {
-	final static Logger logger = Logger.getLogger(PluginLoader.class);
+	private final static Logger logger = Logger.getLogger(PluginLoader.class);
 
 	private static final String PLUGIN_FOLDER = "plugins";
 

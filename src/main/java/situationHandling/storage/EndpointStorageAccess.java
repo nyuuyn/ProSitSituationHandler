@@ -2,7 +2,6 @@ package situationHandling.storage;
 
 import java.net.URL;
 import java.util.List;
-import java.util.UUID;
 
 public interface EndpointStorageAccess {
 
@@ -12,8 +11,8 @@ public interface EndpointStorageAccess {
 
 	public int addEndpoint(Operation operation, Situation situation, URL endpointURL);
 
-	public boolean removeEndpoint(UUID endpointID);
+	public boolean removeEndpoint(int endpointID);
 
-	public boolean updateEndpoint(UUID endpointID, Situation situation,
+	public boolean updateEndpoint(int endpointID, Situation situation,
 			Operation operation, URL endpoint);
 }

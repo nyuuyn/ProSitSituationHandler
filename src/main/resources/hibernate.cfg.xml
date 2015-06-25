@@ -13,7 +13,7 @@
 
 		<!-- Assume test is the database name -->
 		<property name="hibernate.connection.url">
-			jdbc:mysql://localhost::3306/situationhandlerdb
+			jdbc:mysql://localhost:3306/situationhandlerdb
 		</property>
 		<property name="hibernate.connection.username">
 			root
@@ -23,11 +23,10 @@
 		</property>
 
 		<!-- Display and format all executed SQL to stdout -->
-		<property name="show_sql">true</property>
-		<property name="format_sql">true</property>
+		<!-- <property name="show_sql">true</property> <property name="format_sql">true</property> -->
 
 		<!-- List of XML mapping files -->
-		<mapping resource="src/main/resources/situationHandling/storage/Endpoint.hbm.xml" />
+		<mapping resource="situationHandling/storage/Endpoint.hbm.xml" />
 
 	</session-factory>
 </hibernate-configuration>

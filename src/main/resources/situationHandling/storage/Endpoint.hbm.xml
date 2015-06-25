@@ -4,7 +4,7 @@
  "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd"> 
 
 <hibernate-mapping>
-   <class name="Endpoint" table="endpoints">
+   <class name="situationHandling.storage.Endpoint" table="endpoints">
       <meta attribute="class-description">
          Class that contains information about endpoints.
       </meta>
