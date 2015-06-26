@@ -20,29 +20,28 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 			.getLogger(RuleStorageAccess.class);
 
 	@Override
-	public int addAction(Situation situation, Action action) {
+	public int addRule(Situation situation, List<Action> actions) {
 		logger.debug("Adding rule and action.");
 
 		Session session = HibernateUtil.getSessionFactory().openSession();
 
 		Transaction tx = null;
 		Integer ruleID = null;
-		Integer actionID = null;
 		try {
 			tx = session.beginTransaction();
 
 			Rule rule = getRuleBySituation(situation);
 			if (rule == null) {
-				rule = new Rule(situation);
-				rule.addAction(action);
+				rule = new Rule(situation, actions);
 				System.out.println("RuleID: " + (Integer) session.save(rule));
-			} else{		
-				rule.addAction(action);
+			} else {
+				for (Action action : actions) {
+					rule.addAction(action);
+				}
 				System.out.println("Update");
 				session.update(rule);
 			}
 			ruleID = rule.getId();
-			actionID = action.getId();
 
 			tx.commit();
 		} catch (HibernateException e) {
@@ -53,13 +52,26 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 			session.close();
 		}
 		logger.debug("Rule added. ID = " + ruleID);
-		logger.debug("Action added. ID = " + actionID);
+		actions.forEach(action -> logger.debug("Action added. ID = "
+				+ action.getId()));
 
-		return actionID;
+		return ruleID;
 	}
 
 	@Override
-	public boolean removeAction(Situation situation, int id) {
+	public int addAction(int ruleID, Action action) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public boolean removeAction(int ruleID, int ActionID) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean removeRule(int ruleID) {
 		// TODO Auto-generated method stub
 		return false;
 	}
@@ -72,17 +84,29 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 	}
 
 	@Override
+	public boolean updateRule(int ruleID, String situationName,
+			String objectName, List<Action> actions) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public List<Rule> getAllRules() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
 	public List<Action> getActionsBySituation(Situation situation) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public List<Action> getAllActions() {
+	public List<Action> getActionsByRuleID(int ruleID) {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
 
 	private Rule getRuleBySituation(Situation situation) {
 		Session session = HibernateUtil.getSessionFactory().openSession();
@@ -107,7 +131,7 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 			if (rules.size() == 1) {
 				rule = (Rule) rules.iterator().next();
 				Hibernate.initialize(rule.getActions());
-				
+
 			}
 			tx.commit();
 		} catch (HibernateException e) {

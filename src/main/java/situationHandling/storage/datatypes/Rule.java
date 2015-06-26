@@ -42,10 +42,10 @@ public class Rule {
 		this.objectName = objectName;
 	}
 
-	public Rule(String situationName, String objectName,
-			LinkedList<Action> actions) {
-		this.situationName = situationName;
-		this.objectName = objectName;
+	public Rule(Situation situation,
+			List<Action> actions) {
+		this.situationName = situation.getSituationName();
+		this.objectName = situation.getObjectName();
 		this.actions = actions;
 	}
 
