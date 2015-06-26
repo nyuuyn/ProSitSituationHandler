@@ -31,9 +31,6 @@ public class Action {
 	@Column(name = "message")
 	private String message;
 
-//	@Column(name = "rule_id")
-//	private int ruleID;
-
 
 	@ElementCollection
 	@MapKeyColumn (name = "name")
@@ -85,14 +82,6 @@ public class Action {
 		this.message = message;
 	}
 
-//	public int getRuleID() {
-//		return ruleID;
-//		asdgasgsag
-//	}
-//
-//	public void setRuleID(int ruleID) {
-//		this.ruleID = ruleID;
-//	}
 
 	public Map<String, String> getParams() {
 		return params;

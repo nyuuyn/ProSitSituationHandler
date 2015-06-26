@@ -12,9 +12,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-
 @Entity
 @Table(name = "rules")
 public class Rule {
@@ -31,7 +28,6 @@ public class Rule {
 	@Column(name = "object_name")
 	private String objectName;
 
-	// TODO: Hier many to one einfügen mit Actions?
 
 	@OneToMany (cascade=CascadeType.ALL)
 	@JoinColumn(name = "rule_id")
