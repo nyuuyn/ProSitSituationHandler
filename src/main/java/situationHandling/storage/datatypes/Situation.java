@@ -31,4 +31,11 @@ public class Situation {
 		this.objectName = objectName;
 	}
 
+	@Override
+	public String toString() {
+		return "Situation [situationName=" + situationName + ", objectName="
+				+ objectName + "]";
+	}
+
+	
 }

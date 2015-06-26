@@ -34,7 +34,6 @@ class EndpointStorageAccessImpl implements EndpointStorageAccess {
 
 			@SuppressWarnings("rawtypes")
 
-
 			List endpoints = session.createQuery(
 					"SELECT E.endpointURL FROM Endpoint E WHERE E.situationName =  "
 							+addTicks(situation.getSituationName())

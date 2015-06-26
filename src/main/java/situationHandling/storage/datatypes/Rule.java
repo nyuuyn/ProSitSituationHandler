@@ -21,15 +21,13 @@ public class Rule {
 	@Column(name = "id")
 	private int id;
 
-
 	@Column(name = "situation_name")
 	private String situationName;
 
 	@Column(name = "object_name")
 	private String objectName;
 
-
-	@OneToMany (cascade=CascadeType.ALL)
+	@OneToMany(cascade = CascadeType.ALL)
 	@JoinColumn(name = "rule_id")
 	private List<Action> actions = new LinkedList<>();
 
@@ -42,8 +40,7 @@ public class Rule {
 		this.objectName = objectName;
 	}
 
-	public Rule(Situation situation,
-			List<Action> actions) {
+	public Rule(Situation situation, List<Action> actions) {
 		this.situationName = situation.getSituationName();
 		this.objectName = situation.getObjectName();
 		this.actions = actions;
@@ -94,9 +91,26 @@ public class Rule {
 	public void setActions(List<Action> actions) {
 		this.actions = actions;
 	}
-	
-	public void addAction (Action action){
+
+	public void addAction(Action action) {
 		this.actions.add(action);
+	}
+
+	@Override
+	public String toString() {
+
+		StringBuilder sb = new StringBuilder();
+		sb.append("---------------------------------------------%n");
+		sb.append("---------------------------------------------%n");
+		sb.append("Rule: [id=" + id + ", situationName=" + situationName
+				+ ", objectName=" + objectName + ", actions: ");
+
+		for (Action action : actions) {
+			sb.append("%n-------------------------------------%n");
+			sb.append(action.toString());
+		}
+		sb.append("%n---------------------------------------------");
+		return String.format(sb.toString());
 	}
 
 }

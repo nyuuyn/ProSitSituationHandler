@@ -31,7 +31,7 @@ public class Action {
 	@Column(name = "message")
 	private String message;
 
-
+	
 	@ElementCollection
 	@MapKeyColumn (name = "name")
 	@Column (name = "value")
@@ -87,8 +87,20 @@ public class Action {
 		return params;
 	}
 
-	public void setParams(HashMap<String, String> params) {
+	public void setParams(Map<String, String> params) {
 		this.params = params;
 	}
+
+	@Override
+	public String toString() {
+		return "Action [id=" + id + ", pluginID=" + pluginID + ", address="
+				+ address + ", message=" + message + ", params=" + params + "]";
+	}
+	
+	
+
+
+	
+	
 
 }
