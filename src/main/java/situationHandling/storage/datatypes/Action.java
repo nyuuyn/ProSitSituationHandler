@@ -1,22 +1,45 @@
 package situationHandling.storage.datatypes;
 
 import java.util.HashMap;
+import java.util.Map;
 
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.MapKeyColumn;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "actions")
 public class Action {
 
+	@Id
+	@GeneratedValue
+	@Column(name = "id")
 	private int id;
+
+	@Column(name = "plugin_id")
 	private String pluginID;
+
+	@Column(name = "address")
 	private String address;
+
+	@Column(name = "message")
 	private String message;
 
-	private int ruleID;
+//	@Column(name = "rule_id")
+//	private int ruleID;
 
-	private HashMap<String, String> params;
+
+	@ElementCollection
+	@MapKeyColumn (name = "name")
+	@Column (name = "value")
+	@CollectionTable(name = "parameters", joinColumns=@JoinColumn(name="action_id"))
+	private Map<String, String> params = new HashMap<String, String>();
 
 	public Action() {
 		super();
@@ -62,15 +85,16 @@ public class Action {
 		this.message = message;
 	}
 
-	public int getRuleID() {
-		return ruleID;
-	}
+//	public int getRuleID() {
+//		return ruleID;
+//		asdgasgsag
+//	}
+//
+//	public void setRuleID(int ruleID) {
+//		this.ruleID = ruleID;
+//	}
 
-	public void setRuleID(int ruleID) {
-		this.ruleID = ruleID;
-	}
-
-	public HashMap<String, String> getParams() {
+	public Map<String, String> getParams() {
 		return params;
 	}
 

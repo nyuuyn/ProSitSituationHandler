@@ -1,6 +1,7 @@
 package situationHandling.storage;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import situationHandling.storage.datatypes.Action;
 import situationHandling.storage.datatypes.Situation;
@@ -15,11 +16,18 @@ public class RuleStorageTest {
 		
 		ArrayList<Integer> ids = new ArrayList<>();
 		
-		Action action= null;
+		HashMap <String, String> params = new HashMap<>();
+		params.put("param1", "value1");
+		params.put("param2", "value2");
+		params.put("param3", "value3");
+		Action action= new Action("ExamplePlugin", "ExampleAddress", "ExampleMessage", params);
 		Situation situation = new Situation("situation1", "object1");
+
 		
-		ids.add(rsa.addAction(situation, action));
+		rsa.addAction(situation, action);
+//		ids.add(rsa.addAction(situation, action));
 		
+		System.exit(0);
 
 		
 	}

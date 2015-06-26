@@ -24,7 +24,7 @@ private String objectName;
 	@Column(name = "qualifier")
 	private String qualifier;
 	
-	@Column(name = "endpoint_URL")
+	@Column(name = "endpoint_url")
 	private String endpointURL;
 
 	public Endpoint(String endpointURL, String situationName,

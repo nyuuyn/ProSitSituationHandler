@@ -69,5 +69,6 @@ public class EndpointStorageTest {
 		System.out.println("List after delete:");
 		esa.getAllEndpoints().forEach(ep -> System.out.println(ep.toString()));
 		
+		System.exit(0);
 	}
 }

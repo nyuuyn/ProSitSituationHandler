@@ -15,11 +15,10 @@ class HibernateUtil {
 	// TODO: die Service Registry sollte man beim shutdown wohl irgendwie
 	// zerstören
 	// http://stackoverflow.com/questions/21645516/program-using-hibernate-does-not-terminate
-	//TODO: Das hier wegschmeissen und stattdessen Spring benutzen?
+	// TODO: Das hier wegschmeissen und stattdessen Spring benutzen?
 	private static SessionFactory factory;
 	private static ServiceRegistry serviceRegistry;
-	private final static Logger logger = Logger
-			.getLogger(HibernateUtil.class);
+	private final static Logger logger = Logger.getLogger(HibernateUtil.class);
 
 	static {
 
@@ -27,7 +26,7 @@ class HibernateUtil {
 		configuration.configure();
 		configuration.addAnnotatedClass(Endpoint.class);
 		configuration.addAnnotatedClass(Rule.class);
-	//	configuration.addAnnotatedClass(Action.class);
+		configuration.addAnnotatedClass(Action.class);
 
 		serviceRegistry = new StandardServiceRegistryBuilder().applySettings(
 				configuration.getProperties()).build();
@@ -41,10 +40,9 @@ class HibernateUtil {
 
 		logger.info("Hibernate session factory started.");
 	}
-	
-	static SessionFactory getSessionFactory(){
+
+	static SessionFactory getSessionFactory() {
 		return factory;
 	}
-	
 
 }
