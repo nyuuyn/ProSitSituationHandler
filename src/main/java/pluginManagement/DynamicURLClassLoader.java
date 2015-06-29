@@ -5,36 +5,48 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.net.URLStreamHandlerFactory;
 import java.util.jar.JarFile;
 
+/**
+ * The Class DynamicURLClassLoader is an extension of {@link URLClassLoader}. It
+ * does exactly the same, but allows to dynamically add urls.
+ */
 class DynamicURLClassLoader extends URLClassLoader {
 
+	/**
+	 * Instantiates a new dynamic url class loader, loading jars from the
+	 * specified URLs.
+	 * <p>
+	 * Does the same than {@link URLClassLoader#URLClassLoader(URL[])}
+	 *
+	 * @param urls
+	 *            the urls to load.
+	 */
 	DynamicURLClassLoader(URL[] urls) {
 		super(urls);
 
 	}
 
-	DynamicURLClassLoader(URL[] urls, ClassLoader parent) {
-		super(urls, parent);
-		// TODO Auto-generated constructor stub
-	}
 
-	DynamicURLClassLoader(URL[] urls, ClassLoader parent,
-			URLStreamHandlerFactory factory) {
-		super(urls, parent, factory);
-		// TODO Auto-generated constructor stub
-	}
-
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.net.URLClassLoader#addURL(java.net.URL)
+	 */
 	@Override
 	protected void addURL(URL url) {
 		super.addURL(url);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.net.URLClassLoader#close()
+	 */
 	@Override
 	public void close() throws IOException {
-		
-		for (URL url:getURLs()){
+
+		for (URL url : getURLs()) {
 			JarFile jar;
 			try {
 				File file = new File(url.toURI());
@@ -44,10 +56,8 @@ class DynamicURLClassLoader extends URLClassLoader {
 				e.printStackTrace();
 			}
 		}
-				
+
 		super.close();
 	}
-	
-
 
 }

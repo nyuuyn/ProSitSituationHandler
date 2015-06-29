@@ -22,21 +22,34 @@ import org.apache.log4j.Logger;
 
 import situationHandler.plugin.Plugin;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class PluginLoader.
+ */
 class PluginLoader {
+	
+	/** The Constant logger. */
 	private final static Logger logger = Logger.getLogger(PluginLoader.class);
 
+	/** The Constant PLUGIN_FOLDER. */
 	private static final String PLUGIN_FOLDER = "plugins";
 
+	/** The Constant RUNTIME_FOLDER. */
 	private static final String RUNTIME_FOLDER = "runtime";
 
+	/** The plugins. */
 	private HashMap<String, Plugin> plugins;
 
+	/** The plugin urls. */
 	private HashMap<String, URL> pluginUrls = new HashMap<>();
 
+	/** The to delete. */
 	private LinkedList<URL> toDelete = new LinkedList<>();
 
+	/** The service loader. */
 	private ServiceLoader<Plugin> serviceLoader;
 
+	/** The url class loader. */
 	private DynamicURLClassLoader urlClassLoader;
 
 	/**
@@ -54,6 +67,9 @@ class PluginLoader {
 		startDeleterService();
 	}
 
+	/**
+	 * Inits the loaders.
+	 */
 	private void initLoaders() {
 		urlClassLoader = new DynamicURLClassLoader(pluginUrls.values().toArray(
 				new URL[pluginUrls.values().size()]));
@@ -62,6 +78,9 @@ class PluginLoader {
 		updatePluginCache();
 	}
 
+	/**
+	 * Start deleter service.
+	 */
 	private void startDeleterService() {
 		ScheduledThreadPoolExecutor deleter = new ScheduledThreadPoolExecutor(1);
 		deleter.scheduleWithFixedDelay(new Runnable() {
@@ -95,15 +114,33 @@ class PluginLoader {
 
 	}
 
+	/**
+	 * Gets the plugin i ds.
+	 *
+	 * @return the plugin i ds
+	 */
 	Set<String> getPluginIDs() {
 		return plugins.keySet();
 
 	}
 
+	/**
+	 * Gets the plugin by id.
+	 *
+	 * @param pluginID the plugin id
+	 * @return the plugin by id
+	 */
 	Plugin getPluginByID(String pluginID) {
 		return plugins.get(pluginID);
 	}
 
+	/**
+	 * Adds the plugin.
+	 *
+	 * @param ID the id
+	 * @param path the path
+	 * @return true, if successful
+	 */
 	boolean addPlugin(String ID, String path) {
 		
 		if (plugins.containsKey(ID)){
@@ -134,6 +171,12 @@ class PluginLoader {
 
 	}
 
+	/**
+	 * Builds the target path.
+	 *
+	 * @param ID the id
+	 * @return the file
+	 */
 	private File buildTargetPath(String ID) {
 
 		String folderName = PLUGIN_FOLDER + File.separator + RUNTIME_FOLDER
@@ -150,6 +193,12 @@ class PluginLoader {
 
 	}
 
+	/**
+	 * Removes the plugin.
+	 *
+	 * @param ID the id
+	 * @return true, if successful
+	 */
 	boolean removePlugin(String ID) {
 		
 		if (!plugins.containsKey(ID)){
@@ -177,6 +226,9 @@ class PluginLoader {
 		return true;
 	}
 
+	/**
+	 * Update plugin cache.
+	 */
 	private void updatePluginCache() {
 		Iterator<Plugin> it = serviceLoader.iterator();
 		while (it.hasNext()) {
@@ -216,6 +268,9 @@ class PluginLoader {
 
 	}
 
+	/**
+	 * Clear runtime dir.
+	 */
 	private void clearRuntimeDir() {
 		File folder = new File(PLUGIN_FOLDER + File.separator + RUNTIME_FOLDER);
 
