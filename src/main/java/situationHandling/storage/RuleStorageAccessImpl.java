@@ -18,11 +18,13 @@ import situationHandling.storage.datatypes.Situation;
 
 /**
  * The Class RuleStorageAccessImpl provides the standard implementation for the
- * {@code Interface} {@link RuleStorageAccess}.
+ * {@code Interface} {@link RuleStorageAccess}. It uses a relational SQL
+ * database to store the rules. To access the database JPA 2.0/Hibernate is
+ * used.
  */
 class RuleStorageAccessImpl implements RuleStorageAccess {
 
-	/** The Constant logger. */
+	/** The logger for this class. */
 	private final static Logger logger = Logger
 			.getLogger(RuleStorageAccess.class);
 
@@ -44,11 +46,31 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 		try {
 			tx = session.beginTransaction();
 
-			Rule rule = getRuleBySituation(situation);
+			Rule rule = null;
+
+			@SuppressWarnings("rawtypes")
+			List rules = session
+					.createCriteria(Rule.class)
+					.add(Restrictions.eq("situationName",
+							situation.getSituationName()))
+					.add(Restrictions.eq("objectName",
+							situation.getObjectName())).list();
+
+			// there is a maximum of one result for this query, since the
+			// combination of situationName and objectName is unique in this
+			// DB table
+			if (rules.size() == 1) {
+				rule = (Rule) rules.iterator().next();
+				Hibernate.initialize(rule.getActions());
+
+			}
+
 			if (rule == null) {
 				rule = new Rule(situation, actions);
 				session.save(rule);
-			} else {
+			} 
+			//rule already exists. Append actions
+			else {
 				for (Action action : actions) {
 					rule.addAction(action);
 				}
@@ -102,7 +124,8 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 			logger.error("Hibernate error", e);
 			return -1;
 		} catch (NullPointerException e) {
-			logger.error("Rule not found", e);
+			logger.info("Rule with id " + ruleID
+					+ " not found. No action added.");
 			return -1;
 		} finally {
 			session.close();
@@ -257,16 +280,21 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 		try {
 			tx = session.beginTransaction();
 
+			// query for rule with old situation
 			@SuppressWarnings("rawtypes")
-			List rules = session.createQuery(
-					"FROM Rule R WHERE R.situationName =  '"
-							+ oldSituation.getSituationName()
-							+ "' AND R.objectName =  '"
-							+ oldSituation.getObjectName() + "'").list();
+			List rules = session
+					.createCriteria(Rule.class)
+					.add(Restrictions.eq("situationName",
+							oldSituation.getSituationName()))
+					.add(Restrictions.eq("objectName",
+							oldSituation.getObjectName())).list();
+			// there is one rule rule with this situation or none
 			if (rules.size() == 1) {
 				Rule rule = (Rule) rules.get(0);
 				rule.setSituation(newSituation);
 				session.update(rule);
+			} else {
+				return false;
 			}
 
 			tx.commit();
@@ -302,6 +330,7 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 			@SuppressWarnings("rawtypes")
 			Iterator it = queryResults.iterator();
 
+			// also load actions and params from database
 			while (it.hasNext()) {
 				Rule rule = (Rule) it.next();
 				Hibernate.initialize(rule.getActions());
@@ -338,17 +367,18 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 			tx = session.beginTransaction();
 
 			@SuppressWarnings("rawtypes")
-			List rules = session.createQuery(
-					"FROM Rule R WHERE R.situationName =  '"
-							+ situation.getSituationName()
-							+ "' AND R.objectName =  '"
-							+ situation.getObjectName() + "'").list();
+			List rules = session
+					.createCriteria(Rule.class)
+					.add(Restrictions.eq("situationName",
+							situation.getSituationName()))
+					.add(Restrictions.eq("objectName",
+							situation.getObjectName())).list();
 			if (rules.size() == 1) {
 				rule = (Rule) rules.get(0);
 			}
 
 			tx.commit();
-			return getRuleActions(rule, session);
+			return getInitializedRuleActions(rule, session);
 		} catch (HibernateException e) {
 			if (tx != null)
 				tx.rollback();
@@ -377,7 +407,7 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 			rule = (Rule) session.get(Rule.class, ruleID);
 
 			tx.commit();
-			return getRuleActions(rule, session);
+			return getInitializedRuleActions(rule, session);
 		} catch (HibernateException e) {
 			if (tx != null)
 				tx.rollback();
@@ -432,15 +462,18 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 	}
 
 	/**
-	 * Gets the rule actions.
-	 *
+	 * Helper method to load all actions of a rule and also their params from
+	 * the database, i.e. to fully initialize the rule.
+	 * 
 	 * @param rule
-	 *            the rule
+	 *            the rule that should be loaded
 	 * @param session
-	 *            the session
-	 * @return the rule actions
+	 *            the session is used to load the actions and params from the
+	 *            database. Use the same session that was used to load the rule
+	 *            from the database.
+	 * @return a list that contains the initialized actions
 	 */
-	private List<Action> getRuleActions(Rule rule, Session session) {
+	private List<Action> getInitializedRuleActions(Rule rule, Session session) {
 		Transaction tx = null;
 		List<Action> actions = new LinkedList<>();
 		try {

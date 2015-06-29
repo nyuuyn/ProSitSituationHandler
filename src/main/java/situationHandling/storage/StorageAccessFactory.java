@@ -1,11 +1,13 @@
 package situationHandling.storage;
 
-// TODO: Auto-generated Javadoc
 /**
  * 
- * Factory for accessing the different storages. Gives access to the Endpoint
- * Storage and to the Rule Storage.
- * 
+ * The class StorageAccessFactory is a Factory that creates instances of the
+ * classes that implement the interfaces for accessing the storages. The
+ * Interfaces give access to the Endpoint Storage and to the Rule Storage.
+ * <p>
+ * Using this class is the only way to create instances of the implementing
+ * classes, so its usage is required.
  * 
  * @author Stefan
  *
@@ -13,18 +15,20 @@ package situationHandling.storage;
 public class StorageAccessFactory {
 
 	/**
-	 * Gets the endpoint storage access.
+	 * Gets an instance of {@link EndpointStorageAccess} to access the endpoint
+	 * storage.
 	 *
-	 * @return the endpoint storage access
+	 * @return an instance of {@link EndpointStorageAccess}
 	 */
 	public static EndpointStorageAccess getEndpointStorageAccess() {
 		return new EndpointStorageAccessImpl();
 	}
 
 	/**
-	 * Ge rule storage access.
+	 * Gets an instance of {@link RuleStorageAccess} to access the rule
+	 * storage.
 	 *
-	 * @return the rule storage access
+	 * @return an instance of {@link RuleStorageAccess}
 	 */
 	public static RuleStorageAccess geRuleStorageAccess() {
 		return new RuleStorageAccessImpl();

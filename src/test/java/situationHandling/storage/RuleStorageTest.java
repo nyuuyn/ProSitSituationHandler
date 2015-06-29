@@ -23,6 +23,10 @@ public class RuleStorageTest {
 		Situation situation = new Situation("situation1", "object1");
 		ruleIds.add(rsa.addRule(situation, buildActionList()));
 
+		// try to add rule 1 again (add further actions)
+		ruleIds.add(rsa.addRule(situation, buildActionList()));
+
+		
 		// add rule 2
 		situation.setSituationName("situation2");
 		ruleIds.add(rsa.addRule(situation, buildActionList()));

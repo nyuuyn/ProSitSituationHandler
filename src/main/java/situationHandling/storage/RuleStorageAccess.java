@@ -102,13 +102,17 @@ public interface RuleStorageAccess {
 	 * @param actionID
 	 *            the action to update
 	 * @param pluginID
-	 *            the id of the new plugin to use
+	 *            the id of the new plugin to use. If {@code pluginID} is
+	 *            {@code null}, the pluginID will not be updated
 	 * @param address
-	 *            the address of the new recipent
+	 *            the address of the new recipent. If {@code address} is
+	 *            {@code null}, the address will not be updated
 	 * @param message
-	 *            the new message to send
+	 *            the new message to send. If {@code message} is
+	 *            {@code null}, the message will not be updated
 	 * @param params
-	 *            the new params
+	 *            the new params. If {@code params} is
+	 *            {@code null}, the params will not be updated
 	 * @return true, if successful
 	 */
 	public boolean updateAction(int actionID, String pluginID, String address,
