@@ -16,7 +16,7 @@ import situationHandling.storage.datatypes.Rule;
  * Hibernate session is needed for each interaction with the database using
  * hibernate.See the hibernate documentation.
  */
-class HibernateUtil {
+public class HibernateUtil {
 
 	// TODO: die Service Registry sollte man beim shutdown wohl irgendwie
 	// zerstören
@@ -68,8 +68,8 @@ class HibernateUtil {
 	 *
 	 * @return the session factory
 	 */
-	static SessionFactory getSessionFactory() {
+	public static SessionFactory getSessionFactory() {
 		return factory;
 	}
-
+	
 }
