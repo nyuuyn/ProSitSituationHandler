@@ -68,8 +68,8 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 			if (rule == null) {
 				rule = new Rule(situation, actions);
 				session.save(rule);
-			} 
-			//rule already exists. Append actions
+			}
+			// rule already exists. Append actions
 			else {
 				for (Action action : actions) {
 					rule.addAction(action);
@@ -148,7 +148,13 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 		try {
 			tx = session.beginTransaction();
 			Action action = (Action) session.get(Action.class, actionID);
-			session.delete(action);
+			if (action == null) {
+				logger.info("No action with ID " + actionID
+						+ " found. No action deleted.");
+				return false;
+			} else {
+				session.delete(action);
+			}
 			tx.commit();
 		} catch (HibernateException e) {
 			if (tx != null)
@@ -174,7 +180,13 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 		try {
 			tx = session.beginTransaction();
 			Rule rule = (Rule) session.get(Rule.class, ruleID);
-			session.delete(rule);
+			if (rule == null) {
+				logger.info("No rule with ID " + ruleID
+						+ " found. No rule deleted.");
+				return false;
+			} else {
+				session.delete(rule);
+			}
 			tx.commit();
 		} catch (HibernateException e) {
 			if (tx != null)
@@ -203,20 +215,27 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 			tx = session.beginTransaction();
 			Action action = (Action) session.get(Action.class, actionID);
 
-			if (pluginID != null) {
-				action.setPluginID(pluginID);
-			}
-			if (address != null) {
-				action.setAddress(address);
-			}
-			if (message != null) {
-				action.setMessage(message);
-			}
-			if (params != null) {
-				action.setParams(params);
-			}
+			if (action == null) {
+				logger.info("No action with ID " + actionID
+						+ " found. No action updated.");
+				return false;
+			} else {
 
-			session.update(action);
+				if (pluginID != null) {
+					action.setPluginID(pluginID);
+				}
+				if (address != null) {
+					action.setAddress(address);
+				}
+				if (message != null) {
+					action.setMessage(message);
+				}
+				if (params != null) {
+					action.setParams(params);
+				}
+
+				session.update(action);
+			}
 
 			tx.commit();
 		} catch (HibernateException e) {
@@ -247,10 +266,14 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 
 			Rule rule = (Rule) session.get(Rule.class, ruleID);
 
-			rule.setSituation(situation);
-
-			session.update(rule);
-
+			if (rule == null) {
+				logger.info("No rule with ID " + ruleID
+						+ " found. No rule updated.");
+				return false;
+			} else {
+				rule.setSituation(situation);
+				session.update(rule);
+			}
 			tx.commit();
 		} catch (HibernateException e) {
 			if (tx != null)
@@ -294,6 +317,8 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 				rule.setSituation(newSituation);
 				session.update(rule);
 			} else {
+				logger.info("No rule for situation " + oldSituation.toString()
+						+ " found. No rule updated.");
 				return false;
 			}
 
@@ -386,7 +411,7 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 		} finally {
 			session.close();
 		}
-		return null;
+		return new LinkedList<Action>();
 	}
 
 	/*
@@ -415,7 +440,7 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 		} finally {
 			session.close();
 		}
-		return null;
+		return new LinkedList<Action>();
 	}
 
 	/**

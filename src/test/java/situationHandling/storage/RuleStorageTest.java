@@ -14,9 +14,16 @@ public class RuleStorageTest {
 
 		RuleStorageAccess rsa = StorageAccessFactory.geRuleStorageAccess();
 
-		// test exception handling by adding action to not-existing rule
+		// test exception handling by using non-valid ids for different methods
 		rsa.addAction(-1, buildAction());
+		rsa.deleteAction(-1);
+		rsa.deleteRule(-1);
+		rsa.updateAction(-1, null, null, null, null);
+		rsa.updateRuleSituation(-1, new Situation("asdasdsad", "assagasg"));
+		rsa.updateRuleSituation(new Situation("asdasdasd", "sadasdsa"),
+				new Situation("asdsad", "asdasd"));
 
+		
 		ArrayList<Integer> ruleIds = new ArrayList<>();
 
 		// add rule 1
@@ -26,7 +33,6 @@ public class RuleStorageTest {
 		// try to add rule 1 again (add further actions)
 		ruleIds.add(rsa.addRule(situation, buildActionList()));
 
-		
 		// add rule 2
 		situation.setSituationName("situation2");
 		ruleIds.add(rsa.addRule(situation, buildActionList()));
