@@ -28,19 +28,11 @@ public class Main {
 		}
 
 	}
-
+	//Maybe for later use :)
 	private static void shutdownHandling() {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
-				try {
-					//cleanup
-					CamelUtil.getProducerTemplate().stop();
-					context.stop();
-					HibernateUtil.getSessionFactory().close();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				System.out.println("Shutting Down..");
+				
 			}
 		});
 	}
@@ -59,8 +51,10 @@ public class Main {
 					while (line.equalsIgnoreCase("quit") == false) {
 						line = in.readLine();
 					}
-
+					System.out.println("Shutting Down..");
+					CamelUtil.getProducerTemplate().stop();
 					context.stop();
+					HibernateUtil.getSessionFactory().close();
 
 					in.close();
 				} catch (IOException e) {

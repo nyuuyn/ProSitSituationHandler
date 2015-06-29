@@ -29,5 +29,9 @@ class SoapParser {
 		return operation;
 
 	}
+	
+	static String getQualifier(){
+		return null;
+	}
 
 }

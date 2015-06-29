@@ -25,7 +25,7 @@ public class RuleStorageTest {
 	 */
 	public static void main(String[] args) {
 
-		RuleStorageAccess rsa = StorageAccessFactory.geRuleStorageAccess();
+		RuleStorageAccess rsa = StorageAccessFactory.getRuleStorageAccess();
 
 		// test exception handling by using non-valid ids for different methods
 		rsa.addAction(-1, buildAction());

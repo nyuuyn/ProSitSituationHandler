@@ -30,7 +30,7 @@ public class StorageAccessFactory {
 	 *
 	 * @return an instance of {@link RuleStorageAccess}
 	 */
-	public static RuleStorageAccess geRuleStorageAccess() {
+	public static RuleStorageAccess getRuleStorageAccess() {
 		return new RuleStorageAccessImpl();
 	}
 
