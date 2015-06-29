@@ -16,11 +16,23 @@ import situationHandling.storage.datatypes.Action;
 import situationHandling.storage.datatypes.Rule;
 import situationHandling.storage.datatypes.Situation;
 
+/**
+ * The Class RuleStorageAccessImpl provides the standard implementation for the
+ * {@code Interface} {@link RuleStorageAccess}.
+ */
 class RuleStorageAccessImpl implements RuleStorageAccess {
 
+	/** The Constant logger. */
 	private final static Logger logger = Logger
 			.getLogger(RuleStorageAccess.class);
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * situationHandling.storage.RuleStorageAccess#addRule(situationHandling
+	 * .storage.datatypes.Situation, java.util.List)
+	 */
 	@Override
 	public int addRule(Situation situation, List<Action> actions) {
 		logger.debug("Adding rule and actions.");
@@ -48,7 +60,7 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 		} catch (HibernateException e) {
 			if (tx != null)
 				tx.rollback();
-			e.printStackTrace();
+			logger.error("Hibernate error", e);
 		} finally {
 			session.close();
 		}
@@ -59,6 +71,15 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 		return ruleID;
 	}
 
+	// TODO: Batch add? Klingt zwar sinnvoll, wird praktisch aber wohl nie
+	// benötigt?
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see situationHandling.storage.RuleStorageAccess#addAction(int,
+	 * situationHandling.storage.datatypes.Action)
+	 */
 	@Override
 	public int addAction(int ruleID, Action action) {
 		logger.debug("Adding actions.");
@@ -78,7 +99,11 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 		} catch (HibernateException e) {
 			if (tx != null)
 				tx.rollback();
-			e.printStackTrace();
+			logger.error("Hibernate error", e);
+			return -1;
+		} catch (NullPointerException e) {
+			logger.error("Rule not found", e);
+			return -1;
 		} finally {
 			session.close();
 		}
@@ -87,6 +112,11 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 		return action.getId();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see situationHandling.storage.RuleStorageAccess#deleteAction(int)
+	 */
 	@Override
 	public boolean deleteAction(int actionID) {
 		logger.debug("Deleting action: " + actionID);
@@ -100,7 +130,7 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 		} catch (HibernateException e) {
 			if (tx != null)
 				tx.rollback();
-			e.printStackTrace();
+			logger.error("Hibernate error", e);
 			return false;
 		} finally {
 			session.close();
@@ -108,6 +138,11 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 		return true;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see situationHandling.storage.RuleStorageAccess#deleteRule(int)
+	 */
 	@Override
 	public boolean deleteRule(int ruleID) {
 		logger.debug("Deleting rule: " + ruleID);
@@ -121,7 +156,7 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 		} catch (HibernateException e) {
 			if (tx != null)
 				tx.rollback();
-			e.printStackTrace();
+			logger.error("Hibernate error", e);
 			return false;
 		} finally {
 			session.close();
@@ -129,6 +164,12 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 		return true;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see situationHandling.storage.RuleStorageAccess#updateAction(int,
+	 * java.lang.String, java.lang.String, java.lang.String, java.util.HashMap)
+	 */
 	@Override
 	public boolean updateAction(int actionID, String pluginID, String address,
 			String message, HashMap<String, String> params) {
@@ -158,7 +199,7 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 		} catch (HibernateException e) {
 			if (tx != null)
 				tx.rollback();
-			e.printStackTrace();
+			logger.error("Hibernate error", e);
 			return false;
 		} finally {
 			session.close();
@@ -166,6 +207,12 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 		return true;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see situationHandling.storage.RuleStorageAccess#updateRuleSituation(int,
+	 * situationHandling.storage.datatypes.Situation)
+	 */
 	@Override
 	public boolean updateRuleSituation(int ruleID, Situation situation) {
 		logger.debug("Updating rule: " + ruleID + " to new Situation "
@@ -185,7 +232,7 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 		} catch (HibernateException e) {
 			if (tx != null)
 				tx.rollback();
-			e.printStackTrace();
+			logger.error("Hibernate error", e);
 			return false;
 		} finally {
 			session.close();
@@ -193,16 +240,23 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 		return true;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see situationHandling.storage.RuleStorageAccess#updateRuleSituation(
+	 * situationHandling.storage.datatypes.Situation,
+	 * situationHandling.storage.datatypes.Situation)
+	 */
 	@Override
 	public boolean updateRuleSituation(Situation oldSituation,
 			Situation newSituation) {
-		logger.debug("Updating rule from situation: " + oldSituation + " to new Situation "
-				+ newSituation);
+		logger.debug("Updating rule from situation: " + oldSituation
+				+ " to new Situation " + newSituation);
 		Session session = HibernateUtil.getSessionFactory().openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			
+
 			@SuppressWarnings("rawtypes")
 			List rules = session.createQuery(
 					"FROM Rule R WHERE R.situationName =  '"
@@ -219,7 +273,7 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 		} catch (HibernateException e) {
 			if (tx != null)
 				tx.rollback();
-			e.printStackTrace();
+			logger.error("Hibernate error", e);
 			return false;
 		} finally {
 			session.close();
@@ -227,6 +281,11 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 		return true;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see situationHandling.storage.RuleStorageAccess#getAllRules()
+	 */
 	@Override
 	public List<Rule> getAllRules() {
 		logger.debug("Getting all rules");
@@ -255,13 +314,19 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 		} catch (HibernateException e) {
 			if (tx != null)
 				tx.rollback();
-			e.printStackTrace();
+			logger.error("Hibernate error", e);
 		} finally {
 			session.close();
 		}
 		return rules;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see situationHandling.storage.RuleStorageAccess#getActionsBySituation(
+	 * situationHandling.storage.datatypes.Situation)
+	 */
 	@Override
 	public List<Action> getActionsBySituation(Situation situation) {
 		logger.debug("Getting all actions for situation: " + situation);
@@ -287,13 +352,18 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 		} catch (HibernateException e) {
 			if (tx != null)
 				tx.rollback();
-			e.printStackTrace();
+			logger.error("Hibernate error", e);
 		} finally {
 			session.close();
 		}
 		return null;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see situationHandling.storage.RuleStorageAccess#getActionsByRuleID(int)
+	 */
 	@Override
 	public List<Action> getActionsByRuleID(int ruleID) {
 		logger.debug("Getting all actions of rule: " + ruleID);
@@ -311,13 +381,20 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 		} catch (HibernateException e) {
 			if (tx != null)
 				tx.rollback();
-			e.printStackTrace();
+			logger.error("Hibernate error", e);
 		} finally {
 			session.close();
 		}
 		return null;
 	}
 
+	/**
+	 * Gets the rule by situation.
+	 *
+	 * @param situation
+	 *            the situation
+	 * @return the rule by situation
+	 */
 	private Rule getRuleBySituation(Situation situation) {
 		Session session = HibernateUtil.getSessionFactory().openSession();
 
@@ -347,13 +424,22 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 		} catch (HibernateException e) {
 			if (tx != null)
 				tx.rollback();
-			e.printStackTrace();
+			logger.error("Hibernate error", e);
 		} finally {
 			session.close();
 		}
 		return rule;
 	}
 
+	/**
+	 * Gets the rule actions.
+	 *
+	 * @param rule
+	 *            the rule
+	 * @param session
+	 *            the session
+	 * @return the rule actions
+	 */
 	private List<Action> getRuleActions(Rule rule, Session session) {
 		Transaction tx = null;
 		List<Action> actions = new LinkedList<>();
@@ -368,7 +454,7 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 		} catch (HibernateException e) {
 			if (tx != null)
 				tx.rollback();
-			e.printStackTrace();
+			logger.error("Hibernate error", e);
 		}
 		return actions;
 	}

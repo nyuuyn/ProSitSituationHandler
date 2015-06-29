@@ -14,6 +14,9 @@ public class RuleStorageTest {
 
 		RuleStorageAccess rsa = StorageAccessFactory.geRuleStorageAccess();
 
+		// test exception handling by adding action to not-existing rule
+		rsa.addAction(-1, buildAction());
+
 		ArrayList<Integer> ruleIds = new ArrayList<>();
 
 		// add rule 1
@@ -63,7 +66,7 @@ public class RuleStorageTest {
 		// print all rules
 		rsa.getAllRules().forEach(rule -> System.out.println(rule.toString()));
 
-		//delete all rules
+		// delete all rules
 		ruleIds.forEach(i -> rsa.deleteRule(i));
 
 		// print all rules
