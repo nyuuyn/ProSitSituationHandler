@@ -22,25 +22,45 @@ import org.apache.log4j.Logger;
 
 import situationHandler.plugin.Plugin;
 
-// TODO: Auto-generated Javadoc
+//TODO: Javadoc fertig
+
 /**
- * The Class PluginLoader.
+ * The Class PluginLoader is responsible to load plugins at startup and
+ * dynamically. Furthermore it is able to delete plugins at runtime and it gives
+ * access to loaded plugins.
+ * <p>
+ * It also manages the folder in which the plugins are stored, i.e. it deletes
+ * jar-files that are not needed anymore and copies new jar files in the folder.
+ * It can take some take until a jar file is deleted, because there might still
+ * be existing objects of some of the classes. Therefore, it runs an
+ * asynchronous job that tries to delete the jars from time to time.
+ * <p>
  */
 class PluginLoader {
-	
-	/** The Constant logger. */
+
+	/** The logger. */
 	private final static Logger logger = Logger.getLogger(PluginLoader.class);
 
-	/** The Constant PLUGIN_FOLDER. */
+	/**
+	 * The path to the plugin folder. Jar-Files in this folder are loaded at
+	 * startup.
+	 */
 	private static final String PLUGIN_FOLDER = "plugins";
 
-	/** The Constant RUNTIME_FOLDER. */
+	/**
+	 * The path to the runtime folder. This folder is used to store jars that
+	 * are added at runtime. It is purged at startup. Therfore, plugins in this
+	 * folder will not be loaded.
+	 */
 	private static final String RUNTIME_FOLDER = "runtime";
 
-	/** The plugins. */
+	/**
+	 * This Hashmaps contains an instance of each plugin. The instance is used
+	 * to create the Callable instances etc. The plugin id is used as key.
+	 */
 	private HashMap<String, Plugin> plugins;
 
-	/** The plugin urls. */
+	/** The plugin urls. The urls lead to */
 	private HashMap<String, URL> pluginUrls = new HashMap<>();
 
 	/** The to delete. */
@@ -127,7 +147,8 @@ class PluginLoader {
 	/**
 	 * Gets the plugin by id.
 	 *
-	 * @param pluginID the plugin id
+	 * @param pluginID
+	 *            the plugin id
 	 * @return the plugin by id
 	 */
 	Plugin getPluginByID(String pluginID) {
@@ -137,17 +158,19 @@ class PluginLoader {
 	/**
 	 * Adds the plugin.
 	 *
-	 * @param ID the id
-	 * @param path the path
+	 * @param ID
+	 *            the id
+	 * @param path
+	 *            the path
 	 * @return true, if successful
 	 */
 	boolean addPlugin(String ID, String path) {
-		
-		if (plugins.containsKey(ID)){
+
+		if (plugins.containsKey(ID)) {
 			logger.debug("Plugin: " + ID + " already exists. Nothing was added");
 			return false;
 		}
-		
+
 		logger.debug("Adding new plugin: " + ID + " at " + path);
 		File file = new File(PLUGIN_FOLDER + File.separator + RUNTIME_FOLDER);
 		if (!file.exists()) {
@@ -174,7 +197,8 @@ class PluginLoader {
 	/**
 	 * Builds the target path.
 	 *
-	 * @param ID the id
+	 * @param ID
+	 *            the id
 	 * @return the file
 	 */
 	private File buildTargetPath(String ID) {
@@ -196,13 +220,15 @@ class PluginLoader {
 	/**
 	 * Removes the plugin.
 	 *
-	 * @param ID the id
+	 * @param ID
+	 *            the id
 	 * @return true, if successful
 	 */
 	boolean removePlugin(String ID) {
-		
-		if (!plugins.containsKey(ID)){
-			logger.debug("Plugin: " + ID + " does not exist. Nothing was removed");
+
+		if (!plugins.containsKey(ID)) {
+			logger.debug("Plugin: " + ID
+					+ " does not exist. Nothing was removed");
 			return false;
 		}
 
@@ -218,8 +244,6 @@ class PluginLoader {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		
 
 		initLoaders();
 

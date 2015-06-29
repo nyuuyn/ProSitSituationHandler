@@ -1,17 +1,17 @@
 package pluginManagement;
 
-// TODO: Auto-generated Javadoc
 /**
  * A factory for creating PluginManager objects.
+ * 
+ * @see PluginManager
  */
 public class PluginManagerFactory {
-	
+
 	/**
-	 * Gets the plugin manager.
 	 *
-	 * @return the plugin manager
+	 * @return an instance of plugin manager.
 	 */
-	public static PluginManager getPluginManager(){
+	public static PluginManager getPluginManager() {
 		return new PluginManagerImpl();
 	}
 
