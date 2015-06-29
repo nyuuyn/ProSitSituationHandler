@@ -172,7 +172,13 @@ class EndpointStorageAccessImpl implements EndpointStorageAccess {
 			tx = session.beginTransaction();
 			Endpoint endpoint = (Endpoint) session.get(Endpoint.class,
 					endpointID);
-			session.delete(endpoint);
+			if (endpoint == null) {
+				logger.info("No Endpoint with id " + endpointID
+						+ " found. No endpoint deleted");
+				return false;
+			} else {
+				session.delete(endpoint);
+			}
 			tx.commit();
 		} catch (HibernateException e) {
 			if (tx != null)
@@ -204,18 +210,25 @@ class EndpointStorageAccessImpl implements EndpointStorageAccess {
 			tx = session.beginTransaction();
 			Endpoint endpoint = (Endpoint) session.get(Endpoint.class,
 					endpointID);
-			// params are optional, so check for null..
-			if (situation != null) {
-				endpoint.setSituation(situation);
-			}
-			if (operation != null) {
-				endpoint.setOperation(operation);
-			}
-			if (endpointURL != null) {
-				endpoint.setEndpointURL(endpointURL.toString());
-			}
-			session.update(endpoint);
 
+			if (endpoint == null) {
+				logger.info("No Endpoint with id " + endpointID
+						+ " found. No endpoint updated");
+				return false;
+			} else {
+
+				// params are optional, so check for null..
+				if (situation != null) {
+					endpoint.setSituation(situation);
+				}
+				if (operation != null) {
+					endpoint.setOperation(operation);
+				}
+				if (endpointURL != null) {
+					endpoint.setEndpointURL(endpointURL.toString());
+				}
+				session.update(endpoint);
+			}
 			tx.commit();
 		} catch (HibernateException e) {
 			if (tx != null)

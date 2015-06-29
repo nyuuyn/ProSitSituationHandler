@@ -14,6 +14,10 @@ public class EndpointStorageTest {
 		EndpointStorageAccess esa = StorageAccessFactory
 				.getEndpointStorageAccess();
 		
+		//testing error handling  - using non-existent ids
+		esa.deleteEndpoint(-1);
+		esa.updateEndpoint(-1, null, null, null);
+		
 		ArrayList<Integer> ids = new ArrayList<>();
 		
 		Operation operation = new Operation("hello", "world");

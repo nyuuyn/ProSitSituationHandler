@@ -28,8 +28,8 @@ import javax.persistence.Table;
  * information about optional paramters. <div> The class is conform to the java
  * bean specification.
  * 
- *  @author Stefan
- *  @see Rule
+ * @author Stefan
+ * @see Rule
  */
 /*
  * An instance of Action can be mapped to the table actions using JPA.
@@ -54,7 +54,8 @@ public class Action {
 	private String message;
 
 	/**
-	 * The hashmap is stored in the table parameters, using the id of this action as foreign key. 
+	 * The hashmap is stored in the table "parameters", using the id of this
+	 * action as foreign key.
 	 */
 	@ElementCollection
 	@MapKeyColumn(name = "name")
@@ -101,10 +102,9 @@ public class Action {
 	}
 
 	/**
-	 * Sets the id. The id uniquely identifies the action.
-	 * <div>
-	 * This method should NOT be manually used, when it is intended to store the
-	 * action in the database. In this case, the id will be generated.
+	 * Sets the id. The id uniquely identifies the action. <div> This method
+	 * should NOT be manually used, when it is intended to store the action in
+	 * the database. In this case, the id will be generated.
 	 *
 	 * @param id
 	 *            the new id in the database
