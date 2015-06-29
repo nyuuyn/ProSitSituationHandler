@@ -19,7 +19,7 @@ public class EndpointStorageTest {
 	 * The main method that runs the test.
 	 *
 	 * @param args
-	 *            the arguments
+	 *            the arguments (not used)
 	 */
 	public static void main(String[] args) {
 

@@ -18,10 +18,10 @@ import situationHandling.storage.datatypes.Situation;
 public class RuleStorageTest {
 
 	/**
-	 * The main method.
+	 * The main method that runs the test.
 	 *
 	 * @param args
-	 *            the arguments
+	 *            the arguments (not used)
 	 */
 	public static void main(String[] args) {
 
