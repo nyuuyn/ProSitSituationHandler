@@ -8,8 +8,21 @@ import java.util.List;
 import situationHandling.storage.datatypes.Action;
 import situationHandling.storage.datatypes.Situation;
 
+/**
+ * 
+ * The Class RuleStorageTests tests the Rule storage by using the different
+ * methods. Note that this is not a unit test. The test just runs all methods.
+ * If no Exceptions etc. are thrown and the outputs looks ok, it is assumed that
+ * everything works.
+ */
 public class RuleStorageTest {
 
+	/**
+	 * The main method.
+	 *
+	 * @param args
+	 *            the arguments
+	 */
 	public static void main(String[] args) {
 
 		RuleStorageAccess rsa = StorageAccessFactory.geRuleStorageAccess();
@@ -23,7 +36,6 @@ public class RuleStorageTest {
 		rsa.updateRuleSituation(new Situation("asdasdasd", "sadasdsa"),
 				new Situation("asdsad", "asdasd"));
 
-		
 		ArrayList<Integer> ruleIds = new ArrayList<>();
 
 		// add rule 1
@@ -87,6 +99,11 @@ public class RuleStorageTest {
 
 	}
 
+	/**
+	 * Builds the action list.
+	 *
+	 * @return the list
+	 */
 	private static List<Action> buildActionList() {
 		HashMap<String, String> params = new HashMap<>();
 		params.put("param1", "value1");
@@ -102,6 +119,11 @@ public class RuleStorageTest {
 		return actions;
 	}
 
+	/**
+	 * Builds the action.
+	 *
+	 * @return the action
+	 */
 	private static Action buildAction() {
 		HashMap<String, String> params = new HashMap<>();
 		params.put("param1", "value1");
