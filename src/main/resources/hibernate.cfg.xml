@@ -24,6 +24,5 @@
 
 		<!-- Display and format all executed SQL to stdout -->
 		<!-- <property name="show_sql">true</property> <property name="format_sql">true</property> -->
-
 	</session-factory>
 </hibernate-configuration>

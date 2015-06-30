@@ -22,8 +22,6 @@ import org.apache.log4j.Logger;
 
 import situationHandler.plugin.Plugin;
 
-//TODO: Javadoc fertig
-
 /**
  * The Class PluginLoader is responsible to load plugins at startup and
  * dynamically. Furthermore it is able to delete plugins at runtime and it gives
@@ -38,7 +36,7 @@ import situationHandler.plugin.Plugin;
  */
 class PluginLoader {
 
-	/** The logger. */
+	/** The logger for this class. */
 	private final static Logger logger = Logger.getLogger(PluginLoader.class);
 
 	/**
@@ -60,25 +58,33 @@ class PluginLoader {
 	 */
 	private HashMap<String, Plugin> plugins;
 
-	/** The plugin urls. The urls lead to */
+	/**
+	 * The plugin urls. The urls lead to the jar-files that are opened by the
+	 * class loader for each plugin. Mapping is (PluginID:Filepath)
+	 */
 	private HashMap<String, URL> pluginUrls = new HashMap<>();
 
-	/** The to delete. */
+	/** The file paths of the jars that can be deleted. */
 	private LinkedList<URL> toDelete = new LinkedList<>();
 
-	/** The service loader. */
+	/** The service loader. Uses {@link #urlClassLoader} as class loader. */
 	private ServiceLoader<Plugin> serviceLoader;
 
-	/** The url class loader. */
+	/** The class loader used for {@link #serviceLoader}. */
 	private DynamicURLClassLoader urlClassLoader;
 
-	/**
-	 * 
-	 * TODO: Prinzipiell sollte das "unloaden funktionieren. Leider gibt es
+	/*
+	 * * TODO: Prinzipiell sollte das "unloaden funktionieren. Leider gibt es
 	 * irgendwo immer noch Instanzen von den Klassen, wodurch die JAR geöffnet
-	 * bleibt und sich nie löschen lässt.
+	 * bleibt und sich nie löschen lässt. --> CleanupMethode dürfte die Lösung
+	 * sein, damit die Plugins auch sauber zu machen.
 	 */
 
+	/**
+	 * Creates a new instance of Plugin loader.
+	 * 
+	 * 
+	 */
 	public PluginLoader() {
 		clearRuntimeDir();
 		plugins = new HashMap<String, Plugin>();
@@ -88,7 +94,8 @@ class PluginLoader {
 	}
 
 	/**
-	 * Inits the loaders.
+	 * Inits the class loader and the service loader. Initially loads the
+	 * available Plugins.
 	 */
 	private void initLoaders() {
 		urlClassLoader = new DynamicURLClassLoader(pluginUrls.values().toArray(
@@ -99,12 +106,13 @@ class PluginLoader {
 	}
 
 	/**
-	 * Start deleter service.
+	 * Starts an asynchronous thread that (tries) to delete the no longer
+	 * required jars from time to time.
 	 */
 	private void startDeleterService() {
 		ScheduledThreadPoolExecutor deleter = new ScheduledThreadPoolExecutor(1);
 		deleter.scheduleWithFixedDelay(new Runnable() {
-
+			// TODO Eigene Klasse
 			@Override
 			public void run() {
 				System.gc();
@@ -116,10 +124,12 @@ class PluginLoader {
 					File file;
 					try {
 						file = new File(it.next().toURI());
+						// deleting a file does not work, when there are still
+						// classes loaded
 						if (file.delete()) {
 							it.remove();
 							logger.debug("Removing " + file.getName()
-									+ " successfull.");
+									+ " successful.");
 						} else {
 							logger.debug("Removing " + file.getName()
 									+ " failed. Trying again later");
@@ -135,9 +145,8 @@ class PluginLoader {
 	}
 
 	/**
-	 * Gets the plugin i ds.
 	 *
-	 * @return the plugin i ds
+	 * @return the ids of all plugins that are currently loaded.
 	 */
 	Set<String> getPluginIDs() {
 		return plugins.keySet();
@@ -145,32 +154,37 @@ class PluginLoader {
 	}
 
 	/**
-	 * Gets the plugin by id.
+	 * Gets an instance of a plugin by id.
 	 *
 	 * @param pluginID
 	 *            the plugin id
-	 * @return the plugin by id
+	 * @return an instance of this plugin's implementing class
 	 */
 	Plugin getPluginByID(String pluginID) {
 		return plugins.get(pluginID);
 	}
 
 	/**
-	 * Adds the plugin.
+	 * Adds a new plugin with the specified id. Loads the jar that contains the
+	 * plugin from the specified path. It is not required that the plugin also
+	 * stays on this path.
 	 *
 	 * @param ID
-	 *            the id
+	 *            the id of the plugin. The id should be globally unique
 	 * @param path
-	 *            the path
-	 * @return true, if successful
+	 *            the path of the jar file that contains the plugin.
+	 * @return true, if plugin was successfully loaded. False else, especially
+	 *         when there is already a plugin with the same name loaded.
 	 */
 	boolean addPlugin(String ID, String path) {
 
+		// check if plugin already loaded
 		if (plugins.containsKey(ID)) {
 			logger.debug("Plugin: " + ID + " already exists. Nothing was added");
 			return false;
 		}
 
+		// create folder for runtime plugins if necessary
 		logger.debug("Adding new plugin: " + ID + " at " + path);
 		File file = new File(PLUGIN_FOLDER + File.separator + RUNTIME_FOLDER);
 		if (!file.exists()) {
@@ -179,6 +193,7 @@ class PluginLoader {
 
 		File targetPath = buildTargetPath(ID);
 
+		// copy jar file in plugin directory
 		try {
 			Files.copy(Paths.get(path), Paths.get(targetPath.getPath()),
 					StandardCopyOption.REPLACE_EXISTING);
@@ -188,6 +203,7 @@ class PluginLoader {
 			e1.printStackTrace();
 		}
 
+		// reload jars
 		serviceLoader.reload();
 		updatePluginCache();
 		return true;
@@ -195,11 +211,13 @@ class PluginLoader {
 	}
 
 	/**
-	 * Builds the target path.
+	 * Convenience method. Creates the path, under which jars that are loaded at
+	 * runtime are stored. Checks for conflicts with already existing files and
+	 * creates a fileName without conflicts.
 	 *
 	 * @param ID
-	 *            the id
-	 * @return the file
+	 *            the id of the plugin. Is used as file name.
+	 * @return a file with a unique filename in the plugin folder.
 	 */
 	private File buildTargetPath(String ID) {
 
@@ -209,6 +227,7 @@ class PluginLoader {
 
 		File targetFile = new File(folderName + fileName);
 
+		// add "_" to the filename, if file already exists
 		while (targetFile.exists()) {
 			fileName = "_" + fileName;
 			targetFile = new File(folderName + fileName);
@@ -218,11 +237,13 @@ class PluginLoader {
 	}
 
 	/**
-	 * Removes the plugin.
+	 * Removes the plugin. After removing, the plugin can no longer be used.
+	 * Initiates removal of the containing jar file.
 	 *
 	 * @param ID
-	 *            the id
-	 * @return true, if successful
+	 *            the id of the plugin to remove
+	 * @return true, if successful, false if no plugin with the specified id
+	 *         exists.
 	 */
 	boolean removePlugin(String ID) {
 
@@ -235,10 +256,13 @@ class PluginLoader {
 		logger.debug("Removing plugin " + ID);
 
 		toDelete.add(pluginUrls.get(ID));
-
+		// remove mappings
 		pluginUrls.remove(ID);
-
 		plugins.remove(ID);
+
+		// a classloader cannot "unload" a class, therefore a new classloader is
+		// created, that does not load the removed plugin. The old class loader
+		// will be garbage collected
 		try {
 			urlClassLoader.close();
 		} catch (IOException e) {
@@ -251,7 +275,8 @@ class PluginLoader {
 	}
 
 	/**
-	 * Update plugin cache.
+	 * Updates the plugin cache, i.e. stores instances of each available plugin
+	 * in the cache.
 	 */
 	private void updatePluginCache() {
 		Iterator<Plugin> it = serviceLoader.iterator();
@@ -293,7 +318,7 @@ class PluginLoader {
 	}
 
 	/**
-	 * Clear runtime dir.
+	 * Deletes all jars in the runtime directory for plugins.
 	 */
 	private void clearRuntimeDir() {
 		File folder = new File(PLUGIN_FOLDER + File.separator + RUNTIME_FOLDER);
