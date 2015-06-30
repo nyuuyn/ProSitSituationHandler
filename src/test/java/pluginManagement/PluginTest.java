@@ -15,34 +15,34 @@ public class PluginTest {
 		PluginParams params = new PluginParams();
 
 		// mail plugin (deactive anti virus)
-//		try {
-//			params.setParam("Email Subject", "Gmail Plugin Test");
-//			pm.getPluginSender("situationHandler.gmail",
-//					"stefan.fuerst.89@gmail.com",
-//					"Die Erste Mail vom Gmail Plugin", params).call();
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-		
-		// http plugin (needs server running)
 		try {
-			String soapBody = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:test=\"http://test/\">\r\n   <soapenv:Header/>\r\n   <soapenv:Body>\r\n      <test:hello>\r\n         <name>Stefan</name>\r\n      </test:hello>\r\n   </soapenv:Body>\r\n</soapenv:Envelope>";
-			params.setParam("Http method", "POST");
-			Map<String, String> response = pm.getPluginSender(
-					"situationHandler.http",
-					"http://localhost:4435/miniwebservice", soapBody, params)
-					.call();
-
-			System.out.println("Response:");
-			System.out.println(response.get("body"));
+			params.setParam("Email Subject", "Gmail Plugin Test");
+			pm.getPluginSender("situationHandler.gmail",
+					"stefan.fuerst.89@gmail.com",
+					"Die Erste Mail vom Gmail Plugin", params).call();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
-		pm.removePlugin("situationHandler.http");
 		
-		if (true)
-			return;
+		// http plugin (needs server running)
+//		try {
+//			String soapBody = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:test=\"http://test/\">\r\n   <soapenv:Header/>\r\n   <soapenv:Body>\r\n      <test:hello>\r\n         <name>Stefan</name>\r\n      </test:hello>\r\n   </soapenv:Body>\r\n</soapenv:Envelope>";
+//			params.setParam("Http method", "POST");
+//			Map<String, String> response = pm.getPluginSender(
+//					"situationHandler.http",
+//					"http://localhost:4435/miniwebservice", soapBody, params)
+//					.call();
+//
+//			System.out.println("Response:");
+//			System.out.println(response.get("body"));
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//
+//		pm.removePlugin("situationHandler.http");
+//		
+//		if (true)
+//			return;
 
 		
 		// add plugin test (place jar at path)
