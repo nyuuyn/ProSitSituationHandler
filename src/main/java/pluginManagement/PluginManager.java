@@ -62,7 +62,8 @@ public interface PluginManager {
 	 *
 	 * @param pluginID
 	 *            the id of the plugin to look up
-	 * @return the number of required params
+	 * @return the number of required params. Null if no plugin with the
+	 *         specified ID was found.
 	 */
 	public int getPluginNoOfRequiredParams(String pluginID);
 
@@ -73,7 +74,8 @@ public interface PluginManager {
 	 *
 	 * @param pluginID
 	 *            the plugin id
-	 * @return the plugin param descriptions
+	 * @return the plugin param descriptions. Null if no plugin with the
+	 *         specified ID was found.
 	 */
 	public Set<String> getPluginParamDescriptions(String pluginID);
 
@@ -96,7 +98,8 @@ public interface PluginManager {
 	 *            for information about them. Use the Parameter Description as
 	 *            name for the param and an arbitrary string as value.
 	 * @return an instance of callable, that executes some functionality
-	 *         specified by the plugin.
+	 *         specified by the plugin. Null if no plugin with the specified ID
+	 *         was found.
 	 */
 	public Callable<Map<String, String>> getPluginSender(String pluginID,
 			String address, String message, PluginParams pluginParams);

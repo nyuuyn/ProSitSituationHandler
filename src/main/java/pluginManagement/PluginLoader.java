@@ -4,18 +4,14 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.ServiceLoader;
 import java.util.Set;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -64,8 +60,11 @@ class PluginLoader {
 	 */
 	private HashMap<String, URL> pluginUrls = new HashMap<>();
 
-	/** The file paths of the jars that can be deleted. */
-	private LinkedList<URL> toDelete = new LinkedList<>();
+	/**
+	 * The deleter is responsible for deleting jars that are not needed anymore.
+	 * 
+	 */
+	private FileDeleter deleter = new FileDeleter();
 
 	/** The service loader. Uses {@link #urlClassLoader} as class loader. */
 	private ServiceLoader<Plugin> serviceLoader;
@@ -90,7 +89,6 @@ class PluginLoader {
 		plugins = new HashMap<String, Plugin>();
 		searchJars();
 		initLoaders();
-		startDeleterService();
 	}
 
 	/**
@@ -103,45 +101,6 @@ class PluginLoader {
 
 		serviceLoader = ServiceLoader.load(Plugin.class, urlClassLoader);
 		updatePluginCache();
-	}
-
-	/**
-	 * Starts an asynchronous thread that (tries) to delete the no longer
-	 * required jars from time to time.
-	 */
-	private void startDeleterService() {
-		ScheduledThreadPoolExecutor deleter = new ScheduledThreadPoolExecutor(1);
-		deleter.scheduleWithFixedDelay(new Runnable() {
-			// TODO Eigene Klasse
-			@Override
-			public void run() {
-				System.gc();
-				// TODO: alternativ könnte man hier auch probieren einfach alle
-				// Jars im Runtime ordner zu löschen --> das würde dann quasi
-				// noch ein cleanup am start geben
-				Iterator<URL> it = toDelete.iterator();
-				while (it.hasNext()) {
-					File file;
-					try {
-						file = new File(it.next().toURI());
-						// deleting a file does not work, when there are still
-						// classes loaded
-						if (file.delete()) {
-							it.remove();
-							logger.debug("Removing " + file.getName()
-									+ " successful.");
-						} else {
-							logger.debug("Removing " + file.getName()
-									+ " failed. Trying again later");
-						}
-					} catch (URISyntaxException e) {
-						e.printStackTrace();
-					}
-				}
-
-			}
-		}, 10, 5, TimeUnit.SECONDS);// TODO: Einheit auf Minuten setzen
-
 	}
 
 	/**
@@ -255,7 +214,7 @@ class PluginLoader {
 
 		logger.debug("Removing plugin " + ID);
 
-		toDelete.add(pluginUrls.get(ID));
+		deleter.deleteFile(pluginUrls.get(ID));
 		// remove mappings
 		pluginUrls.remove(ID);
 		plugins.remove(ID);

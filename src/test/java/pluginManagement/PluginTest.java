@@ -24,8 +24,8 @@ public class PluginTest {
 			e.printStackTrace();
 		}
 
+		
 		// add plugin test (place jar at path)
-
 		pm.addPlugin(
 				"situationHandler.http",
 				"C:\\Users\\Stefan\\workspace_Masterarbeit\\Situation Handler\\situationHandler.http.jar");
