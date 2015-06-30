@@ -91,8 +91,8 @@ public interface PluginManager {
 	 * @param address
 	 *            the address of the receiver, this instance of the plugin
 	 *            should use
-	 * @param message
-	 *            the message to send
+	 * @param payload
+	 *            the payload to send
 	 * @param pluginParams
 	 *            the optional parameters. See the documentation of the plugin
 	 *            for information about them. Use the Parameter Description as
@@ -102,7 +102,7 @@ public interface PluginManager {
 	 *         was found.
 	 */
 	public Callable<Map<String, String>> getPluginSender(String pluginID,
-			String address, String message, PluginParams pluginParams);
+			String address, String payload, PluginParams pluginParams);
 
 	/**
 	 * Adds a plugin at runtime, using {@code ID} as ID for the plugin. The

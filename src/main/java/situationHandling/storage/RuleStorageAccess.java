@@ -93,7 +93,7 @@ public interface RuleStorageAccess {
 
 	/**
 	 * Updates an existing action with the specified id. It is possible to
-	 * update the the plugin that is used, the address to use, the message and
+	 * update the the plugin that is used, the address to use, the payload and
 	 * also the params.
 	 * <p>
 	 * Note that all parameters except {@code actionID} are optional. If no
@@ -107,16 +107,16 @@ public interface RuleStorageAccess {
 	 * @param address
 	 *            the address of the new recipent. If {@code address} is
 	 *            {@code null}, the address will not be updated
-	 * @param message
-	 *            the new message to send. If {@code message} is
-	 *            {@code null}, the message will not be updated
+	 * @param payload
+	 *            the new payload to send. If {@code payload} is
+	 *            {@code null}, the payload will not be updated
 	 * @param params
 	 *            the new params. If {@code params} is
 	 *            {@code null}, the params will not be updated
 	 * @return true, if successful
 	 */
 	public boolean updateAction(int actionID, String pluginID, String address,
-			String message, HashMap<String, String> params);
+			String payload, HashMap<String, String> params);
 
 	/**
 	 * Updates the situation of an existing rule with the specified id. Note

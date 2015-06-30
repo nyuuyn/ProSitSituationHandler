@@ -26,7 +26,7 @@ class SituationHandlerImpl implements SituationHandler {
 		List<Action> actions = rsa.getActionsBySituation(situation);
 
 		actions.forEach(action -> threadExecutor.submit(pm.getPluginSender(
-				action.getPluginID(), action.getAddress(), action.getMessage(),
+				action.getPluginID(), action.getAddress(), action.getPayload(),
 				new PluginParams(action.getParams()))));
 
 	}

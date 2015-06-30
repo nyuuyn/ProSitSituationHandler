@@ -76,8 +76,8 @@ class PluginManagerImpl implements PluginManager {
 	 */
 	@Override
 	public Callable<Map<String, String>> getPluginSender(String pluginID,
-			String address, String message, PluginParams pluginParams) {
-		return pluginLoader.getPluginByID(pluginID).getSender(address, message,
+			String address, String payload, PluginParams pluginParams) {
+		return pluginLoader.getPluginByID(pluginID).getSender(address, payload,
 				pluginParams);
 	}
 

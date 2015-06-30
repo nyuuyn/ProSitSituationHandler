@@ -17,12 +17,12 @@ import javax.persistence.Table;
  * Wrapper class for an action. An action is executed when a certain situation
  * occurs. The situation is defined by a {@link Rule}. <div>
  * 
- * An Action is described by a pluginID, an address, a message and several
+ * An Action is described by a pluginID, an address, a payload and several
  * optional parameters.<div>
  * 
  * The pluginID refers to the plugin that exectutes the action. The address
- * describes the address of the endpoint or the receiver of the message. The
- * message is the payload of the interaction (or simply the message that is sent
+ * describes the address of the endpoint or the receiver of the message/payload. The
+ * payload is the payload for the interaction (or simply the message that is sent
  * to someone). Furthermore, optional Parameters can be used by the action. A
  * single parameter is a key-value pair. See the documentation of the plugin for
  * information about optional paramters. <div> The class is conform to the java
@@ -50,8 +50,8 @@ public class Action {
 	@Column(name = "address")
 	private String address;
 
-	@Column(name = "message")
-	private String message;
+	@Column(name = "payload")
+	private String payload;
 
 	/**
 	 * The hashmap is stored in the table "parameters", using the id of this
@@ -79,16 +79,16 @@ public class Action {
 	 *            the id of the plugin to use.
 	 * @param address
 	 *            the endpoint.
-	 * @param message
+	 * @param payload
 	 *            the payload/message
 	 * @param params
 	 *            optional parameters
 	 */
-	public Action(String pluginID, String address, String message,
+	public Action(String pluginID, String address, String payload,
 			HashMap<String, String> params) {
 		this.pluginID = pluginID;
 		this.address = address;
-		this.message = message;
+		this.payload = payload;
 		this.params = params;
 	}
 
@@ -150,22 +150,22 @@ public class Action {
 	}
 
 	/**
-	 * Gets the message that is sent.
+	 * Gets the payload that is sent.
 	 *
-	 * @return the message to send
+	 * @return the payload to send
 	 */
-	public String getMessage() {
-		return message;
+	public String getPayload() {
+		return payload;
 	}
 
 	/**
-	 * Sets the message to send.
+	 * Sets the payload to send.
 	 *
-	 * @param message
-	 *            the new message
+	 * @param payload
+	 *            the new payload
 	 */
-	public void setMessage(String message) {
-		this.message = message;
+	public void setPayload(String payload) {
+		this.payload = payload;
 	}
 
 	/**
@@ -195,7 +195,7 @@ public class Action {
 	@Override
 	public String toString() {
 		return "Action [id=" + id + ", pluginID=" + pluginID + ", address="
-				+ address + ", message=" + message + ", params=" + params + "]";
+				+ address + ", payload=" + payload + ", params=" + params + "]";
 	}
 
 }

@@ -207,7 +207,7 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 	 */
 	@Override
 	public boolean updateAction(int actionID, String pluginID, String address,
-			String message, HashMap<String, String> params) {
+			String payload, HashMap<String, String> params) {
 		logger.debug("Updating action: " + actionID);
 		Session session = HibernateUtil.getSessionFactory().openSession();
 		Transaction tx = null;
@@ -227,8 +227,8 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 				if (address != null) {
 					action.setAddress(address);
 				}
-				if (message != null) {
-					action.setMessage(message);
+				if (payload != null) {
+					action.setPayload(payload);
 				}
 				if (params != null) {
 					action.setParams(params);
