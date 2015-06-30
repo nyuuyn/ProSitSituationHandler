@@ -443,48 +443,6 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 		return new LinkedList<Action>();
 	}
 
-	/**
-	 * Gets the rule by situation.
-	 *
-	 * @param situation
-	 *            the situation
-	 * @return the rule by situation
-	 */
-	private Rule getRuleBySituation(Situation situation) {
-		Session session = HibernateUtil.getSessionFactory().openSession();
-
-		Transaction tx = null;
-		Rule rule = null;
-
-		try {
-			tx = session.beginTransaction();
-
-			@SuppressWarnings("rawtypes")
-			List rules = session
-					.createCriteria(Rule.class)
-					.add(Restrictions.eq("situationName",
-							situation.getSituationName()))
-					.add(Restrictions.eq("objectName",
-							situation.getObjectName())).list();
-
-			// there is a maximum of one result for this query, since the
-			// combination of situationName and objectName is unique in this
-			// DB table
-			if (rules.size() == 1) {
-				rule = (Rule) rules.iterator().next();
-				Hibernate.initialize(rule.getActions());
-
-			}
-			tx.commit();
-		} catch (HibernateException e) {
-			if (tx != null)
-				tx.rollback();
-			logger.error("Hibernate error", e);
-		} finally {
-			session.close();
-		}
-		return rule;
-	}
 
 	/**
 	 * Helper method to load all actions of a rule and also their params from
