@@ -79,9 +79,13 @@ class PluginLoader {
 	 * sein, damit die Plugins auch sauber zu machen.
 	 */
 
+	// TODO: Problem hier: Dadurch das der ganze Class Loader zugemacht wird,
+	// könnte es auch sein das noch laufen threads verrecken (insbesondere dann
+	// auch durch das Shutdown --> Lösung: Eigener Class Loader? Für jedes
+	// Plugin und dann etwas gezielter Schließen und neu laden?
+
 	/**
 	 * Creates a new instance of Plugin loader.
-	 * 
 	 * 
 	 */
 	public PluginLoader() {
@@ -215,13 +219,20 @@ class PluginLoader {
 		logger.debug("Removing plugin " + ID);
 
 		deleter.deleteFile(pluginUrls.get(ID));
-		// remove mappings
+		// remove mappings (and shutdown)
 		pluginUrls.remove(ID);
-		plugins.remove(ID);
+		plugins.remove(ID).shutdown();
+		// TODO: Reicht es nur diesen zu shutten oder müssten auch alle anderen
+		// geshutted werden? Die Frage ist ober bei der Reiniitierung ein völlig
+		// neues Objekt erstellt wird oder ob das immer noch irgendwie dasselbe
+		// ist. Wenn es nicht dasselbe ist, kann man auf dieses nämlich nicht
+		// mehr zugreifen um eventuelle Hintergrundthreads zu schließen usw.
+		// (Mit einem Multiclassloader sollte diese Frage ausgeräumt sein)
 
 		// a classloader cannot "unload" a class, therefore a new classloader is
 		// created, that does not load the removed plugin. The old class loader
-		// will be garbage collected
+		// will be garbage collected (as soon as there aren't any instances of
+		// classes loaded by this loader left)
 		try {
 			urlClassLoader.close();
 		} catch (IOException e) {
@@ -244,7 +255,6 @@ class PluginLoader {
 			plugins.put(plugin.getID(), plugin);
 			logger.debug("Found Plugin " + plugin.getName());
 		}
-
 	}
 
 	/**

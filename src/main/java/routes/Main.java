@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import org.apache.camel.CamelContext;
+import org.apache.camel.ProducerTemplate;
 import org.apache.camel.impl.DefaultCamelContext;
 
 import situationHandling.storage.HibernateUtil;
@@ -12,6 +13,7 @@ import situationHandling.storage.HibernateUtil;
 public class Main {
 
 	private static CamelContext context;
+	
 
 	public static void main(String[] args) {
 		startShutdownListener();
