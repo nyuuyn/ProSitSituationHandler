@@ -463,13 +463,17 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 		Session session = HibernateUtil.getSessionFactory().openSession();
 		Transaction tx = null;
 		Rule rule = null;
+		LinkedList<Action> actions = new LinkedList<>();
 		try {
 			tx = session.beginTransaction();
 
 			rule = (Rule) session.get(Rule.class, ruleID);
 
 			tx.commit();
-			return getInitializedRuleActions(rule, session);
+			if (rule != null) {
+				actions.addAll(getInitializedRuleActions(rule, session));
+			}
+
 		} catch (HibernateException e) {
 			if (tx != null)
 				tx.rollback();
@@ -477,11 +481,10 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 		} finally {
 			session.close();
 		}
-		return new LinkedList<Action>();
-		
-		
+		return actions;
+
 	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -547,6 +550,5 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 		}
 		return actions;
 	}
-
 
 }
