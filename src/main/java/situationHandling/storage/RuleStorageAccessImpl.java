@@ -11,6 +11,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.exception.ConstraintViolationException;
 
 import situationHandling.storage.datatypes.Action;
 import situationHandling.storage.datatypes.Rule;
@@ -278,7 +279,13 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 		} catch (HibernateException e) {
 			if (tx != null)
 				tx.rollback();
-			logger.error("Hibernate error", e);
+			if (e instanceof ConstraintViolationException) {
+				logger.info("Update of rule "
+						+ ruleID
+						+ " not possible. There is already a rule for the situation.");
+			} else {
+				logger.error("Hibernate error", e);
+			}
 			return false;
 		} finally {
 			session.close();
@@ -326,7 +333,13 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 		} catch (HibernateException e) {
 			if (tx != null)
 				tx.rollback();
-			logger.error("Hibernate error", e);
+			if (e instanceof ConstraintViolationException) {
+				logger.info("Update of rule "
+						+ oldSituation
+						+ " not possible. There is already a rule for the situation.");
+			} else {
+				logger.error("Hibernate error", e);
+			}
 			return false;
 		} finally {
 			session.close();
