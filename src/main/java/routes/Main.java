@@ -5,14 +5,17 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import org.apache.camel.CamelContext;
-import org.apache.camel.ProducerTemplate;
 import org.apache.camel.impl.DefaultCamelContext;
+import org.apache.log4j.Logger;
 
 import situationHandling.storage.HibernateUtil;
 
 public class Main {
 
 	private static CamelContext context;
+	
+	private final static Logger logger = Logger
+			.getLogger(Main.class);
 	
 
 	public static void main(String[] args) {
@@ -21,6 +24,8 @@ public class Main {
 
 		context = new DefaultCamelContext();
 
+		
+		
 		try {
 			context.addRoutes(new SituationHandlerRouteBuilder());
 			CamelUtil.initProducerTemplate(context.createProducerTemplate());
@@ -28,8 +33,11 @@ public class Main {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
+		
+		logger.info("Camel context initialized");
 	}
+	
+	
 	//Maybe for later use :)
 	private static void shutdownHandling() {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -53,7 +61,7 @@ public class Main {
 					while (line.equalsIgnoreCase("quit") == false) {
 						line = in.readLine();
 					}
-					System.out.println("Shutting Down..");
+					logger.info("Shutting Down..");
 					CamelUtil.getProducerTemplate().stop();
 					context.stop();
 					HibernateUtil.getSessionFactory().close();
