@@ -3,43 +3,60 @@ package api.configuration;
 import java.util.LinkedList;
 
 import org.apache.camel.Exchange;
-import org.apache.camel.Handler;
 
 import situationHandling.storage.RuleStorageAccess;
 import situationHandling.storage.StorageAccessFactory;
 
 public class RuleAPI {
+	
+	//TODO Fehler Behandlung
 
 
 	public void getRules(Exchange exchange) {
 		
-
-		
-//		exchange.getIn().setBody("Enis", String.class);
-		
-		LinkedList<Test> liste = new LinkedList<>();
-		liste.add(new Test("1", "2"));
-		liste.add(new Test("3", "4"));
-		
 		RuleStorageAccess rsa = StorageAccessFactory.getRuleStorageAccess();
-		
-		
-		exchange.getIn().setBody(rsa.getAllRules());
-		
-//		exchange.getIn().setBody(new ListWrapper(liste), ListWrapper.class);
+		exchange.getIn().setBody(rsa.getAllRules());		
+	}
+	
+	public void getRuleByID(Integer ruleID, Exchange exchange){
+		RuleStorageAccess rsa = StorageAccessFactory.getRuleStorageAccess();
+		exchange.getIn().setBody(rsa.getRuleByID(ruleID));
+	}
+	
+	public void addRule(Exchange exchange){
 		
 	}
 	
-	public void getRuleByID(Exchange exchange){
-		System.out.println("Header: " + exchange.getIn().getHeader("id"));
-//		System.out.println("ID: " + id);
-
-
+	public void updateRuleSituation(Exchange exchange){
 		
-		exchange.getIn().setBody(new Test("1", "2"), Test.class);
 	}
 	
+	public void deleteRule(Exchange exchange){
+		
+	}
 	
+	public void getActionsByRule (Integer ruleID, Exchange exchange){
+		RuleStorageAccess rsa = StorageAccessFactory.getRuleStorageAccess();
+		exchange.getIn().setBody(rsa.getActionsByRuleID(ruleID));
+	}
+	
+	public void getActionByID (Integer actionID, Exchange exchange){
+		RuleStorageAccess rsa = StorageAccessFactory.getRuleStorageAccess();
+		exchange.getIn().setBody(rsa.getActionByID(actionID));
+	}
+	
+	public void addAction(Exchange exchange){
+		
+	}
+	
+	public void deleteAction(Exchange exchange){
+		
+	}
+	
+	public void updateAction (Exchange exchange){
+		
+	}
+
 
 }
 
