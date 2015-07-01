@@ -23,24 +23,29 @@ public class SituationHandlerRouteBuilder extends RouteBuilder {
 		rest("/config").description("Situation Handler RestAPI")
 				.consumes("application/json").produces("application/json");
 
+		// Rest Api operations
+		// ../rules --> GET all rules
 		rest("/config/rules").get().outTypeList(Rule.class)
-				.to("direct:getRules");
-		from("direct:getRules").bean(RuleAPI.class, "getRules");
+				.to("bean:ruleApi?method=getRules");
 
+		// ../rules/<ID> -->GET rules with <ID>
 		rest("config/rules/{ruleId}").get().outType(Rule.class)
-				.to("direct:getRuleByID");
-		from("direct:getRuleByID").bean(RuleAPI.class,
-				"getRuleByID(${header.ruleId})");
+				.to("bean:ruleApi?method=getRuleByID(${header.ruleId})");
+		// from("direct:getRuleByID").bean(RuleAPI.class,
+		// "getRuleByID(${header.ruleId})");
 
+		// ../rules/<ID>/actions --> GET all actions of rule <ID>
 		rest("config/rules/{ruleId}/actions").get().outTypeList(Action.class)
-				.to("direct:getActionsByRule");
-		from("direct:getActionsByRule").bean(RuleAPI.class,
-				"getActionsByRule(${header.ruleId})");
+				.to("bean:ruleApi?method=getActionsByRule(${header.ruleId})");
+		// from("direct:getActionsByRule").bean(RuleAPI.class,
+		// "getActionsByRule(${header.ruleId})");
 
+		// ../rules/<ID>/actions/<actionID> --> GET action with <actionID>
 		rest("config/rules/{ruleId}/actions/{actionId}").get()
-				.outType(Action.class).to("direct:getActionByID");
-		from("direct:getActionByID").bean(RuleAPI.class,
-				"getActionByID(${header.actionId})");
+				.outType(Action.class)
+				.to("bean:ruleApi?method=getActionByID(${header.actionId})");
+		// from("direct:getActionByID").bean(RuleAPI.class,
+		// "getActionByID(${header.actionId})");
 
 		// TODO
 		// Könnte man auch so machen, erfordert aber Bean registrierung

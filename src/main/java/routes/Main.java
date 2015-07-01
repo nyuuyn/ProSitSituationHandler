@@ -6,8 +6,10 @@ import java.io.InputStreamReader;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.impl.DefaultCamelContext;
+import org.apache.camel.impl.JndiRegistry;
 import org.apache.log4j.Logger;
 
+import api.configuration.RuleAPI;
 import situationHandling.storage.HibernateUtil;
 
 public class Main {
@@ -23,7 +25,10 @@ public class Main {
 		shutdownHandling();
 
 		context = new DefaultCamelContext();
-
+		
+		JndiRegistry registry = context.getRegistry(JndiRegistry.class);
+		
+		registry.bind("ruleApi", RuleAPI.class);
 		
 		
 		try {
