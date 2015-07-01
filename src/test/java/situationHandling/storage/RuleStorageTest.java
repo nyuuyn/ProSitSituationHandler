@@ -44,6 +44,9 @@ public class RuleStorageTest {
 
 		// try to add rule 1 again (add further actions)
 		ruleIds.add(rsa.addRule(situation, buildActionList()));
+		
+		//get and print rule 1
+		System.out.println(rsa.getRuleByID(ruleIds.get(0)));
 
 		// add rule 2
 		situation.setSituationName("situation2");
@@ -51,6 +54,10 @@ public class RuleStorageTest {
 
 		// add action to rule 1
 		int actionID = rsa.addAction(ruleIds.get(0), buildAction());
+		
+		//get and print action
+		System.out.println(rsa.getActionByID(actionID));
+		
 		// remove the same action
 		rsa.deleteAction(actionID);
 

@@ -11,6 +11,8 @@ public class SituationHandlerRouteBuilder extends RouteBuilder {
 
 	public void configure() {
 
+		// TODO: den gleichen server für alles benutzen
+
 		// by using 0.0.0.0, the jetty server is exposed on all network
 		// interfaces
 		from("jetty:http://0.0.0.0:8080/SoapEndpoint?matchOnUriPrefix=true")
@@ -19,7 +21,8 @@ public class SituationHandlerRouteBuilder extends RouteBuilder {
 		rest("/config").description("User rest service")
 				.consumes("application/json").produces("application/json")
 
-				.get("/rules").outTypeList(Rule.class).to("direct:getRules").get("/rules/{id}")
+				.get("/rules").outTypeList(Rule.class).to("direct:getRules")
+				.get("/rules/{id}").outType(Rule.class)
 				.to("direct:getRuleByID");
 
 		// Könnte man auch so machen, erfordert aber Bean registrierung

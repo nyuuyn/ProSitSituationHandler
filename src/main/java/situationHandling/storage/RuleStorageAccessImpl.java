@@ -378,6 +378,43 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see situationHandling.storage.RuleStorageAccess#getRuleByID( int )
+	 */
+	@Override
+	public Rule getRuleByID(int ruleID) {
+		logger.debug("Getting rule with id " + ruleID);
+
+		Session session = HibernateUtil.getSessionFactory().openSession();
+		Transaction tx = null;
+		Rule rule = null;
+		try {
+			tx = session.beginTransaction();
+
+			rule = (Rule) session.get(Rule.class, ruleID);
+
+			if (rule != null) {
+				// also load actions and params from database
+				Hibernate.initialize(rule.getActions());
+				rule.getActions().forEach(
+						action -> Hibernate.initialize(action.getParams()));
+			} else {
+				logger.info("No rule found with id = " + ruleID);
+			}
+
+			tx.commit();
+		} catch (HibernateException e) {
+			if (tx != null)
+				tx.rollback();
+			logger.error("Hibernate error", e);
+		} finally {
+			session.close();
+		}
+		return rule;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see situationHandling.storage.RuleStorageAccess#getActionsBySituation(
 	 * situationHandling.storage.datatypes.Situation)
 	 */
@@ -441,8 +478,44 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 			session.close();
 		}
 		return new LinkedList<Action>();
+		
+		
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see situationHandling.storage.RuleStorageAccess#getActionByID( int )
+	 */
+	@Override
+	public Action getActionByID(int actionID) {
+		logger.debug("Getting Action with id " + actionID);
 
+		Session session = HibernateUtil.getSessionFactory().openSession();
+		Transaction tx = null;
+		Action action = null;
+		try {
+			tx = session.beginTransaction();
+
+			action = (Action) session.get(Action.class, actionID);
+
+			if (action != null) {
+				// also load params from database
+				Hibernate.initialize(action.getParams());
+			} else {
+				logger.info("No action found with id = " + actionID);
+			}
+
+			tx.commit();
+		} catch (HibernateException e) {
+			if (tx != null)
+				tx.rollback();
+			logger.error("Hibernate error", e);
+		} finally {
+			session.close();
+		}
+		return action;
+	}
 
 	/**
 	 * Helper method to load all actions of a rule and also their params from
@@ -474,5 +547,6 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 		}
 		return actions;
 	}
+
 
 }

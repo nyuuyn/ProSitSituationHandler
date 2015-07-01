@@ -108,11 +108,11 @@ public interface RuleStorageAccess {
 	 *            the address of the new recipent. If {@code address} is
 	 *            {@code null}, the address will not be updated
 	 * @param payload
-	 *            the new payload to send. If {@code payload} is
-	 *            {@code null}, the payload will not be updated
+	 *            the new payload to send. If {@code payload} is {@code null},
+	 *            the payload will not be updated
 	 * @param params
-	 *            the new params. If {@code params} is
-	 *            {@code null}, the params will not be updated
+	 *            the new params. If {@code params} is {@code null}, the params
+	 *            will not be updated
 	 * @return true, if successful
 	 */
 	public boolean updateAction(int actionID, String pluginID, String address,
@@ -162,6 +162,15 @@ public interface RuleStorageAccess {
 	public List<Rule> getAllRules();
 
 	/**
+	 * Gets the rule with the specified ID.
+	 * 
+	 * @param ruleID
+	 *            the id of the rule to get
+	 * @return the rule if it exists, null else
+	 */
+	public Rule getRuleByID(int ruleID);
+
+	/**
 	 * Gets the actions that are associated with the specified situation.
 	 *
 	 * @param situation
@@ -180,5 +189,14 @@ public interface RuleStorageAccess {
 	 *         rule. An empty list if no actions are available.
 	 */
 	public List<Action> getActionsByRuleID(int ruleID);
+
+	/**
+	 * Gets the action with the specified ID.
+	 * 
+	 * @param actionID
+	 *            the id of the action to get
+	 * @return the action if it exists, null else
+	 */
+	public Action getActionByID(int actionID);
 
 }
