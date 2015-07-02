@@ -9,8 +9,9 @@ import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.impl.JndiRegistry;
 import org.apache.log4j.Logger;
 
-import api.configuration.RuleAPI;
 import situationHandling.storage.HibernateUtil;
+import api.configuration.EndpointAPI;
+import api.configuration.RuleAPI;
 
 public class Main {
 
@@ -29,6 +30,7 @@ public class Main {
 		JndiRegistry registry = context.getRegistry(JndiRegistry.class);
 		
 		registry.bind("ruleApi", RuleAPI.class);
+		registry.bind("endpointApi", EndpointAPI.class);
 		
 		
 		try {

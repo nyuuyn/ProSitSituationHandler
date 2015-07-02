@@ -1,7 +1,5 @@
 package api.configuration;
 
-import java.util.LinkedList;
-
 import org.apache.camel.Exchange;
 
 import situationHandling.storage.RuleStorageAccess;

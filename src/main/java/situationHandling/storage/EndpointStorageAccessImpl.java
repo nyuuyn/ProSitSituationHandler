@@ -252,11 +252,17 @@ class EndpointStorageAccessImpl implements EndpointStorageAccess {
 			} else {
 
 				// params are optional, so check for null..
-				if (situation != null) {
-					endpoint.setSituation(situation);
+				if (situation != null && situation.getSituationName() != null) {
+					endpoint.setSituationName(situation.getSituationName());
 				}
-				if (operation != null) {
-					endpoint.setOperation(operation);
+				if (situation != null && situation.getObjectName() != null) {
+					endpoint.setObjectName(situation.getObjectName());
+				}
+				if (operation != null && operation.getOperationName() != null) {
+					endpoint.setOperationName(operation.getOperationName());
+				}
+				if (operation != null && operation.getQualifier() != null) {
+					endpoint.setQualifier(operation.getQualifier());
 				}
 				if (endpointURL != null) {
 					endpoint.setEndpointURL(endpointURL.toString());

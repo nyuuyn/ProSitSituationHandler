@@ -5,6 +5,7 @@ import org.apache.camel.model.rest.RestBindingMode;
 
 import situationHandling.OperationHandlerImpl;
 import situationHandling.storage.datatypes.Action;
+import situationHandling.storage.datatypes.Endpoint;
 import situationHandling.storage.datatypes.Rule;
 import situationHandling.storage.datatypes.Situation;
 
@@ -77,8 +78,38 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 
 		// ../rules/<ID>/actions/<actionID> --> DELETE: deltes the action with
 		// <actionID>
-		rest("config/rules/{ruleId}/actions/{actionId}").delete()
-				.to("bean:ruleApi?method=deleteAction(${header.actionId})");
+		rest("config/rules/{ruleId}/actions/{actionId}").delete().to(
+				"bean:ruleApi?method=deleteAction(${header.actionId})");
+
+		/*
+		 * --------------------------------------------------------------------
+		 * ENDPOINTS configuration
+		 * --------------------------------------------------------------------
+		 */
+
+		// ../endpoints --> GET all endpoints
+		rest("/config/endpoints").get().outTypeList(Endpoint.class)
+				.to("bean:endpointApi?method=getEndpoints");
+
+		// ../endpoints --> Post: add new endpoint
+		rest("/config/endpoints").post().type(Endpoint.class)
+				.to("bean:endpointApi?method=addEndpoint");
+
+		// ../endpoints/<id> --> GET: gets the endpoint with <id>
+		rest("/config/endpoints/{endpointId}")
+				.get()
+				.outType(Endpoint.class)
+				.to("bean:endpointApi?method=getEndpointByID(${header.endpointId})");
+
+		// ../endpoints/<id> --> DELETE: deletes the endpoint with <id>
+		rest("/config/endpoints/{endpointId}")
+				.delete()
+				.to("bean:endpointApi?method=deleteEndpoint(${header.endpointId})");
+
+		// ../endpoints/<id> --> PUT: updates the endpoint with <id>
+		rest("/config/endpoints/{endpointId}")
+				.put().type(Endpoint.class)
+				.to("bean:endpointApi?method=updateEndpoint(${header.endpointId})");
 
 		// TODO
 		// Könnte man auch so machen, erfordert aber Bean registrierung
