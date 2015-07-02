@@ -75,13 +75,17 @@ public class RuleAPI {
 	}
 
 	public void getActionsByRule(Integer ruleID, Exchange exchange) {
-		RuleStorageAccess rsa = StorageAccessFactory.getRuleStorageAccess();
 		exchange.getIn().setBody(rsa.getActionsByRuleID(ruleID));
 	}
 
-	public void getActionByID(Integer actionID, Exchange exchange) {
-		RuleStorageAccess rsa = StorageAccessFactory.getRuleStorageAccess();
+	public void addAction(Integer ruleID, Exchange exchange) {
+		Action action = exchange.getIn().getBody(Action.class);
+		int actionID = rsa.addAction(ruleID, action);
+		exchange.getIn().setBody(
+				"Action successfully added. New action id is " + actionID);
+	}
 
+	public void getActionByID(Integer actionID, Exchange exchange) {
 		Action action = rsa.getActionByID(actionID);
 		if (action == null) {
 			exchange.getIn().setBody("Action " + actionID + " not found.");
@@ -93,63 +97,31 @@ public class RuleAPI {
 		}
 	}
 
-	public void addAction(Exchange exchange) {
-
+	public void deleteAction(Integer actionID, Exchange exchange) {
+		if (rsa.deleteAction(actionID)) {
+			exchange.getIn().setBody("Action successfully deleted");
+		} else {
+			exchange.getIn().setBody("Action " + actionID + " not found.");
+			exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
+			exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 404);
+		}
 	}
 
-	public void deleteAction(Exchange exchange) {
+	public void updateAction(Integer actionID, Exchange exchange) {
+		Action action = exchange.getIn().getBody(Action.class);
+		exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
 
-	}
-
-	public void updateAction(Exchange exchange) {
-
-	}
-
-}
-
-class Test {
-
-	String preName;
-	String surName;
-
-	public Test(String preName, String surName) {
-		super();
-		this.preName = preName;
-		this.surName = surName;
-	}
-
-	public String getPreName() {
-		return preName;
-	}
-
-	public void setPreName(String preName) {
-		this.preName = preName;
-	}
-
-	public String getSurName() {
-		return surName;
-	}
-
-	public void setSurName(String surName) {
-		this.surName = surName;
-	}
-
-}
-
-class ListWrapper {
-
-	LinkedList<Test> liste;
-
-	public LinkedList<Test> getListe() {
-		return liste;
-	}
-
-	public void setListe(LinkedList<Test> liste) {
-		this.liste = liste;
-	}
-
-	public ListWrapper(LinkedList<Test> liste) {
-		this.liste = liste;
+		if (rsa.updateAction(actionID.intValue(), action.getPluginID(),
+				action.getAddress(), action.getPayload(), action.getParams())) {
+			exchange.getIn().setBody("Action successfully updated");
+		} else {
+			exchange.getIn()
+					.setBody(
+							"Action "
+									+ actionID
+									+ " could not be updated. There is no action with this id.");
+			exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 404);
+		}
 	}
 
 }

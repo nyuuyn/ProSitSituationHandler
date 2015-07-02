@@ -8,7 +8,7 @@ import situationHandling.storage.datatypes.Action;
 import situationHandling.storage.datatypes.Rule;
 import situationHandling.storage.datatypes.Situation;
 
-public class SituationHandlerRouteBuilder extends RouteBuilder {
+class SituationHandlerRouteBuilder extends RouteBuilder {
 
 	public void configure() {
 
@@ -60,10 +60,25 @@ public class SituationHandlerRouteBuilder extends RouteBuilder {
 		rest("config/rules/{ruleId}/actions").get().outTypeList(Action.class)
 				.to("bean:ruleApi?method=getActionsByRule(${header.ruleId})");
 
+		// ../rules/<ID>/actions -->POST: creates a new action
+		rest("/config/rules/{ruleId}/actions").post().type(Action.class)
+				.to("bean:ruleApi?method=addAction(${header.ruleId})");
+
 		// ../rules/<ID>/actions/<actionID> --> GET action with <actionID>
 		rest("config/rules/{ruleId}/actions/{actionId}").get()
 				.outType(Action.class)
 				.to("bean:ruleApi?method=getActionByID(${header.actionId})");
+
+		// ../rules/<ID>/actions/<actionID> --> PUT: updates the action with
+		// <actionID>
+		rest("config/rules/{ruleId}/actions/{actionId}").put()
+				.type(Action.class)
+				.to("bean:ruleApi?method=updateAction(${header.actionId})");
+
+		// ../rules/<ID>/actions/<actionID> --> DELETE: deltes the action with
+		// <actionID>
+		rest("config/rules/{ruleId}/actions/{actionId}").delete()
+				.to("bean:ruleApi?method=deleteAction(${header.actionId})");
 
 		// TODO
 		// Könnte man auch so machen, erfordert aber Bean registrierung
