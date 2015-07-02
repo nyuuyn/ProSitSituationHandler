@@ -8,22 +8,62 @@ import situationHandling.storage.datatypes.Endpoint;
 import situationHandling.storage.datatypes.Rule;
 import situationHandling.storage.datatypes.Situation;
 
+/**
+ * In this class, the camel routes for the rest configuration api are designed,
+ * i.e. the rest operations for the rest api are defined.
+ * <p>
+ * Extends Route Builder. To use the class, i.e. to make the rest api available,
+ * add this class as route to the camel context.
+ * 
+ * @author Stefan
+ *
+ */
 class RestApiRoutes extends RouteBuilder {
 
+	/**
+	 * The port under which the api is available
+	 */
+	private int port;
+
+	/**
+	 * The hostname/IP-Adress
+	 */
+	private String host;
+
+	/**
+	 * Creates a new instance of RestApiRoutes and does the initialization. Add
+	 * an instance of this class to the camel context to make the routes
+	 * available under the given hostname and port.
+	 * 
+	 * 
+	 * @param host
+	 *            the hostname, for example "localhost". Use "0.0.0.0" to expose
+	 *            the routes on all interfaces.
+	 * @param port the port
+	 */
+	public RestApiRoutes(String host, int port) {
+		this.host = host;
+		this.port = port;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.camel.builder.RouteBuilder#configure()
+	 */
 	@Override
 	public void configure() throws Exception {
-		
-		//setup configuration
-		restConfiguration().component("jetty").port(8081).host("0.0.0.0")
+
+		// setup configuration
+		restConfiguration().component("jetty").port(port).host(host)
 				.bindingMode(RestBindingMode.json)
 				.dataFormatProperty("prettyPrint", "true");
-		
-		
-		//base route
+
+		// base route
 		// TODO: Was ist mit den Consumes/Produces dinger?
 		rest("/config").description("Situation Handler RestAPI")
 				.consumes("application/json").produces("application/json");
-		
+
 		/*
 		 * --------------------------------------------------------------------
 		 * RULES configuration
@@ -97,19 +137,19 @@ class RestApiRoutes extends RouteBuilder {
 				.to("bean:endpointApi?method=getEndpointByID(${header.endpointId})");
 
 		// ../endpoints/<id> --> DELETE: deletes the endpoint with <id>
-		rest("/config/endpoints/{endpointId}")
-				.delete()
-				.to("bean:endpointApi?method=deleteEndpoint(${header.endpointId})");
+		rest("/config/endpoints/{endpointId}").delete().to(
+				"bean:endpointApi?method=deleteEndpoint(${header.endpointId})");
 
 		// ../endpoints/<id> --> PUT: updates the endpoint with <id>
 		rest("/config/endpoints/{endpointId}")
-				.put().type(Endpoint.class)
+				.put()
+				.type(Endpoint.class)
 				.to("bean:endpointApi?method=updateEndpoint(${header.endpointId})");
 
 		// TODO
 		// Könnte man auch so machen, erfordert aber Bean registrierung
 		// .get("/rules").to("bean:RuleAPI?method=getRules");
-	
+
 	}
 
 }

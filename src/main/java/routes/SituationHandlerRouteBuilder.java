@@ -10,6 +10,13 @@ import situationHandling.storage.datatypes.Rule;
 import situationHandling.storage.datatypes.Situation;
 
 class SituationHandlerRouteBuilder extends RouteBuilder {
+	private String hostname;
+	private int port;
+
+	public SituationHandlerRouteBuilder(String hostname, int port) {
+		this.hostname = hostname;
+		this.port = port;
+	}
 
 	public void configure() {
 
@@ -23,9 +30,10 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 
 		// by using 0.0.0.0, the jetty server is exposed on all network
 		// interfaces
-		from("jetty:http://0.0.0.0:8080/SoapEndpoint?matchOnUriPrefix=true")
-				.to("stream:out").bean(OperationHandlerImpl.class);
-
+		from(
+				"jetty:http://" + hostname + ":" + port
+						+ "/SoapEndpoint?matchOnUriPrefix=true").to(
+				"stream:out").bean(OperationHandlerImpl.class);
 
 	}
 
