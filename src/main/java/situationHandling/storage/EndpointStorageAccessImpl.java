@@ -7,12 +7,14 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 import situationHandling.storage.datatypes.Endpoint;
 import situationHandling.storage.datatypes.Operation;
+import situationHandling.storage.datatypes.Rule;
 import situationHandling.storage.datatypes.Situation;
 
 /**
@@ -121,6 +123,38 @@ class EndpointStorageAccessImpl implements EndpointStorageAccess {
 			session.close();
 		}
 		return endpoints;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see situationHandling.storage.EndpointStorageAccess#getEndpointByID(int)
+	 */
+	@Override
+	public Endpoint getEndpointByID(int endpointID) {
+		logger.debug("Getting endpoint with id " + endpointID);
+
+		Session session = HibernateUtil.getSessionFactory().openSession();
+		Transaction tx = null;
+		Endpoint endpoint = null;
+		try {
+			tx = session.beginTransaction();
+
+			endpoint = (Endpoint) session.get(Endpoint.class, endpointID);
+
+			if (endpoint == null) {
+				logger.info("No endpoint found with id = " + endpointID);
+			}
+
+			tx.commit();
+		} catch (HibernateException e) {
+			if (tx != null)
+				tx.rollback();
+			logger.error("Hibernate error", e);
+		} finally {
+			session.close();
+		}
+		return endpoint;
 	}
 
 	/*

@@ -1,9 +1,9 @@
 package situationHandling.storage;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
@@ -143,6 +143,8 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 	 */
 	@Override
 	public boolean deleteAction(int actionID) {
+		
+		//TODO: Returns ändern
 		logger.debug("Deleting action: " + actionID);
 		Session session = HibernateUtil.getSessionFactory().openSession();
 		Transaction tx = null;
@@ -208,7 +210,7 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 	 */
 	@Override
 	public boolean updateAction(int actionID, String pluginID, String address,
-			String payload, HashMap<String, String> params) {
+			String payload, Map<String, String> params) {
 		logger.debug("Updating action: " + actionID);
 		Session session = HibernateUtil.getSessionFactory().openSession();
 		Transaction tx = null;

@@ -2,6 +2,7 @@ package situationHandling.storage;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import situationHandling.storage.datatypes.Action;
 import situationHandling.storage.datatypes.Rule;
@@ -116,7 +117,7 @@ public interface RuleStorageAccess {
 	 * @return true, if successful
 	 */
 	public boolean updateAction(int actionID, String pluginID, String address,
-			String payload, HashMap<String, String> params);
+			String payload, Map<String, String> params);
 
 	/**
 	 * Updates the situation of an existing rule with the specified id. Note

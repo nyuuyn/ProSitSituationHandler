@@ -8,10 +8,10 @@ import situationHandling.storage.datatypes.Operation;
 import situationHandling.storage.datatypes.Situation;
 
 /**
- * The Interface {@codeEndpointStorageAccess} gives access to the endpoint directory.
- * Main purpose of the endpoint storage/directory is to provide an endpoint that
- * offers an certain operation depending on the current situation. Furthermore
- * manipulation of the list of existing endpoints is possible.
+ * The Interface {@codeEndpointStorageAccess} gives access to the endpoint
+ * directory. Main purpose of the endpoint storage/directory is to provide an
+ * endpoint that offers an certain operation depending on the current situation.
+ * Furthermore manipulation of the list of existing endpoints is possible.
  * <p>
  * This {@code Interface} allows to add, manipulate and retrieve endpoints from
  * the endpoint storage. It defines methods for all interaction with the
@@ -53,6 +53,16 @@ public interface EndpointStorageAccess {
 	 * @return all endpoints. An empty list, if no endpoints are available.
 	 */
 	public List<Endpoint> getAllEndpoints();
+
+	/**
+	 * Gets the endpoint with the given ID.
+	 * 
+	 * 
+	 * @param endpointID
+	 *            the id of the endpoint
+	 * @return the endpoint if it exists, null else
+	 */
+	public Endpoint getEndpointByID(int endpointID);
 
 	/**
 	 * Adds a new endpoint to the endpoint storage/directory. The endpoint will

@@ -51,6 +51,10 @@ public class EndpointStorageTest {
 		System.out.println("Endpoint Query");
 		System.out.println("URL: "
 				+ esa.getEndpointURL(situation, operation).toString());
+		
+		//Getting Endpoint by ID
+		System.out.println("Getting Endpoint by ID");
+		System.out.println(esa.getEndpointByID(epID));
 
 		System.out.println("Adding further Endpoints");
 		ids.add(esa.addEndpoint(operation, situation, endpointURL));
