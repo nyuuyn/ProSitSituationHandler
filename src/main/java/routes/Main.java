@@ -29,11 +29,13 @@ public class Main {
 		
 		JndiRegistry registry = context.getRegistry(JndiRegistry.class);
 		
+		//register beans for use
 		registry.bind("ruleApi", RuleAPI.class);
 		registry.bind("endpointApi", EndpointAPI.class);
 		
 		
 		try {
+			//add routes
 			context.addRoutes(new SituationHandlerRouteBuilder());
 			context.addRoutes(new RestApiRoutes());
 			CamelUtil.initProducerTemplate(context.createProducerTemplate());

@@ -5,23 +5,59 @@ import org.apache.camel.Exchange;
 import situationHandling.storage.RuleStorageAccess;
 import situationHandling.storage.StorageAccessFactory;
 import situationHandling.storage.datatypes.Action;
+import situationHandling.storage.datatypes.Endpoint;
 import situationHandling.storage.datatypes.Rule;
 import situationHandling.storage.datatypes.Situation;
 
+/**
+ * The Class RuleAPI implements the functionality of the rest configuration api
+ * for the rules. For each allowed rest-operation, there is a dedicated
+ * operation.
+ * <p>
+ * The class serves as target for the camel route that specifies the rest api
+ * methods.
+ */
 public class RuleAPI {
 
-	RuleStorageAccess rsa;
+	/** The instance of {@code RuleStorageAccess} to access the storage. */
+	private RuleStorageAccess rsa;
 
+	/**
+	 * Creates a new instance of RuleAPi and does necessary configuration.
+	 */
 	public RuleAPI() {
 		this.rsa = StorageAccessFactory.getRuleStorageAccess();
 	}
 
-	// TODO Fehler Behandlung
-
+	/**
+	 * Gets all rules that are currently stored in the rule directory.
+	 * <p>
+	 * Target method for a camel route. The exchange is created by camel.
+	 * 
+	 * @param exchange
+	 *            the exchange that contains the received message. Also serves
+	 *            as container for the answer.
+	 * @return The rules as list. If there are no rules, an empty list is
+	 *         returned. The return value is stored in the exchange.
+	 */
 	public void getRules(Exchange exchange) {
 		exchange.getIn().setBody(rsa.getAllRules());
 	}
 
+	/**
+	 * Gets a rule by id from the directory.
+	 * <p>
+	 * Target method for a camel route. The exchange is created by camel.
+	 * 
+	 * @param ruleID
+	 *            the rule id
+	 * 
+	 * @param exchange
+	 *            the exchange that contains the received message. Also serves
+	 *            as container for the answer.
+	 * @return The rule. If there is no rule with this id a 404-error is
+	 *         returned. The return value is stored in the exchange.
+	 */
 	public void getRuleByID(Integer ruleID, Exchange exchange) {
 		Rule rule = rsa.getRuleByID(ruleID);
 		if (rule == null) {
@@ -33,6 +69,18 @@ public class RuleAPI {
 		}
 	}
 
+	/**
+	 * Adds the rule to the directory.
+	 * <p>
+	 * Target method for a camel route. The exchange is created by camel.
+	 * 
+	 * @param exchange
+	 *            the exchange that contains the received message. Must contain
+	 *            an instance of {@link Rule} in the body. Also serves as
+	 *            container for the answer.
+	 * @return The id of the new rule. The return value is stored in the
+	 *         exchange.
+	 */
 	public void addRule(Exchange exchange) {
 		Rule rule = exchange.getIn().getBody(Rule.class);
 		int ruleID = rsa.addRule(rule.getSituation(), rule.getActions());
@@ -42,6 +90,20 @@ public class RuleAPI {
 		exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
 	}
 
+	/**
+	 * Updates the situation a rule applies to.
+	 * <p>
+	 * Target method for a camel route. The exchange is created by camel.
+	 *
+	 * @param ruleID
+	 *            the rule to update
+	 * @param exchange
+	 *            the exchange that contains the received message. Must contain
+	 *            an instance of {@link Situation} in the body. Also serves as
+	 *            container for the answer.
+	 * @return A 404-error, if there is no rule with the given id or there
+	 *         already exists a rule with this id.
+	 */
 	public void updateRuleSituation(Integer ruleID, Exchange exchange) {
 		Situation situation = exchange.getIn().getBody(Situation.class);
 		exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
@@ -57,6 +119,18 @@ public class RuleAPI {
 		}
 	}
 
+	/**
+	 * Deletes the rule with the given id from the directory.
+	 * <p>
+	 * Target method for a camel route. The exchange is created by camel.
+	 * 
+	 * @param ruleID
+	 *            the rule id
+	 * @param exchange
+	 *            the exchange that contains the received message. Also serves
+	 *            as container for the answer.
+	 * @return A 404-error, if there is no rule with the given id.
+	 */
 	public void deleteRule(Integer ruleID, Exchange exchange) {
 
 		exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
@@ -72,17 +146,66 @@ public class RuleAPI {
 		}
 	}
 
+	/**
+	 * Gets the actions associated with a rule. The rule is specified by the id.
+	 * <p>
+	 * Target method for a camel route. The exchange is created by camel.
+	 * 
+	 * @param ruleID
+	 *            the rule id
+	 * @param exchange
+	 *            the exchange that contains the received message. Also serves
+	 *            as container for the answer.
+	 * @return The actions as list. If there are no action or there is no rule
+	 *         with this id, an empty list is returned. The return value is
+	 *         stored in the exchange.
+	 */
 	public void getActionsByRule(Integer ruleID, Exchange exchange) {
 		exchange.getIn().setBody(rsa.getActionsByRuleID(ruleID));
 	}
 
+	/**
+	 * Adds the action to the directory. The action is associated with the
+	 * specified rule.
+	 * <p>
+	 * Target method for a camel route. The exchange is created by camel.
+	 * 
+	 * @param ruleID
+	 *            the rule id. The action will be executed when this rule is
+	 *            used.
+	 * @param exchange
+	 *            the exchange that contains the received message. Must contain
+	 *            an instance of {@link Action} in the body. Also serves as
+	 *            container for the answer.
+	 * @return A 404-error, if there is no rule with the given id.
+	 */
 	public void addAction(Integer ruleID, Exchange exchange) {
 		Action action = exchange.getIn().getBody(Action.class);
 		int actionID = rsa.addAction(ruleID, action);
-		exchange.getIn().setBody(
-				"Action successfully added. New action id is " + actionID);
+		exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
+
+		if (actionID != -1) {
+			exchange.getIn().setBody(
+					"Action successfully added. New action id is " + actionID);
+		} else {
+			exchange.getIn().setBody("No rule found with id " + ruleID);
+			exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 404);
+		}
 	}
 
+	/**
+	 * Gets the action by id.
+	 * <p>
+	 * Target method for a camel route. The exchange is created by camel.
+	 * 
+	 * @param actionID
+	 *            the action id
+	 * @param exchange
+	 *            the exchange that contains the received message. Also serves
+	 *            as container for the answer.
+	 * @return the action with this id. An 404-error, if no action with this id
+	 *         was found.
+	 */
 	public void getActionByID(Integer actionID, Exchange exchange) {
 		Action action = rsa.getActionByID(actionID);
 		if (action == null) {
@@ -95,6 +218,18 @@ public class RuleAPI {
 		}
 	}
 
+	/**
+	 * Delete the action with this id.
+	 * <p>
+	 * Target method for a camel route. The exchange is created by camel.
+	 * 
+	 * @param actionID
+	 *            the action id
+	 * @param exchange
+	 *            the exchange that contains the received message. Also serves
+	 *            as container for the answer.
+	 * @return A 404-error, if there is no action with the given id.
+	 */
 	public void deleteAction(Integer actionID, Exchange exchange) {
 		if (rsa.deleteAction(actionID)) {
 			exchange.getIn().setBody("Action successfully deleted");
@@ -105,6 +240,21 @@ public class RuleAPI {
 		}
 	}
 
+	/**
+	 * Updates the action with the given ID. The parameters of the action are
+	 * optional, i.e. they can be null. If a parameter is null, the value is not
+	 * updated.
+	 * <p>
+	 * Target method for a camel route. The exchange is created by camel.
+	 * 
+	 * @param actionID
+	 *            the action id
+	 * @param exchange
+	 *            the exchange that contains the received message. Must contain
+	 *            an instance of {@link Action} in the body. Also serves as
+	 *            container for the answer.
+	 * @return A 404-error, if there is no action with the given id.
+	 */
 	public void updateAction(Integer actionID, Exchange exchange) {
 		Action action = exchange.getIn().getBody(Action.class);
 		exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");

@@ -14,6 +14,7 @@ public class DatabaseFiller {
 	public static void main(String[] args) {
 		addSampleEndpoints();
 		addSampleRule();
+		System.exit(0);
 
 	}
 
