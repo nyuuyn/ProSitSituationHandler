@@ -57,7 +57,7 @@ class RestApiRoutes extends RouteBuilder {
 		// setup configuration
 		restConfiguration().component("jetty").port(port).host(host)
 				.bindingMode(RestBindingMode.json)
-				.dataFormatProperty("prettyPrint", "true");
+				.dataFormatProperty("prettyPrint", "true").enableCORS(true);
 
 		// base route
 		// TODO: Was ist mit den Consumes/Produces dinger?
