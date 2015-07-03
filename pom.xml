@@ -31,6 +31,12 @@
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
+					<archive>
+						<manifest>
+							<mainClass>routes.Main</mainClass>
+						</manifest>
+					</archive>
+
 					<finalName>Situation Handler</finalName>
 					<appendAssemblyId>false</appendAssemblyId>
 				</configuration>
@@ -46,6 +52,13 @@
 	</properties>
 
 	<dependencies>
+
+		<!-- Workspace Projects -->
+		<dependency>
+			<groupId>SituationHandler</groupId>
+			<artifactId>Plugin</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 
 		<!-- Misc dependencies -->
 		<dependency>
