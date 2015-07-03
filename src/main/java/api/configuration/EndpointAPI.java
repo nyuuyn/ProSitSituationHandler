@@ -114,7 +114,6 @@ public class EndpointAPI {
 	 * @return A 404-error, if there is no endpoint with the given id.
 	 */
 	public void deleteEndpoint(Integer endpointID, Exchange exchange) {
-
 		if (esa.deleteEndpoint(endpointID)) {
 			exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
 			exchange.getIn().setBody("Endpoint Successfully deleted");

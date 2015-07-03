@@ -39,7 +39,8 @@ class RestApiRoutes extends RouteBuilder {
 	 * @param host
 	 *            the hostname, for example "localhost". Use "0.0.0.0" to expose
 	 *            the routes on all interfaces.
-	 * @param port the port
+	 * @param port
+	 *            the port
 	 */
 	public RestApiRoutes(String host, int port) {
 		this.host = host;
@@ -53,6 +54,14 @@ class RestApiRoutes extends RouteBuilder {
 	 */
 	@Override
 	public void configure() throws Exception {
+
+		//set CORS Headers for option requests
+		from(
+				"jetty:http://" + host + ":" + port
+						+ "?matchOnUriPrefix=true&httpMethodRestrict=OPTIONS")
+				.setHeader("Access-Control-Allow-Origin").constant("*")
+				.setHeader("Access-Control-Allow-Methods")
+				.constant("GET, POST, PUT, DELETE, OPTIONS");
 
 		// setup configuration
 		restConfiguration().component("jetty").port(port).host(host)
@@ -151,5 +160,4 @@ class RestApiRoutes extends RouteBuilder {
 		// .get("/rules").to("bean:RuleAPI?method=getRules");
 
 	}
-
 }
