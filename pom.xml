@@ -4,7 +4,7 @@
 	<groupId>SituationHandler</groupId>
 	<artifactId>SituationHandler</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>Situation Handler</name>
+	<name>SituationHandler</name>
 	<description>Situation Handler Main Project</description>
 	<build>
 		<plugins>
