@@ -55,16 +55,22 @@ class RestApiRoutes extends RouteBuilder {
 	@Override
 	public void configure() throws Exception {
 
-		//set CORS Headers for option requests
+		//TODO: Workaround. Fix in Camel 15.3, siehe Link in Dropbox. Sollte dann vllt auch mit Jetty oder sonstigem wieder gehn
+		// set CORS Headers for option requests
 		from(
-				"jetty:http://" + host + ":" + port
+				"netty4-http:http://" + host + ":" + port
 						+ "?matchOnUriPrefix=true&httpMethodRestrict=OPTIONS")
-				.setHeader("Access-Control-Allow-Origin").constant("*")
+				.setHeader("Access-Control-Allow-Origin")
+				.constant("*")
 				.setHeader("Access-Control-Allow-Methods")
-				.constant("GET, POST, PUT, DELETE, OPTIONS");
+				.constant(
+						"GET, HEAD, POST, PUT, DELETE, TRACE, OPTIONS, CONNECT, PATCH")
+				.setHeader("Access-Control-Allow-Headers")
+				.constant(
+						"Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
 
 		// setup configuration
-		restConfiguration().component("jetty").port(port).host(host)
+		restConfiguration().component("netty4-http").port(port).host(host)
 				.bindingMode(RestBindingMode.json)
 				.dataFormatProperty("prettyPrint", "true").enableCORS(true);
 
@@ -138,6 +144,7 @@ class RestApiRoutes extends RouteBuilder {
 		// ../endpoints --> Post: add new endpoint
 		rest("/config/endpoints").post().type(Endpoint.class)
 				.to("bean:endpointApi?method=addEndpoint");
+
 
 		// ../endpoints/<id> --> GET: gets the endpoint with <id>
 		rest("/config/endpoints/{endpointId}")

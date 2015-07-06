@@ -7,14 +7,12 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 import situationHandling.storage.datatypes.Endpoint;
 import situationHandling.storage.datatypes.Operation;
-import situationHandling.storage.datatypes.Rule;
 import situationHandling.storage.datatypes.Situation;
 
 /**
@@ -238,7 +236,11 @@ class EndpointStorageAccessImpl implements EndpointStorageAccess {
 
 		logger.debug("Updating endpoint: " + endpointID);
 		Session session = HibernateUtil.getSessionFactory().openSession();
-
+		// TODO: Das ist echt scheiße, wenn man über die API eine Request
+		// schickt und dort situationName setzt, anstatt situation.situationName
+		// (vor allem beim Update --> hier wird dann der Wert aus
+		// situation.situationName übernommen und nicht situationName.)
+		//Das gleiche gilt für RULE usw vermutlich auch :(
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
