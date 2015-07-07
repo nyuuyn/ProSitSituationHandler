@@ -4,6 +4,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
+import org.apache.log4j.Logger;
+
 import situationHandler.plugin.Plugin;
 import situationHandler.plugin.PluginParams;
 
@@ -16,6 +18,10 @@ class PluginManagerImpl implements PluginManager {
 
 	/** The pluginLoader. */
 	private static final PluginLoader pluginLoader = new PluginLoader();
+	
+	/** The logger for this class. */
+	private final static Logger logger = Logger
+			.getLogger(PluginManagerImpl.class);
 
 	/**
 	 * Instantiates a new plugin manager impl.
@@ -31,7 +37,7 @@ class PluginManagerImpl implements PluginManager {
 	 */
 	@Override
 	public Set<String> getAllPluginIDs() {
-
+		logger.debug("Getting all Plugin IDs");
 		return pluginLoader.getPluginIDs();
 	}
 
@@ -42,6 +48,7 @@ class PluginManagerImpl implements PluginManager {
 	 */
 	@Override
 	public String getPluginName(String pluginID) {
+		logger.trace("Getting plugin name.");
 		return pluginLoader.getPluginByID(pluginID).getName();
 	}
 
@@ -54,6 +61,7 @@ class PluginManagerImpl implements PluginManager {
 	 */
 	@Override
 	public int getPluginNoOfRequiredParams(String pluginID) {
+		logger.trace("Getting required Parameters");
 		return pluginLoader.getPluginByID(pluginID).getNoOfRequiredParams();
 	}
 
@@ -66,6 +74,7 @@ class PluginManagerImpl implements PluginManager {
 	 */
 	@Override
 	public Set<String> getPluginParamDescriptions(String pluginID) {
+		logger.trace("Getting param Descriptions");
 		return pluginLoader.getPluginByID(pluginID).getParamDescriptions();
 	}
 
@@ -78,6 +87,7 @@ class PluginManagerImpl implements PluginManager {
 	@Override
 	public Callable<Map<String, String>> getPluginSender(String pluginID,
 			String address, String payload, PluginParams pluginParams) {
+		logger.trace("Getting Sender for:" + pluginID);
 		return pluginLoader.getPluginByID(pluginID).getSender(address, payload,
 				pluginParams);
 	}
@@ -90,6 +100,7 @@ class PluginManagerImpl implements PluginManager {
 	 */
 	@Override
 	public boolean addPlugin(String ID, String path) {
+		logger.debug("Adding plugin: " + ID);
 		return pluginLoader.addPlugin(ID, path);
 
 	}
@@ -101,6 +112,7 @@ class PluginManagerImpl implements PluginManager {
 	 */
 	@Override
 	public boolean removePlugin(String ID) {
+		logger.debug("Removing Plugin: " + ID);
 		return pluginLoader.removePlugin(ID);
 
 	}
@@ -113,6 +125,7 @@ class PluginManagerImpl implements PluginManager {
 	 */
 	@Override
 	public PluginInfo getPluginInformation(String pluginID) {
+		logger.debug("Getting information about plugin: " + pluginID);
 		Plugin p = pluginLoader.getPluginByID(pluginID);
 		PluginInfo pluginInfo = null;
 		if (p != null) {
