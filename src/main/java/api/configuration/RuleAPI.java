@@ -15,6 +15,9 @@ import situationHandling.storage.datatypes.Situation;
  * <p>
  * The class serves as target for the camel route that specifies the rest api
  * methods.
+ * 
+ * @see Rule
+ * @see RuleStorageAccess
  */
 public class RuleAPI {
 

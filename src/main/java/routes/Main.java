@@ -31,7 +31,7 @@ public class Main {
 		// register beans for use
 		registry.bind("ruleApi", RuleAPI.class);
 		registry.bind("endpointApi", EndpointAPI.class);
-		registry.bind("pluginApu", PluginAPI.class);
+		registry.bind("pluginApi", PluginAPI.class);
 
 		try {
 			// add routes

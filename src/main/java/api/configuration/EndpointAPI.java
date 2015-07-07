@@ -16,6 +16,9 @@ import situationHandling.storage.datatypes.Endpoint;
  * <p>
  * The class serves as target for the camel route that specifies the rest api
  * methods.
+ * 
+ * @see Endpoint
+ * @see EndpointStorageAccess
  */
 public class EndpointAPI {
 
