@@ -47,12 +47,15 @@ public interface PluginManager {
 	 * @return all ids as strings
 	 */
 	public Set<String> getAllPluginIDs();
-	
+
 	/**
-	 * Gets all information about a plugin in a wrapper class. 
+	 * Gets all information about a plugin in a wrapper class.
 	 * 
-	 * @param pluginID the plugin to get information about
-	 * @return An instance of {@link PluginInfo}, that contains all information about the specified Plugin.
+	 * @param pluginID
+	 *            the plugin to get information about
+	 * @return An instance of {@link PluginInfo}, that contains all information
+	 *         about the specified Plugin. Null, if no plugin with this ID
+	 *         exists.
 	 */
 	public PluginInfo getPluginInformation(String pluginID);
 
@@ -130,7 +133,7 @@ public interface PluginManager {
 	 *
 	 * @param ID
 	 *            the id of the plugin to remove
-	 * @return true, if successful
+	 * @return true, if successful, false if no plugin with this id exists.
 	 */
 	public boolean removePlugin(String ID);
 

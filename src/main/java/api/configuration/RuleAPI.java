@@ -5,7 +5,6 @@ import org.apache.camel.Exchange;
 import situationHandling.storage.RuleStorageAccess;
 import situationHandling.storage.StorageAccessFactory;
 import situationHandling.storage.datatypes.Action;
-import situationHandling.storage.datatypes.Endpoint;
 import situationHandling.storage.datatypes.Rule;
 import situationHandling.storage.datatypes.Situation;
 

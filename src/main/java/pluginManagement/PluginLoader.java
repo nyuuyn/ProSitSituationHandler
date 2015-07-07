@@ -121,7 +121,8 @@ class PluginLoader {
 	 *
 	 * @param pluginID
 	 *            the plugin id
-	 * @return an instance of this plugin's implementing class
+	 * @return an instance of this plugin's implementing class, or null if no
+	 *         plugin with this id exists.
 	 */
 	Plugin getPluginByID(String pluginID) {
 		return plugins.get(pluginID);

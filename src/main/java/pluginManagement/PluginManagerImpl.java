@@ -114,9 +114,12 @@ class PluginManagerImpl implements PluginManager {
 	@Override
 	public PluginInfo getPluginInformation(String pluginID) {
 		Plugin p = pluginLoader.getPluginByID(pluginID);
-
-		return new PluginInfo(p.getID(), p.getName(),
-				p.getNoOfRequiredParams(), p.getParamDescriptions());
+		PluginInfo pluginInfo = null;
+		if (p != null) {
+			pluginInfo = new PluginInfo(p.getID(), p.getName(),
+					p.getNoOfRequiredParams(), p.getParamDescriptions());
+		}
+		return pluginInfo;
 	}
 
 }

@@ -56,7 +56,8 @@ class RestApiRoutes extends RouteBuilder {
 	@Override
 	public void configure() throws Exception {
 
-		//TODO: Workaround. Fix in Camel 15.3, siehe Link in Dropbox. Sollte dann vllt auch mit Jetty oder sonstigem wieder gehn
+		// TODO: Workaround. Fix in Camel 15.3, siehe Link in Dropbox. Sollte
+		// dann vllt auch mit Jetty oder sonstigem wieder gehn
 		// set CORS Headers for option requests
 		from(
 				"netty4-http:http://" + host + ":" + port
@@ -146,7 +147,6 @@ class RestApiRoutes extends RouteBuilder {
 		rest("/config/endpoints").post().type(Endpoint.class)
 				.to("bean:endpointApi?method=addEndpoint");
 
-
 		// ../endpoints/<id> --> GET: gets the endpoint with <id>
 		rest("/config/endpoints/{endpointId}")
 				.get()
@@ -162,17 +162,30 @@ class RestApiRoutes extends RouteBuilder {
 				.put()
 				.type(Endpoint.class)
 				.to("bean:endpointApi?method=updateEndpoint(${header.endpointId})");
-		
-		
+
 		/*
 		 * --------------------------------------------------------------------
 		 * Plugins configuration
 		 * --------------------------------------------------------------------
 		 */
 
+		// ../plugins --> GET information about all plugins
+		rest("/config/plugins").get().outTypeList(PluginInfo.class)
+				.to("bean:pluginAPI?method=getPlugins");
 
-		rest("/config/plugins").get().outTypeList(PluginInfo.class).to("bean:pluginAPI?method=getPlugins");
+		// ../endpoints --> POST: add a new Plugin
+		// TODO:Hier ist noch ein gescheiter Typ nötig, außerdem muss hier
+		// irgendwie eine Datei akzeptiert werden
+		rest("/config/plugins").post().type(Object.class)
+				.to("bean:pluginAPI?method=addPlugin");
+
+		// ../plugins/<ID> --> GET information about the plugin with <ID>
+		rest("/config/plugins/{pluginID}").get().outType(PluginInfo.class)
+				.to("bean:pluginAPI?method=getPluginByID(${header.pluginID})");
 		
-		
+		// ../plugins/<id> --> DELETE: deletes the plugin with <id>
+		rest("/config/plugins/{pluginID}").delete().to(
+				"bean:endpointApi?method=deletePlugin(${header.pluginID})");
+
 	}
 }
