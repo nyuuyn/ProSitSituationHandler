@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 
 import situationHandling.storage.HibernateUtil;
 import api.configuration.EndpointAPI;
+import api.configuration.PluginAPI;
 import api.configuration.RuleAPI;
 
 public class Main {
@@ -30,6 +31,7 @@ public class Main {
 		// register beans for use
 		registry.bind("ruleApi", RuleAPI.class);
 		registry.bind("endpointApi", EndpointAPI.class);
+		registry.bind("pluginApu", PluginAPI.class);
 
 		try {
 			// add routes

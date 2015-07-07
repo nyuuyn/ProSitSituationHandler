@@ -3,6 +3,7 @@ package routes;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.rest.RestBindingMode;
 
+import pluginManagement.PluginInfo;
 import situationHandling.storage.datatypes.Action;
 import situationHandling.storage.datatypes.Endpoint;
 import situationHandling.storage.datatypes.Rule;
@@ -161,10 +162,17 @@ class RestApiRoutes extends RouteBuilder {
 				.put()
 				.type(Endpoint.class)
 				.to("bean:endpointApi?method=updateEndpoint(${header.endpointId})");
+		
+		
+		/*
+		 * --------------------------------------------------------------------
+		 * Plugins configuration
+		 * --------------------------------------------------------------------
+		 */
 
-		// TODO
-		// Könnte man auch so machen, erfordert aber Bean registrierung
-		// .get("/rules").to("bean:RuleAPI?method=getRules");
 
+		rest("/config/plugins").get().outTypeList(PluginInfo.class).to("bean:pluginAPI?method=getPlugins");
+		
+		
 	}
 }

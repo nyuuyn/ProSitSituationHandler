@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
+import situationHandler.plugin.Plugin;
 import situationHandler.plugin.PluginParams;
 
 /**
@@ -102,6 +103,20 @@ class PluginManagerImpl implements PluginManager {
 	public boolean removePlugin(String ID) {
 		return pluginLoader.removePlugin(ID);
 
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * pluginManagement.PluginManager#getPluginInformation(java.lang.String)
+	 */
+	@Override
+	public PluginInfo getPluginInformation(String pluginID) {
+		Plugin p = pluginLoader.getPluginByID(pluginID);
+
+		return new PluginInfo(p.getID(), p.getName(),
+				p.getNoOfRequiredParams(), p.getParamDescriptions());
 	}
 
 }

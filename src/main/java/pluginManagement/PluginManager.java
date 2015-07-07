@@ -47,6 +47,14 @@ public interface PluginManager {
 	 * @return all ids as strings
 	 */
 	public Set<String> getAllPluginIDs();
+	
+	/**
+	 * Gets all information about a plugin in a wrapper class. 
+	 * 
+	 * @param pluginID the plugin to get information about
+	 * @return An instance of {@link PluginInfo}, that contains all information about the specified Plugin.
+	 */
+	public PluginInfo getPluginInformation(String pluginID);
 
 	/**
 	 * Gets the name of the plugin that is registred under the specified ID.
