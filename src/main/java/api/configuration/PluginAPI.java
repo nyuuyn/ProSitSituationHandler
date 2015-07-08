@@ -1,9 +1,14 @@
 package api.configuration;
 
+import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+
+import javax.activation.DataHandler;
 
 import org.apache.camel.Exchange;
+import org.apache.camel.Message;
 
 import pluginManagement.PluginInfo;
 import pluginManagement.PluginManager;
@@ -56,7 +61,20 @@ public class PluginAPI {
 	}
 
 	public void addPlugin(Exchange exchange) {
-		// TODO
+		System.out.println(exchange.getIn().getBody(InputStream.class));
+		
+		System.out.println(exchange.getIn().getHeaders());
+		
+//		exchange.getOut().setBody(exchange.getIn().getBody());
+
+		// X-File-Name=situationHandler.gmail.jar
+		
+		System.out.println("Adding Plugin");
+//		NettyChannelBufferStreamCache asdasd = (NettyChannelBufferStreamCache) exchange.getIn().getBody();
+
+		
+//		exchange.getIn().setBody("File accepted.");
+//		exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
 	}
 
 	/**

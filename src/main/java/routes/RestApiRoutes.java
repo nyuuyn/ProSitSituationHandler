@@ -1,5 +1,8 @@
 package routes;
 
+import java.io.File;
+import java.io.InputStream;
+
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.rest.RestBindingMode;
 
@@ -69,7 +72,7 @@ class RestApiRoutes extends RouteBuilder {
 						"GET, HEAD, POST, PUT, DELETE, TRACE, OPTIONS, CONNECT, PATCH")
 				.setHeader("Access-Control-Allow-Headers")
 				.constant(
-						"Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
+						"Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers, x-file-last-modified,x-file-name,x-file-size");
 
 		// setup configuration
 		restConfiguration().component("netty4-http").port(port).host(host)
@@ -173,16 +176,23 @@ class RestApiRoutes extends RouteBuilder {
 		rest("/config/plugins").get().outTypeList(PluginInfo.class)
 				.to("bean:pluginApi?method=getPlugins");
 
-		// ../endpoints --> POST: add a new Plugin
+		// ../plugins --> POST: add a new Plugin
 		// TODO:Hier ist noch ein gescheiter Typ nötig, außerdem muss hier
 		// irgendwie eine Datei akzeptiert werden
-		rest("/config/plugins").post().type(Object.class)
-				.to("bean:pluginApi?method=addPlugin");
+		// TODO: etwas dummes "consumes"
+		// .consumes("*/*")
+		rest("/config/plugins").post().consumes("*")
+				.bindingMode(RestBindingMode.off)
+				.to("bean:pluginApi?method=addPlugin")
+
+				.to("file:C:\\dateien");
+
+		// header("X-File-Name")
 
 		// ../plugins/<ID> --> GET information about the plugin with <ID>
 		rest("/config/plugins/{pluginID}").get().outType(PluginInfo.class)
 				.to("bean:pluginApi?method=getPluginByID(${header.pluginID})");
-		
+
 		// ../plugins/<id> --> DELETE: deletes the plugin with <id>
 		rest("/config/plugins/{pluginID}").delete().to(
 				"bean:pluginApi?method=deletePlugin(${header.pluginID})");
