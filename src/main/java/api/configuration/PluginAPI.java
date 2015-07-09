@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.camel.Exchange;
+import org.apache.camel.component.netty4.http.NettyHttpMessage;
 
 import pluginManagement.PluginInfo;
 import pluginManagement.PluginManager;
@@ -73,6 +74,12 @@ public class PluginAPI {
 		System.out.println("pluginID: " + pluginID);
 		String directory = "tempfiles";
 		String filename = pluginID + ".jar";
+
+		// TODO: Das koennte man wohl doch auch noch anders machen --> ..getIn()
+		// zu NettyHttpMessage casten, und dann irgendwie versuchen das mit den
+		// Multipart dingern zu fixen.; Mit Jetty müsste es auch gehen, siehe
+		// Jetty Component Doku; vllt Besserung mit camel 2.16?
+		//http://stackoverflow.com/questions/26848480/accept-multipart-file-upload-as-camel-restlet-or-cxfrs-endpoint/30267835#30267835 <<-- auch interessant
 
 		// save file temporarily
 		CamelUtil.getProducerTemplate().sendBody(
