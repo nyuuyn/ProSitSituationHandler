@@ -137,10 +137,13 @@ class PluginLoader {
 	 *            the id of the plugin. The id should be globally unique
 	 * @param path
 	 *            the path of the jar file that contains the plugin.
+	 * @param deleteJar
+	 *            if true, the file at {@code path} is deleted after loading the
+	 *            jar
 	 * @return true, if plugin was successfully loaded. False else, especially
 	 *         when there is already a plugin with the same name loaded.
 	 */
-	boolean addPlugin(String ID, String path) {
+	boolean addPlugin(String ID, String path, boolean deleteJar) {
 
 		// check if plugin already loaded
 		if (plugins.containsKey(ID)) {
@@ -161,6 +164,9 @@ class PluginLoader {
 		try {
 			Files.copy(Paths.get(path), Paths.get(targetPath.getPath()),
 					StandardCopyOption.REPLACE_EXISTING);
+			if (deleteJar){
+				Files.delete(Paths.get(path));
+			}
 			urlClassLoader.addURL(targetPath.toURI().toURL());
 			pluginUrls.put(ID, targetPath.toURI().toURL());
 		} catch (IOException e1) {

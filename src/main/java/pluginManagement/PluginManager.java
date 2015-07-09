@@ -123,9 +123,12 @@ public interface PluginManager {
 	 *            the id of the plugin
 	 * @param path
 	 *            the path the plugin is loaded from
+	 * @param deleteJar
+	 *            if true, the file at {@code path} is deleted after loading the
+	 *            jar
 	 * @return true, if successful
 	 */
-	public boolean addPlugin(String ID, String path);
+	public boolean addPlugin(String ID, String path, boolean deleteJar);
 
 	/**
 	 * Removes the plugin. The plugin is not longer available for use after

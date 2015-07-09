@@ -99,9 +99,9 @@ class PluginManagerImpl implements PluginManager {
 	 * java.lang.String)
 	 */
 	@Override
-	public boolean addPlugin(String ID, String path) {
+	public boolean addPlugin(String ID, String path, boolean deleteJar) {
 		logger.debug("Adding plugin: " + ID);
-		return pluginLoader.addPlugin(ID, path);
+		return pluginLoader.addPlugin(ID, path, deleteJar);
 
 	}
 
