@@ -1,19 +1,31 @@
 package api.configuration;
 
+import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.multipart.FileUpload;
+import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
+
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
 import javax.activation.DataHandler;
+import javax.swing.plaf.multi.MultiFileChooserUI;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
+import org.apache.camel.component.netty4.NettyPayloadHelper;
+import org.apache.camel.component.netty4.http.NettyChannelBufferStreamCache;
+import org.eclipse.jetty.servlets.MultiPartFilter;
+import org.eclipse.jetty.util.MultiPartInputStream.MultiPart;
 
 import pluginManagement.PluginInfo;
 import pluginManagement.PluginManager;
 import pluginManagement.PluginManagerFactory;
+import routes.CamelUtil;
 import situationHandler.plugin.Plugin;
+import situationHandler.plugin.PluginParams;
 
 /**
  * The Class PluginAPI implements the functionality of the rest configuration
@@ -48,8 +60,8 @@ public class PluginAPI {
 	 * @param exchange
 	 *            the exchange that contains the received message. Also serves
 	 *            as container for the answer.
-	 * @return The plugin information as list. If there are no plugins, an empty list
-	 *         is returned. The return value is stored in the exchange.
+	 * @return The plugin information as list. If there are no plugins, an empty
+	 *         list is returned. The return value is stored in the exchange.
 	 */
 	public void getPlugins(Exchange exchange) {
 		List<PluginInfo> pluginInfos = new LinkedList<>();
@@ -61,20 +73,93 @@ public class PluginAPI {
 	}
 
 	public void addPlugin(Exchange exchange) {
-		System.out.println(exchange.getIn().getBody(InputStream.class));
+
+		// // System.out.println();
+		//
+		// String data = exchange.getIn().getBody(String.class);
+		// String contentType = (String)
+		// exchange.getIn().getHeader("Content-Type");
+		// String boundary =
+		// contentType.substring(contentType.lastIndexOf("boundary=")).trim();
+		// // String boundary =
+		// contentType.substring(contentType.lastIndexOf("boundary=")).replace("-",
+		// "").trim();
+		// // System.out.println("Boundary: "+boundary);
+		//
+		//
+		// String[] multi = data.split("Content-Disposition");
+		//
+		//
+		//
+		// System.out.println("Length: " + multi.length);
+		//
+		// if (multi.length == 3){
+		// //pluginID
+		// // System.out.println("Start"+multi[0]);
+		//
+		// multi[1] = multi[1].replace(boundary, "");
+		// System.out.println("Username"+multi[1]);
+		//
+		// // HttpPostRequestDecoder as = new HttpPostRequestDecoder(request);
+		//
+		//
+		//
+		// System.out.println("Hochkomma: " + multi[1].lastIndexOf("\""));
+		// System.out.println("Minus: " + multi[1].indexOf("-"));
+		//
+		// String pluginID = multi[1].substring(multi[1].lastIndexOf("\""),
+		// multi[1].length() - boundary.length()).trim();
+		// // String pluginID = multi[1].substring(multi[1].lastIndexOf("\""),
+		// multi[1].indexOf("-"));
+		// System.out.println("ID:" + pluginID);
+		// }
+
+		// NettyChannelBufferStreamCache assadasd;
+		// MultiPartFilter s;
+		// s.
+
+		String pluginID = (String) exchange.getIn().getHeader("x-file-name");
+		System.out.println("pluginID: " + pluginID);
+		String directory = "tempfiles";
+		String filename =  pluginID + ".jar";
 		
-		System.out.println(exchange.getIn().getHeaders());
+		CamelUtil.getProducerTemplate().sendBody(
+				"file:" + directory + "?fileName=" +filename,
+				exchange.getIn().getBody());
+
+		pm.addPlugin(pluginID, directory + "/" + filename, true);
 		
-//		exchange.getOut().setBody(exchange.getIn().getBody());
+		PluginParams params = new PluginParams();
+
+		// mail plugin (deactive anti virus)
+
+			params.setParam("Email Subject", "Gmail Plugin Test");
+		
+		try {
+			pm.getPluginSender(pluginID, "stefan.fuerst.89@gmail.com", "Dies ist ein Test", params).call();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// exchange.getIn().getBody());
+
+		// System.out.println(exchange.getIn().getHeaders());
+
+		// exchange.getOut().setBody(exchange.getIn().getBody());
 
 		// X-File-Name=situationHandler.gmail.jar
-		
-		System.out.println("Adding Plugin");
-//		NettyChannelBufferStreamCache asdasd = (NettyChannelBufferStreamCache) exchange.getIn().getBody();
 
-		
-//		exchange.getIn().setBody("File accepted.");
-//		exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
+		// System.out.println("Adding Plugin");
+		// NettyChannelBufferStreamCache asdasd =
+		// (NettyChannelBufferStreamCache) exchange.getIn().getBody();
+
+		// exchange.getIn().setHeader(Exchange.CONTENT_TYPE,
+		// "text/plain; charset=utf-8");
+		exchange.getOut().setHeader(Exchange.CONTENT_TYPE,
+				"text/html; charset=utf-8");
+		exchange.getOut().setBody("{\"msg\":\"Upload Complete\"}");
+		// exchange.getIn().setBody("Upload Complete");
+
 	}
 
 	/**
@@ -88,8 +173,9 @@ public class PluginAPI {
 	 * @param exchange
 	 *            the exchange that contains the received message. Also serves
 	 *            as container for the answer.
-	 * @return The informationabout the plugin. If there is no plugin with this id a 404-error is
-	 *         returned. The return value is stored in the exchange.
+	 * @return The informationabout the plugin. If there is no plugin with this
+	 *         id a 404-error is returned. The return value is stored in the
+	 *         exchange.
 	 */
 	public void getPluginByID(String pluginID, Exchange exchange) {
 		PluginInfo pi = pm.getPluginInformation(pluginID);

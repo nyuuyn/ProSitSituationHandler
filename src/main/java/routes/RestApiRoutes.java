@@ -1,11 +1,13 @@
 package routes;
 
+import java.awt.PageAttributes.MediaType;
 import java.io.File;
 import java.io.InputStream;
 
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.rest.RestBindingMode;
 
+import api.configuration.Test;
 import pluginManagement.PluginInfo;
 import situationHandling.storage.datatypes.Action;
 import situationHandling.storage.datatypes.Endpoint;
@@ -181,11 +183,11 @@ class RestApiRoutes extends RouteBuilder {
 		// irgendwie eine Datei akzeptiert werden
 		// TODO: etwas dummes "consumes"
 		// .consumes("*/*")
-		rest("/config/plugins").post().consumes("*")
+		rest("/config/plugins").post().consumes("multipart/form-data")
 				.bindingMode(RestBindingMode.off)
 				.to("bean:pluginApi?method=addPlugin")
-
-				.to("file:C:\\dateien");
+;
+//				.to("file:C:\\dateien");
 
 		// header("X-File-Name")
 
