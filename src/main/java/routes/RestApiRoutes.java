@@ -61,7 +61,7 @@ class RestApiRoutes extends RouteBuilder {
 		// set CORS Headers for option requests
 		from(
 				"netty4-http:http://" + host + ":" + port
-						+ "?matchOnUriPrefix=true&httpMethodRestrict=OPTIONS")
+						+ "?matchOnUriPrefix=true&httpMethodRestrict=OPTIONS&chunkedMaxContentLength=10000000")
 				.setHeader("Access-Control-Allow-Origin")
 				.constant("*")
 				.setHeader("Access-Control-Allow-Methods")
@@ -74,7 +74,7 @@ class RestApiRoutes extends RouteBuilder {
 		// setup configuration
 		restConfiguration().component("netty4-http").port(port).host(host)
 				.bindingMode(RestBindingMode.json)
-				.dataFormatProperty("prettyPrint", "true").enableCORS(true);
+				.dataFormatProperty("prettyPrint", "true").enableCORS(true).componentProperty("chunkedMaxContentLength", "10000000");
 
 		// base route
 		// TODO: Was ist mit den Consumes/Produces dinger?
