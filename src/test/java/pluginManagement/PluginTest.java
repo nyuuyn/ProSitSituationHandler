@@ -48,7 +48,7 @@ public class PluginTest {
 		// add plugin test (place jar at path)
 		pm.addPlugin(
 				"situationHandler.http",
-				"C:\\Users\\Stefan\\workspace_Masterarbeit\\Situation Handler\\situationHandler.http.jar");
+				"C:\\Users\\Stefan\\workspace_Masterarbeit\\Situation Handler\\situationHandler.http.jar", false);
 
 		// http plugin (needs server running)
 		try {
@@ -69,7 +69,7 @@ public class PluginTest {
 
 		pm.addPlugin(
 				"situationHandler.http",
-				"C:\\Users\\Stefan\\workspace_Masterarbeit\\Situation Handler\\situationHandler.http.jar");
+				"C:\\Users\\Stefan\\workspace_Masterarbeit\\Situation Handler\\situationHandler.http.jar", false);
 
 		// http plugin (needs server running)
 		try {
@@ -95,11 +95,11 @@ public class PluginTest {
 		//trying to add twice
 		pm.addPlugin(
 				"situationHandler.http",
-				"C:\\Users\\Stefan\\workspace_Masterarbeit\\Situation Handler\\situationHandler.http.jar");
+				"C:\\Users\\Stefan\\workspace_Masterarbeit\\Situation Handler\\situationHandler.http.jar", false);
 
 		pm.addPlugin(
 				"situationHandler.http",
-				"C:\\Users\\Stefan\\workspace_Masterarbeit\\Situation Handler\\situationHandler.http.jar");
+				"C:\\Users\\Stefan\\workspace_Masterarbeit\\Situation Handler\\situationHandler.http.jar", false);
 
 		
 		System.out.println(pm.getAllPluginIDs().size());
