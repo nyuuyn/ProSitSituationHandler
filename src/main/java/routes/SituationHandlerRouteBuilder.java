@@ -1,13 +1,8 @@
 package routes;
 
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.model.rest.RestBindingMode;
 
 import situationHandling.OperationHandlerImpl;
-import situationHandling.storage.datatypes.Action;
-import situationHandling.storage.datatypes.Endpoint;
-import situationHandling.storage.datatypes.Rule;
-import situationHandling.storage.datatypes.Situation;
 
 class SituationHandlerRouteBuilder extends RouteBuilder {
 	private String hostname;
