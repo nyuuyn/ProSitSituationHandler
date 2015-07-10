@@ -1,0 +1,6 @@
+Woher krieg ich eigentlich das  Objekt, wenn eine Operation aufgerufen wird? Z.B. Ich krieg Operation x rein 
+--> jetzt schau ich nach, welche Situationen es  gerade gibt und lass ne Query gegen die DB laufen,
+in der alle möglichen Kombinationen abgefragt werden. Sinnvolles Vorgehen?
+
+Oder genau andersrum und aus der DB erstmal alle Situationen abfragen, die es in Kombination gibt und dann abfragen ob eine dieser Situationen vorliegt
+-->	Hier wäre ein sinnvoller Erweiterungsansatz: Irgendwelche Statistiken nebenher erstellen, dass man nicht alles abfragen muss?
