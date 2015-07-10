@@ -32,6 +32,12 @@ class RestApiRoutes extends RouteBuilder {
 	private String host;
 
 	/**
+	 * the maximum file size that is allowed for post operations in Bytes
+	 * (especially when submitting files)
+	 */
+	private int maxFileSize;
+
+	/**
 	 * Creates a new instance of RestApiRoutes and does the initialization. Add
 	 * an instance of this class to the camel context to make the routes
 	 * available under the given hostname and port.
@@ -42,10 +48,15 @@ class RestApiRoutes extends RouteBuilder {
 	 *            the routes on all interfaces.
 	 * @param port
 	 *            the port
+	 * 
+	 * @param maxFileSize
+	 *            the maximum file size that is allowed for post operations in
+	 *            Bytes (especially when submitting files)
 	 */
-	public RestApiRoutes(String host, int port) {
+	public RestApiRoutes(String host, int port, int maxFileSize) {
 		this.host = host;
 		this.port = port;
+		this.maxFileSize = maxFileSize;
 	}
 
 	/*
@@ -58,10 +69,15 @@ class RestApiRoutes extends RouteBuilder {
 
 		// TODO: Workaround. Fix in Camel 15.3, siehe Link in Dropbox. Sollte
 		// dann vllt auch mit Jetty oder sonstigem wieder gehn
-		// set CORS Headers for option requests
+
+		// set CORS Headers for option requests and max file size
 		from(
-				"netty4-http:http://" + host + ":" + port
-						+ "?matchOnUriPrefix=true&httpMethodRestrict=OPTIONS&chunkedMaxContentLength=10000000")
+				"netty4-http:http://"
+						+ host
+						+ ":"
+						+ port
+						+ "?matchOnUriPrefix=true&httpMethodRestrict=OPTIONS&chunkedMaxContentLength="
+						+ maxFileSize)
 				.setHeader("Access-Control-Allow-Origin")
 				.constant("*")
 				.setHeader("Access-Control-Allow-Methods")
@@ -71,10 +87,11 @@ class RestApiRoutes extends RouteBuilder {
 				.constant(
 						"Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers, x-file-last-modified,x-file-name,x-file-size");
 
-		// setup configuration
+		// setup configuration for rest routes and max file size
 		restConfiguration().component("netty4-http").port(port).host(host)
 				.bindingMode(RestBindingMode.json)
-				.dataFormatProperty("prettyPrint", "true").enableCORS(true).componentProperty("chunkedMaxContentLength", "10000000");
+				.dataFormatProperty("prettyPrint", "true").enableCORS(true)
+				.componentProperty("chunkedMaxContentLength", String.valueOf(maxFileSize));
 
 		// base route
 		// TODO: Was ist mit den Consumes/Produces dinger?
