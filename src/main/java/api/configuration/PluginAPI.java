@@ -4,7 +4,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.camel.Exchange;
-import org.apache.camel.component.netty4.http.NettyHttpMessage;
 
 import pluginManagement.PluginInfo;
 import pluginManagement.PluginManager;
@@ -67,7 +66,7 @@ public class PluginAPI {
 	 * @param exchange
 	 *            the exchange that contains the received message. Also serves
 	 *            as container for the answer.
-	 * @return A success or error message.
+	 * @return A success message or a 422 http error code, when there already exists a plugin with this id.
 	 */
 	public void addPlugin(Exchange exchange) {
 		String pluginID = (String) exchange.getIn().getHeader("x-file-name");
@@ -79,7 +78,8 @@ public class PluginAPI {
 		// zu NettyHttpMessage casten, und dann irgendwie versuchen das mit den
 		// Multipart dingern zu fixen.; Mit Jetty müsste es auch gehen, siehe
 		// Jetty Component Doku; vllt Besserung mit camel 2.16?
-		//http://stackoverflow.com/questions/26848480/accept-multipart-file-upload-as-camel-restlet-or-cxfrs-endpoint/30267835#30267835 <<-- auch interessant
+		// http://stackoverflow.com/questions/26848480/accept-multipart-file-upload-as-camel-restlet-or-cxfrs-endpoint/30267835#30267835
+		// <<-- auch interessant
 
 		// save file temporarily
 		CamelUtil.getProducerTemplate().sendBody(
@@ -87,11 +87,14 @@ public class PluginAPI {
 				exchange.getIn().getBody());
 
 		// add plugin (also deletes temp file)
-		pm.addPlugin(pluginID, directory + "/" + filename, true);
-
 		exchange.getOut().setHeader(Exchange.CONTENT_TYPE,
 				"text/plain; charset=utf-8");
-		exchange.getOut().setBody("Upload Complete!");
+		if (pm.addPlugin(pluginID, directory + "/" + filename, true)) {
+			exchange.getOut().setBody("Upload Complete!");
+		} else {
+			exchange.getOut().setBody("Plugin already exists. Plugin was NOT added.");
+			exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, 422);
+		}
 
 	}
 

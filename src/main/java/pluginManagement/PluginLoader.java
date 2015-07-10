@@ -148,6 +148,14 @@ class PluginLoader {
 		// check if plugin already loaded
 		if (plugins.containsKey(ID)) {
 			logger.debug("Plugin: " + ID + " already exists. Nothing was added");
+			//jar not needed anymore
+			if (deleteJar){
+				try {
+					Files.delete(Paths.get(path));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 			return false;
 		}
 
