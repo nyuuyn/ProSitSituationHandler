@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import org.apache.camel.CamelContext;
+import org.apache.camel.component.netty4.http.NettyHttpComponent;
+import org.apache.camel.component.netty4.http.NettyHttpConfiguration;
+import org.apache.camel.component.netty4.http.NettyHttpEndpoint;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.impl.JndiRegistry;
 import org.apache.log4j.Logger;
@@ -27,7 +30,8 @@ public class Main {
 		context = new DefaultCamelContext();
 
 		JndiRegistry registry = context.getRegistry(JndiRegistry.class);
-
+				
+		
 		// register beans for use
 		registry.bind("ruleApi", RuleAPI.class);
 		registry.bind("endpointApi", EndpointAPI.class);
@@ -35,9 +39,10 @@ public class Main {
 
 		try {
 			// add routes
-			context.addRoutes(new SituationHandlerRouteBuilder("0.0.0.0", 8080));
+			context.addRoutes(new SituationHandlerRouteBuilder("0.0.0.0", 8081));
 			context.addRoutes(new RestApiRoutes("0.0.0.0", 8081, 15000000));
 			CamelUtil.initProducerTemplate(context.createProducerTemplate());
+
 			context.start();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -68,6 +73,11 @@ public class Main {
 				try {
 					while (line.equalsIgnoreCase("quit") == false) {
 						line = in.readLine();
+						if (line.equalsIgnoreCase("routes")){
+							System.out.println(context.createRouteStaticEndpointJson(null));
+						}else if (line.equalsIgnoreCase("endpoint")){
+//							System.out.println(context.explainEipJson("blubb", true));
+						}
 					}
 					logger.info("Shutting Down..");
 					CamelUtil.getProducerTemplate().stop();

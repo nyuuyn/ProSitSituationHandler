@@ -15,18 +15,11 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 
 	public void configure() {
 
-		// TODO: Hier den Endpunkt konfigurieren und den dann überall benutzen?
-		// Wie geht es, da z.B. verschiedene Einstellungen zu benutzen?
-		// Endpoint ep = endpoint("jetty:http://0.0.0.0:8080");
-
-		// JettyHttpComponent jetty = new JettyHttpComponent8();
 
 		// TODO: den gleichen server für alles benutzen
-
-		// by using 0.0.0.0, the jetty server is exposed on all network
-		// interfaces
+		//forward each message posted on .../SoapEndpoint to the operation Handler
 		from(
-				"jetty:http://" + hostname + ":" + port
+				"netty4-http:http://" + hostname + ":" + port
 						+ "/SoapEndpoint?matchOnUriPrefix=true").to(
 				"stream:out").bean(OperationHandlerImpl.class);
 

@@ -76,7 +76,7 @@ class RestApiRoutes extends RouteBuilder {
 						+ host
 						+ ":"
 						+ port
-						+ "?matchOnUriPrefix=true&httpMethodRestrict=OPTIONS&chunkedMaxContentLength="
+						+ "/config?matchOnUriPrefix=true&httpMethodRestrict=OPTIONS&chunkedMaxContentLength="
 						+ maxFileSize)
 				.setHeader("Access-Control-Allow-Origin")
 				.constant("*")
