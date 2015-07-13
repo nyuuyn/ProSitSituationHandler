@@ -5,9 +5,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import org.apache.camel.CamelContext;
-import org.apache.camel.component.netty4.http.NettyHttpComponent;
-import org.apache.camel.component.netty4.http.NettyHttpConfiguration;
-import org.apache.camel.component.netty4.http.NettyHttpEndpoint;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.impl.JndiRegistry;
 import org.apache.log4j.Logger;
