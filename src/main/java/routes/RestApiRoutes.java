@@ -232,7 +232,7 @@ class RestApiRoutes extends RouteBuilder {
 				Object doc = CamelUtil
 						.getConsumerTemplate()
 						.receiveBody(
-								"file:src/main/resources?fileName=rest-api-doc&noop=true&idempotent=false");
+								"file:src/main/resources?fileName=swagger.json&noop=true&idempotent=false");
 				exchange.getIn().setBody(doc);
 			}
 		});

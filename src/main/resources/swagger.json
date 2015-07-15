@@ -1,0 +1,168 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "0.0.1",
+        "title": "Situation Handler",
+        "description": "This is the Rest Api to configure the Situation Handler. It allows to\n  - View, edit and create endpoints\n  - View, edit and create notification rules and actions\n  - View, add and remove plugins at runtime\n"
+    },
+    "host": "localhost:8081",
+    "basePath": "/config",
+    "schemes": [
+        "http"
+    ],
+    "paths": {
+        "/endpoints": {
+            "get": {
+                "summary": "Get all endpoints.",
+                "description": "Gets `Endpoint` objects. An Empty list if no endpoints exist.\n",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "schema": {
+                            "title": "ArrayOfEndpoints",
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Endpoint"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Creates a new endpoint.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "The endpoint object to be added.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Endpoint"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK. Contains a success message. The `answerCode` is the ID of the newly                             created endpoint.",
+                        "schema": {
+                            "$ref": "#/definitions/Answer"
+                        }
+                    },
+                    "422": {
+                        "description": "An invalid endpoint url was used."
+                    }
+                }
+            }
+        },
+        "/endpoints/{endpointId}": {
+            "parameters": [
+                {
+                    "name": "endpointId",
+                    "in": "path",
+                    "description": "the id of a object, e.g. an endpoint, rule, action, plugin",
+                    "type": "integer",
+                    "required": true
+                }
+            ],
+            "get": {
+                "summary": "Get an endpoint with a certain ID.",
+                "description": "Gets an `Endpoint` Object.",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "endpointId",
+                        "in": "path",
+                        "description": "the id of a object, e.g. an endpoint, rule, action, plugin",
+                        "type": "integer",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response. Contains the endpoint with the specified ID.",
+                        "schema": {
+                            "$ref": "#/definitions/Endpoint"
+                        }
+                    },
+                    "404": {
+                        "description": "No endpoint with this id found."
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete the endpoint with the specified id.",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "404": {
+                        "description": "No endpoint with this id found."
+                    }
+                }
+            },
+            "put": {
+                "summary": "Update an endpoint with a certain ID.",
+                "produces": [
+                    "application/json",
+                    "text/p"
+                ],
+                "responses": {
+                    "404": {
+                        "description": "There is no endpoint with the given id.",
+                        "schema": {
+                            "title": "message",
+                            "type": "string"
+                        }
+                    },
+                    "422": {
+                        "description": "An invalid endpoint url was used."
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "Endpoint": {
+            "properties": {
+                "endpointID": {
+                    "type": "integer",
+                    "description": "the unique ID of this endpoint"
+                },
+                "situationName": {
+                    "type": "string"
+                },
+                "objectName": {
+                    "type": "string"
+                },
+                "operationName": {
+                    "type": "string"
+                },
+                "qualifier": {
+                    "type": "string"
+                },
+                "endpointURL": {
+                    "type": "string"
+                }
+            }
+        },
+        "Answer": {
+            "description": "Represents a successful answer for an operation that does not have another result.",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "answerCode": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
