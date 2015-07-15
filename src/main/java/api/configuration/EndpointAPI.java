@@ -146,7 +146,7 @@ public class EndpointAPI {
 	public void updateEndpoint(Integer endpointID, Exchange exchange) {
 		Endpoint endpoint = exchange.getIn().getBody(Endpoint.class);
 
-		exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
+		
 		URL endpointURL = null;
 		try {
 			// the URL is optional in this case, so check for null before
@@ -159,13 +159,15 @@ public class EndpointAPI {
 
 			if (esa.updateEndpoint(endpointID, endpoint.getSituation(),
 					endpoint.getOperation(), endpointURL)) {
-				exchange.getIn().setBody("Endpoint successfully updated");
+				exchange.getIn().setBody(new RestAnswer("Endpoint successfully updated", String.valueOf(endpointID)));
 			} else {
+				exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
 				exchange.getIn().setBody(
 						"Endpoint " + endpointID + " not found.");
 				exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 404);
 			}
 		} catch (MalformedURLException e) {
+			exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
 			exchange.getIn().setBody("No update possible, due to invalid URL");
 			exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 422);
 		}
