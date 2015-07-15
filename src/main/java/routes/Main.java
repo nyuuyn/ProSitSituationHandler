@@ -39,6 +39,7 @@ public class Main {
 			context.addRoutes(new SituationHandlerRouteBuilder("0.0.0.0", 8081));
 			context.addRoutes(new RestApiRoutes("0.0.0.0", 8081, 15000000));
 			CamelUtil.initProducerTemplate(context.createProducerTemplate());
+			CamelUtil.initConsumerTemplate(context.createConsumerTemplate());
 
 			context.start();
 		} catch (Exception e) {
@@ -78,6 +79,7 @@ public class Main {
 					}
 					logger.info("Shutting Down..");
 					CamelUtil.getProducerTemplate().stop();
+					CamelUtil.getConsumerTemplate().stop();
 					context.stop();
 					HibernateUtil.getSessionFactory().close();
 

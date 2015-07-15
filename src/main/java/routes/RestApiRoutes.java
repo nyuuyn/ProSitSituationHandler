@@ -1,6 +1,12 @@
 package routes;
 
+import java.io.File;
+
+import org.apache.camel.Exchange;
+import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.component.file.FileComponent;
+import org.apache.camel.component.file.FileConsumer;
 import org.apache.camel.model.rest.RestBindingMode;
 
 import pluginManagement.PluginInfo;
@@ -67,9 +73,21 @@ class RestApiRoutes extends RouteBuilder {
 	@Override
 	public void configure() throws Exception {
 
+		restSetup();
+		createEndpointApi();
+		createRuleApi();
+		createPluginApi();
+
+		provideDocumentation();
+
+
+
+
+	}
+
+	private void restSetup() {
 		// TODO: Workaround. Fix in Camel 15.3, siehe Link in Dropbox. Sollte
 		// dann vllt auch mit Jetty oder sonstigem wieder gehn
-
 		// set CORS Headers for option requests and max file size
 		from(
 				"netty4-http:http://"
@@ -88,22 +106,51 @@ class RestApiRoutes extends RouteBuilder {
 						"Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers, x-file-last-modified,x-file-name,x-file-size");
 
 		// setup configuration for rest routes and max file size
-		restConfiguration().component("netty4-http").port(port).host(host)
+		restConfiguration()
+				.component("netty4-http")
+				.port(port)
+				.host(host)
 				.bindingMode(RestBindingMode.json)
-				.dataFormatProperty("prettyPrint", "true").enableCORS(true)
-				.componentProperty("chunkedMaxContentLength", String.valueOf(maxFileSize));
+				.dataFormatProperty("prettyPrint", "true")
+				.enableCORS(true)
+				.componentProperty("chunkedMaxContentLength",
+						String.valueOf(maxFileSize));
 
 		// base route
 		// TODO: Was ist mit den Consumes/Produces dinger?
 		rest("/config").description("Situation Handler RestAPI")
 				.consumes("application/json").produces("application/json");
 
-		/*
-		 * --------------------------------------------------------------------
-		 * RULES configuration
-		 * --------------------------------------------------------------------
-		 */
-		// Rest Api operations
+	}
+
+	private void createEndpointApi() {
+		// ../endpoints --> GET all endpoints
+		rest("/config/endpoints").get().outTypeList(Endpoint.class)
+				.to("bean:endpointApi?method=getEndpoints");
+
+		// ../endpoints --> Post: add new endpoint
+		rest("/config/endpoints").post().type(Endpoint.class)
+				.to("bean:endpointApi?method=addEndpoint");
+
+		// ../endpoints/<id> --> GET: gets the endpoint with <id>
+		rest("/config/endpoints/{endpointId}")
+				.get()
+				.outType(Endpoint.class)
+				.to("bean:endpointApi?method=getEndpointByID(${header.endpointId})");
+
+		// ../endpoints/<id> --> DELETE: deletes the endpoint with <id>
+		rest("/config/endpoints/{endpointId}").delete().to(
+				"bean:endpointApi?method=deleteEndpoint(${header.endpointId})");
+
+		// ../endpoints/<id> --> PUT: updates the endpoint with <id>
+		rest("/config/endpoints/{endpointId}")
+				.put()
+				.type(Endpoint.class)
+				.to("bean:endpointApi?method=updateEndpoint(${header.endpointId})");
+
+	}
+
+	private void createRuleApi() {
 		// ../rules --> GET all rules
 		rest("/config/rules").get().outTypeList(Rule.class)
 				.to("bean:ruleApi?method=getRules");
@@ -150,42 +197,9 @@ class RestApiRoutes extends RouteBuilder {
 		rest("config/rules/{ruleId}/actions/{actionId}").delete().to(
 				"bean:ruleApi?method=deleteAction(${header.actionId})");
 
-		/*
-		 * --------------------------------------------------------------------
-		 * ENDPOINTS configuration
-		 * --------------------------------------------------------------------
-		 */
+	}
 
-		// ../endpoints --> GET all endpoints
-		rest("/config/endpoints").get().outTypeList(Endpoint.class)
-				.to("bean:endpointApi?method=getEndpoints");
-
-		// ../endpoints --> Post: add new endpoint
-		rest("/config/endpoints").post().type(Endpoint.class)
-				.to("bean:endpointApi?method=addEndpoint");
-
-		// ../endpoints/<id> --> GET: gets the endpoint with <id>
-		rest("/config/endpoints/{endpointId}")
-				.get()
-				.outType(Endpoint.class)
-				.to("bean:endpointApi?method=getEndpointByID(${header.endpointId})");
-
-		// ../endpoints/<id> --> DELETE: deletes the endpoint with <id>
-		rest("/config/endpoints/{endpointId}").delete().to(
-				"bean:endpointApi?method=deleteEndpoint(${header.endpointId})");
-
-		// ../endpoints/<id> --> PUT: updates the endpoint with <id>
-		rest("/config/endpoints/{endpointId}")
-				.put()
-				.type(Endpoint.class)
-				.to("bean:endpointApi?method=updateEndpoint(${header.endpointId})");
-
-		/*
-		 * --------------------------------------------------------------------
-		 * Plugins configuration
-		 * --------------------------------------------------------------------
-		 */
-
+	private void createPluginApi() {
 		// ../plugins --> GET information about all plugins
 		rest("/config/plugins").get().outTypeList(PluginInfo.class)
 				.to("bean:pluginApi?method=getPlugins");
@@ -202,6 +216,26 @@ class RestApiRoutes extends RouteBuilder {
 		// ../plugins/<id> --> DELETE: deletes the plugin with <id>
 		rest("/config/plugins/{pluginID}").delete().to(
 				"bean:pluginApi?method=deletePlugin(${header.pluginID})");
+
+	}
+
+	private void provideDocumentation() {
+		rest("/config/api-docs").get().bindingMode(RestBindingMode.off)
+				.to("direct:swagger");
+		
+
+		from("direct:swagger").process(new Processor() {
+
+			@Override
+			public void process(Exchange exchange) throws Exception {
+				System.out.println("loading File");
+				Object doc = CamelUtil
+						.getConsumerTemplate()
+						.receiveBody(
+								"file:src/main/resources?fileName=rest-api-doc&noop=true&idempotent=false");
+				exchange.getIn().setBody(doc);
+			}
+		});
 
 	}
 }
