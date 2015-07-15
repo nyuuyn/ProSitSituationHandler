@@ -15,13 +15,15 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 
 	public void configure() {
 
-
 		// TODO: den gleichen server für alles benutzen
-		//forward each message posted on .../SoapEndpoint to the operation Handler
+		// forward each message posted on .../SoapEndpoint to the operation
+		// Handler
 		from(
 				"netty4-http:http://" + hostname + ":" + port
 						+ "/SoapEndpoint?matchOnUriPrefix=true").to(
 				"stream:out").bean(OperationHandlerImpl.class);
+
+		from("jetty:http://0.0.0.0:8082?handlers=#webApp").to("stream:out");
 
 	}
 
