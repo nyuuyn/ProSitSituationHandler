@@ -67,14 +67,13 @@ public class EndpointAPI {
 			int endpointID = esa.addEndpoint(endpoint.getOperation(),
 					endpoint.getSituation(), endpointURL);
 
-			exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
 			exchange.getIn().setBody(
-					"Endpoint successfully added. New endpoint id is "
-							+ endpointID);
-			exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
+					new RestAnswer(
+							"Endpoint successfully added.",
+							String.valueOf(endpointID)));
 		} catch (MalformedURLException e) {
-			exchange.getIn().setBody("Invalid endpoint url.");
 			exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
+			exchange.getIn().setBody("Invalid endpoint url.");
 			exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 422);
 		}
 	}
@@ -96,9 +95,10 @@ public class EndpointAPI {
 	public void getEndpointByID(Integer endpointID, Exchange exchange) {
 		Endpoint endpoint = esa.getEndpointByID(endpointID);
 		if (endpoint == null) {
-			exchange.getIn().setBody("Endpoint " + endpointID + " not found.");
-			exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
+			exchange.getIn().setBody("Endpoint with id " + endpointID + " not found.");
 			exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 404);
+			exchange.getIn().setHeader(Exchange.CONTENT_TYPE,
+					"text/plain");
 		} else {
 			exchange.getIn().setBody(endpoint);
 		}
@@ -118,11 +118,10 @@ public class EndpointAPI {
 	 */
 	public void deleteEndpoint(Integer endpointID, Exchange exchange) {
 		if (esa.deleteEndpoint(endpointID)) {
-			exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
-			exchange.getIn().setBody("Endpoint Successfully deleted");
+			exchange.getIn().setBody(new RestAnswer("Endpoint Successfully deleted", String.valueOf(endpointID)));
 		} else {
-			exchange.getIn().setBody("Endpoint " + endpointID + " not found.");
 			exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
+			exchange.getIn().setBody("Endpoint not found: "+String.valueOf(endpointID));
 			exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 404);
 		}
 	}

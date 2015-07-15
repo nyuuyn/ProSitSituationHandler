@@ -137,11 +137,11 @@ public class PluginAPI {
 	 * @return A 404-error, if there is no plugin with the given id.
 	 */
 	public void deletePlugin(String pluginID, Exchange exchange) {
-		exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
+	
 		if (pm.removePlugin(pluginID)) {
-			exchange.getIn().setBody(
-					"Plugin " + pluginID + "successfully deleted.");
+			exchange.getIn().setBody(new RestAnswer("Plugin successfully deleted.", String.valueOf(pluginID)));
 		} else {
+			exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
 			exchange.getIn().setBody("Plugin " + pluginID + " not found.");
 			exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 404);
 		}

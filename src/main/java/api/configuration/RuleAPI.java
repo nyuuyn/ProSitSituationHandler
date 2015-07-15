@@ -88,8 +88,9 @@ public class RuleAPI {
 		int ruleID = rsa.addRule(rule.getSituation(), rule.getActions());
 
 		exchange.getIn().setBody(
-				"Rule successfully added. New rule id is " + ruleID);
-		exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
+				new RestAnswer("Rule successfully added.", String
+						.valueOf(ruleID)));
+
 	}
 
 	/**
@@ -108,10 +109,13 @@ public class RuleAPI {
 	 */
 	public void updateRuleSituation(Integer ruleID, Exchange exchange) {
 		Situation situation = exchange.getIn().getBody(Situation.class);
-		exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
+
 		if (rsa.updateRuleSituation(ruleID, situation)) {
-			exchange.getIn().setBody("Rule successfully updated");
+			exchange.getIn().setBody(
+					new RestAnswer("Rule successfully updated", String
+							.valueOf(ruleID)));
 		} else {
+			exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
 			exchange.getIn()
 					.setBody(
 							"Rule "
@@ -135,10 +139,12 @@ public class RuleAPI {
 	 */
 	public void deleteRule(Integer ruleID, Exchange exchange) {
 
-		exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
 		if (rsa.deleteRule(ruleID)) {
-			exchange.getIn().setBody("Rule successfully deleted");
+			exchange.getIn().setBody(
+					new RestAnswer("Rule successfully deleted", String
+							.valueOf(ruleID)));
 		} else {
+			exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
 			exchange.getIn()
 					.setBody(
 							"Rule "
@@ -184,12 +190,12 @@ public class RuleAPI {
 	public void addAction(Integer ruleID, Exchange exchange) {
 		Action action = exchange.getIn().getBody(Action.class);
 		int actionID = rsa.addAction(ruleID, action);
-		exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
-
 		if (actionID != -1) {
 			exchange.getIn().setBody(
-					"Action successfully added. New action id is " + actionID);
+					new RestAnswer("Action successfully added.", String
+							.valueOf(actionID)));
 		} else {
+			exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
 			exchange.getIn().setBody("No rule found with id " + ruleID);
 			exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 404);
 		}
@@ -234,7 +240,9 @@ public class RuleAPI {
 	 */
 	public void deleteAction(Integer actionID, Exchange exchange) {
 		if (rsa.deleteAction(actionID)) {
-			exchange.getIn().setBody("Action successfully deleted");
+			exchange.getIn().setBody(
+					new RestAnswer("Action successfully deleted", String
+							.valueOf(actionID)));
 		} else {
 			exchange.getIn().setBody("Action " + actionID + " not found.");
 			exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
@@ -259,12 +267,14 @@ public class RuleAPI {
 	 */
 	public void updateAction(Integer actionID, Exchange exchange) {
 		Action action = exchange.getIn().getBody(Action.class);
-		exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
 
 		if (rsa.updateAction(actionID.intValue(), action.getPluginID(),
 				action.getAddress(), action.getPayload(), action.getParams())) {
-			exchange.getIn().setBody("Action successfully updated");
+			exchange.getIn().setBody(
+					new RestAnswer("Action successfully updated", String
+							.valueOf(actionID)));
 		} else {
+			exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
 			exchange.getIn()
 					.setBody(
 							"Action "
