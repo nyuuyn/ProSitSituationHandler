@@ -110,9 +110,21 @@
             },
             "put": {
                 "summary": "Update an endpoint with a certain ID.",
+                "description": "Allows to update one or more properties of an endpoint.",
                 "produces": [
                     "application/json",
-                    "text/p"
+                    "text/plain"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "endpoint",
+                        "description": "The updated endpoint. All fields are optional. Only the fields to update are                         required.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Endpoint"
+                        }
+                    }
                 ],
                 "responses": {
                     "404": {
@@ -123,7 +135,149 @@
                         }
                     },
                     "422": {
-                        "description": "An invalid endpoint url was used."
+                        "description": "An invalid endpoint url was used.",
+                        "schema": {
+                            "type": "string",
+                            "description": "error message"
+                        }
+                    }
+                }
+            }
+        },
+        "/rules": {
+            "get": {
+                "summary": "Get all notification rules.",
+                "description": "Gets `Rule` objects. An Empty list if no rules exist.",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Operation successful",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Rule"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Add a new notification rule.",
+                "description": "A new notification rule for the specified situation is added. Note that there can                   be only one rule per situation. In return, a rule can specifiy several actions to                   execute in this situation. However, adding a rule for an already existing                           operation appends the actions of the newly added rule to the existing rule. I.e.                    this operation can also be used to add several actions to a rule at once.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "The rule to add.",
+                        "schema": {
+                            "$ref": "#/definitions/Rule"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "rule successfully added.",
+                        "schema": {
+                            "$ref": "#/definitions/Answer"
+                        }
+                    }
+                }
+            }
+        },
+        "/rules/{ruleId}": {
+            "parameters": [
+                {
+                    "in": "path",
+                    "name": "ruleId",
+                    "type": "integer",
+                    "required": true,
+                    "description": "The id of a rule."
+                }
+            ],
+            "get": {
+                "summary": "Get the rule with the specified id.",
+                "produces": [
+                    "application/json",
+                    "text/plain"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The rule with this id.",
+                        "schema": {
+                            "$ref": "#/definitions/Rule"
+                        }
+                    },
+                    "404": {
+                        "description": "The rule with this ID was not found.",
+                        "schema": {
+                            "type": "string",
+                            "description": "errror message"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "summary": "Updates the situation of a rule.",
+                "produces": [
+                    "application/json",
+                    "text/plain"
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "situation",
+                        "description": "the new situation",
+                        "schema": {
+                            "$ref": "#/definitions/Situation"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Update successful.",
+                        "schema": {
+                            "$ref": "#/definitions/Answer"
+                        }
+                    },
+                    "404": {
+                        "description": "The rule with this ID was not found.",
+                        "schema": {
+                            "type": "string",
+                            "description": "errror message"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Deltes a rule.",
+                "produces": [
+                    "application/json",
+                    "text/plain"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Delete operation successful.",
+                        "schema": {
+                            "$ref": "#/definitions/Answer"
+                        }
+                    },
+                    "404": {
+                        "description": "An operation with the specified ID could not be found.",
+                        "schema": {
+                            "type": "string",
+                            "description": "Error message"
+                        }
                     }
                 }
             }
@@ -131,6 +285,7 @@
     },
     "definitions": {
         "Endpoint": {
+            "description": "Represents an endpoint for workflow operations.",
             "properties": {
                 "endpointID": {
                     "type": "integer",
@@ -153,14 +308,70 @@
                 }
             }
         },
+        "Rule": {
+            "description": "A rule describes a situation and a set of actions that are executed when the                        situation occurs.",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "situationName": {
+                    "type": "string"
+                },
+                "objectName": {
+                    "type": "string"
+                },
+                "actions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Action"
+                    }
+                }
+            }
+        },
+        "Action": {
+            "description": "An action describes some kind of operation. An action is always associated with a                  `Rule` and is executed when the situation described by the rule occurs.",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "pluginID": {
+                    "type": "string"
+                },
+                "address": {
+                    "type": "string"
+                },
+                "payload": {
+                    "type": "string"
+                },
+                "params": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "Situation": {
+            "description": "A situation is described by the combination of a situation name and an object name.",
+            "properties": {
+                "situationName": {
+                    "type": "string"
+                },
+                "objectName": {
+                    "type": "string"
+                }
+            }
+        },
         "Answer": {
             "description": "Represents a successful answer for an operation that does not have another result.",
             "properties": {
                 "message": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "A message that describes the result"
                 },
                 "answerCode": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Further specifies the result. Often contains the id of the object the operation refered to           ."
                 }
             }
         }
