@@ -56,6 +56,7 @@ public class Main {
 			// add routes
 			context.addRoutes(new SituationHandlerRouteBuilder("0.0.0.0", 8081));
 			context.addRoutes(new RestApiRoutes("0.0.0.0", 8081, 15000000));
+			context.addRoutes(new SRSRoutes("0.0.0.0", 8081));
 			CamelUtil.initProducerTemplate(context.createProducerTemplate());
 			CamelUtil.initConsumerTemplate(context.createConsumerTemplate());
 
