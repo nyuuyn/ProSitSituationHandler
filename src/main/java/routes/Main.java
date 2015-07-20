@@ -38,7 +38,7 @@ public class Main {
 		registry.bind("endpointApi", EndpointAPI.class);
 		registry.bind("pluginApi", PluginAPI.class);
 		
-		
+		//resource handler for serving the web app
 		ResourceHandler webapp = new ResourceHandler();
 		try {
 			webapp.setBaseResource(Resource.newResource(new File("C:\\Users\\Stefan\\workspace_Masterarbeit\\SituationHandler_WebApp\\app")));

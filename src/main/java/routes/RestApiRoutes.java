@@ -1,12 +1,8 @@
 package routes;
 
-import java.io.File;
-
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.component.file.FileComponent;
-import org.apache.camel.component.file.FileConsumer;
 import org.apache.camel.model.rest.RestBindingMode;
 
 import pluginManagement.PluginInfo;
@@ -87,10 +83,10 @@ class RestApiRoutes extends RouteBuilder {
 
 	private void restSetup() {
 		// TODO: Workaround. Fix in Camel 15.3, siehe Link in Dropbox. Sollte
-		// dann vllt auch mit Jetty oder sonstigem wieder gehn
+		// dann vllt auch mit Jetty wieder gehn
 		// set CORS Headers for option requests and max file size
 		from(
-				"netty4-http:http://"
+				"jetty:http://"
 						+ host
 						+ ":"
 						+ port
@@ -107,7 +103,7 @@ class RestApiRoutes extends RouteBuilder {
 
 		// setup configuration for rest routes and max file size
 		restConfiguration()
-				.component("netty4-http")
+				.component("jetty")
 				.port(port)
 				.host(host)
 				.bindingMode(RestBindingMode.json)

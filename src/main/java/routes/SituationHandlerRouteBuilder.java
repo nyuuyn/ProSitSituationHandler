@@ -1,7 +1,5 @@
 package routes;
 
-import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 
 import situationHandling.OperationHandlerImpl;
@@ -17,20 +15,25 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 
 	public void configure() {
 
+		// TODO: Hint für Komponente: Aktuell geht mit Jetty das CORS Zeug nicht
+		// richtig. Das ist allerdings egal, solange ich die Web app ebenfall
+		// mit Jetty anbiete, da ich dann alles auf dem gleichen Port laufen
+		// lassen kann. Wenn ich die WebApp aus irgend einem Grund aber woanders
+		// deployen will, muss ich da nen anderen Port nehmen --> CORS nötig -->
+		// Es muss wieder auf netty4-http gewechselt werden (außer da, wo die
+		// webapp geserved wird)
+
 		// TODO: den gleichen server für alles benutzen
 		// forward each message posted on .../SoapEndpoint to the operation
 		// Handler
 		from(
-				"netty4-http:http://" + hostname + ":" + port
+				"jetty:http://" + hostname + ":" + port
 						+ "/SoapEndpoint?matchOnUriPrefix=true").to(
 				"stream:out").bean(OperationHandlerImpl.class);
-		
+
 		// set CORS Headers for option requests and max file size
 		from(
-				"netty4-http:http://"
-						+ hostname
-						+ ":"
-						+ port
+				"jetty:http://" + hostname + ":" + port
 						+ "/api-docs?httpMethodRestrict=OPTIONS")
 				.setHeader("Access-Control-Allow-Origin")
 				.constant("*")
@@ -41,7 +44,8 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 				.constant(
 						"Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers, x-file-last-modified,x-file-name,x-file-size");
 
-		from("jetty:http://0.0.0.0:8082?handlers=#webApp").to("stream:out");
+		// used for serving the wep app
+		from("jetty:http://0.0.0.0:8081?handlers=#webApp").to("stream:out");
 
 	}
 
