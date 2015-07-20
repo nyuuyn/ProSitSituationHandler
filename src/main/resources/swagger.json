@@ -15,6 +15,9 @@
             "get": {
                 "summary": "Get all endpoints.",
                 "description": "Gets `Endpoint` objects. An Empty list if no endpoints exist.\n",
+                "tags": [
+                    "endpoint"
+                ],
                 "responses": {
                     "200": {
                         "description": "Successful response",
@@ -30,6 +33,9 @@
             },
             "post": {
                 "summary": "Creates a new endpoint.",
+                "tags": [
+                    "endpoint"
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -49,7 +55,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK. Contains a success message. The `answerCode` is the ID of the newly                             created endpoint.",
+                        "description": "OK. Contains a success message. The `answerCode` is the ID of the newly created endpoint.",
                         "schema": {
                             "$ref": "#/definitions/Answer"
                         }
@@ -73,6 +79,9 @@
             "get": {
                 "summary": "Get an endpoint with a certain ID.",
                 "description": "Gets an `Endpoint` Object.",
+                "tags": [
+                    "endpoint"
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -99,6 +108,9 @@
             },
             "delete": {
                 "summary": "Delete the endpoint with the specified id.",
+                "tags": [
+                    "endpoint"
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -111,6 +123,9 @@
             "put": {
                 "summary": "Update an endpoint with a certain ID.",
                 "description": "Allows to update one or more properties of an endpoint.",
+                "tags": [
+                    "endpoint"
+                ],
                 "produces": [
                     "application/json",
                     "text/plain"
@@ -148,6 +163,9 @@
             "get": {
                 "summary": "Get all notification rules.",
                 "description": "Gets `Rule` objects. An Empty list if no rules exist.",
+                "tags": [
+                    "rule"
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -165,7 +183,10 @@
             },
             "post": {
                 "summary": "Add a new notification rule.",
-                "description": "A new notification rule for the specified situation is added. Note that there can                   be only one rule per situation. In return, a rule can specifiy several actions to                   execute in this situation. However, adding a rule for an already existing                           operation appends the actions of the newly added rule to the existing rule. I.e.                    this operation can also be used to add several actions to a rule at once.",
+                "description": "A new notification rule for the specified situation is added. Note that there can be only one rule per situation. In return, a rule can specifiy several actions to execute in this situation. However, adding a rule for an already existing operation appends the actions of the newly added rule to the existing rule. I.e. this operation can also be used to add several actions to a rule at once.",
+                "tags": [
+                    "rule"
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -204,6 +225,9 @@
             ],
             "get": {
                 "summary": "Get the rule with the specified id.",
+                "tags": [
+                    "rule"
+                ],
                 "produces": [
                     "application/json",
                     "text/plain"
@@ -226,6 +250,9 @@
             },
             "put": {
                 "summary": "Updates the situation of a rule.",
+                "tags": [
+                    "rule"
+                ],
                 "produces": [
                     "application/json",
                     "text/plain"
@@ -261,6 +288,9 @@
             },
             "delete": {
                 "summary": "Deltes a rule.",
+                "tags": [
+                    "rule"
+                ],
                 "produces": [
                     "application/json",
                     "text/plain"
@@ -277,6 +307,311 @@
                         "schema": {
                             "type": "string",
                             "description": "Error message"
+                        }
+                    }
+                }
+            }
+        },
+        "/rules/{ruleId}/actions": {
+            "parameters": [
+                {
+                    "in": "path",
+                    "name": "ruleId",
+                    "type": "integer",
+                    "required": true,
+                    "description": "The id of a rule."
+                }
+            ],
+            "get": {
+                "summary": "Get all actions associated with the rule with `ruleId`.",
+                "description": "Gets all actions. An empty array if no actions are associated with the rule or the rule with this id does not exist.",
+                "tags": [
+                    "action"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Operation successful.",
+                        "schema": {
+                            "type": "array",
+                            "description": "All actions associated with the rule.",
+                            "items": {
+                                "$ref": "#/definitions/Action"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Add a new action to the rule.",
+                "tags": [
+                    "action"
+                ],
+                "produces": [
+                    "application/json",
+                    "text/plain"
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "action",
+                        "description": "the new action to add",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Action"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The action was successfully added to the rule.",
+                        "schema": {
+                            "$ref": "#/definitions/Answer"
+                        }
+                    },
+                    "404": {
+                        "description": "The rule with this id was not found.",
+                        "schema": {
+                            "type": "string",
+                            "description": "error message"
+                        }
+                    }
+                }
+            }
+        },
+        "/rules/{ruleId}/actions/{actionId}": {
+            "parameters": [
+                {
+                    "in": "path",
+                    "name": "ruleId",
+                    "type": "integer",
+                    "required": true,
+                    "description": "The id of a rule."
+                },
+                {
+                    "in": "path",
+                    "name": "actionId",
+                    "type": "integer",
+                    "required": true,
+                    "description": "The id of the action"
+                }
+            ],
+            "get": {
+                "summary": "Get the action with the specified id (`actionId`) from the specified rule (`ruleId`).",
+                "produces": [
+                    "application/json",
+                    "text/plain"
+                ],
+                "tags": [
+                    "action"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Operation successful.",
+                        "schema": {
+                            "$ref": "#/definitions/Action"
+                        }
+                    },
+                    "404": {
+                        "description": "No action with this id found.",
+                        "schema": {
+                            "type": "string",
+                            "description": "error message"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "summary": "Update the action with the specified id (`actionId`) from the specified rule (`ruleId`).",
+                "description": "Note that all fields from `Action` are optional. Only specify the fields you want to update.",
+                "tags": [
+                    "action"
+                ],
+                "produces": [
+                    "application/json",
+                    "text/plain"
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "action",
+                        "description": "the update action. Only updated fields required",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Action"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "update successful",
+                        "schema": {
+                            "$ref": "#/definitions/Answer"
+                        }
+                    },
+                    "404": {
+                        "description": "No action with this id found.",
+                        "schema": {
+                            "type": "string",
+                            "description": "error message"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete the action with the specified id (`actionId`) from the specified rule (`ruleId`).",
+                "tags": [
+                    "action"
+                ],
+                "produces": [
+                    "application/json",
+                    "text/plain"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Action successfully deleted.",
+                        "schema": {
+                            "$ref": "#/definitions/Answer"
+                        }
+                    },
+                    "404": {
+                        "description": "No action with this id found.",
+                        "schema": {
+                            "type": "string",
+                            "description": "error message"
+                        }
+                    }
+                }
+            }
+        },
+        "/plugins": {
+            "get": {
+                "summary": "Get information about all Plugins",
+                "tags": [
+                    "plugin"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Operation successful.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Plugin"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Add a new plugin.",
+                "description": "Upload a new plugin to the situation handler. The plugin is added at runtime, i.e. it is available for use immediately.",
+                "tags": [
+                    "plugin"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "x-file-name",
+                        "description": "The id of the plugin has to be set in the headers. This HAS to be the same id the plugin reports at runtime.",
+                        "type": "string",
+                        "required": true
+                    },
+                    {
+                        "in": "formData",
+                        "description": "A .jar File that contains a valid plugin.",
+                        "type": "file",
+                        "name": "pluginFile",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Plugin successfully added.",
+                        "schema": {
+                            "type": "string",
+                            "description": "success message"
+                        }
+                    },
+                    "422": {
+                        "description": "There exists already a plugin with the specified ID.",
+                        "schema": {
+                            "type": "string",
+                            "description": "error message"
+                        }
+                    }
+                }
+            }
+        },
+        "/plugins/{pluginId}": {
+            "parameters": [
+                {
+                    "in": "path",
+                    "name": "pluginId",
+                    "description": "The id of a plugin, e.g. com.example.myPlugin",
+                    "type": "string",
+                    "required": true
+                }
+            ],
+            "get": {
+                "summary": "Get the plugin with the specified ID.",
+                "tags": [
+                    "plugin"
+                ],
+                "produces": [
+                    "application/json",
+                    "text/plain"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Operation successful.",
+                        "schema": {
+                            "$ref": "#/definitions/Plugin"
+                        }
+                    },
+                    "404": {
+                        "description": "No plugin with this ID exists.",
+                        "schema": {
+                            "type": "string",
+                            "description": "error message"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete the plugin with the specified ID.",
+                "tags": [
+                    "plugin"
+                ],
+                "produces": "-application/json -text/plain",
+                "responses": {
+                    "200": {
+                        "description": "Delete operation successful.",
+                        "schema": {
+                            "$ref": "#/definitions/"
+                        }
+                    },
+                    "404": {
+                        "description": "No plugin with this ID exists.",
+                        "schema": {
+                            "type": "string",
+                            "description": "error message"
                         }
                     }
                 }
@@ -304,12 +639,13 @@
                     "type": "string"
                 },
                 "endpointURL": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "A valid url."
                 }
             }
         },
         "Rule": {
-            "description": "A rule describes a situation and a set of actions that are executed when the                        situation occurs.",
+            "description": "A rule describes a situation and a set of actions that are executed when the situation occurs.",
             "properties": {
                 "id": {
                     "type": "integer"
@@ -329,7 +665,7 @@
             }
         },
         "Action": {
-            "description": "An action describes some kind of operation. An action is always associated with a                  `Rule` and is executed when the situation described by the rule occurs.",
+            "description": "An action describes some kind of operation. An action is always associated with a `Rule` and is executed when the situation described by the rule occurs.",
             "properties": {
                 "id": {
                     "type": "integer"
@@ -362,6 +698,30 @@
                 }
             }
         },
+        "Plugin": {
+            "description": "Represents all information about a plugin.",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "The id of the plugin. The id is chosen by the plugin developer. The id should be of the form \"com.example.MyPlugin"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "The name of the plugin. Nicely readable but not unique."
+                },
+                "noOfRequiredParams": {
+                    "type": "integer",
+                    "description": "The number of parameters needed by this plugin."
+                },
+                "paramDescriptions": {
+                    "type": "array",
+                    "description": "The description of the parameters required by this plugin.",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
         "Answer": {
             "description": "Represents a successful answer for an operation that does not have another result.",
             "properties": {
@@ -371,7 +731,7 @@
                 },
                 "answerCode": {
                     "type": "string",
-                    "description": "Further specifies the result. Often contains the id of the object the operation refered to           ."
+                    "description": "Further specifies the result. Often contains the id of the object the operation refered to."
                 }
             }
         }

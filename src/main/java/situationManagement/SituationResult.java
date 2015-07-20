@@ -1,0 +1,5 @@
+package situationManagement;
+
+class SituationResult {
+
+}
