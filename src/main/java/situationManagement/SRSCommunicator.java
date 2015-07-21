@@ -1,24 +1,29 @@
 package situationManagement;
 
 class SRSCommunicator {
-	
+
 	private static final String SUBSCRIPTION_RECEIVER_URL = "";
 
 	public static void subscribe() {
-		//TODO: Subscribe methode --> benötigt als Param noch die Situation oder so
+		// TODO: Subscribe methode --> benötigt als Param noch die Situation
+		// oder so
 	}
 
 	public static void unsubscribe() {
-		//TODO:unsubscrobe --> Sitaution als Param
+		// TODO:unsubscrobe --> Sitaution als Param
 	}
 
 	public static boolean getSituationState() {
-		//TODO: Get Abfrage an SRS ; Situation als Param benötigt
+		// TODO: Get Abfrage an SRS ; Situation als Param benötigt
 		return false;
 	}
-	
-	public static void receiveSituationChange(SituationResult situationResult){
-		//TODO: Das hier als Zielmethode für die entsprechende Camel ROute/Rest OP --> Sit Handling einleiten
-		//TODO: fraglich ob das hier überhaupt nötig ist, oder ob die Sit Handler komponente direkt als Ziel dient
+
+	public static void receiveSituationChange(SituationResult situationResult) {
+		// TODO: Das hier als Zielmethode für die entsprechende Camel ROute/Rest
+		// OP --> Sit Handling einleiten
+		// TODO: fraglich ob das hier überhaupt nötig ist, oder ob die Sit
+		// Handler komponente direkt als Ziel dient
+		// --> erstmal lassen und eine Klasse noch dazwischen schalten --> die
+		// kann dann notfalls noch in den Cache schreiben
 	}
 }

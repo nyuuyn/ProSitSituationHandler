@@ -17,7 +17,7 @@ class SRSRoutes extends RouteBuilder {
 	@Override
 	public void configure() throws Exception {
 
-		from("netty4-http:http://" + hostname + ":" + port + "/SituationEndpoint").to("stream:out")
+		from("jetty:http://" + hostname + ":" + port + "/SituationEndpoint").to("stream:out")
 				.process(new Processor() {
 
 					@Override
