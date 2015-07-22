@@ -40,8 +40,11 @@ public class Main {
 		
 		//resource handler for serving the web app
 		ResourceHandler webapp = new ResourceHandler();
+		ResourceHandler swaggerDoc = new ResourceHandler();
+		
 		try {
 			webapp.setBaseResource(Resource.newResource(new File("C:\\Users\\Stefan\\workspace_Masterarbeit\\SituationHandler_WebApp\\app")));
+			swaggerDoc.setBaseResource(Resource.newResource(new File("C:\\Users\\Stefan\\workspace_Masterarbeit\\SituationHandler\\src\\main\\resources\\swagger.json")));
 		} catch (MalformedURLException e1) {
 			e1.printStackTrace();
 		} catch (IOException e1) {
@@ -49,6 +52,7 @@ public class Main {
 		}
 		
 		registry.bind("webApp", webapp);
+		registry.bind("swaggerDoc", swaggerDoc);
 
 
 

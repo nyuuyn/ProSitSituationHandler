@@ -18,6 +18,9 @@
                 "tags": [
                     "endpoint"
                 ],
+                "produces": [
+                    "application/json"
+                ],
                 "responses": {
                     "200": {
                         "description": "Successful response",
@@ -40,12 +43,13 @@
                     "application/json"
                 ],
                 "produces": [
-                    "application/json"
+                    "application/json",
+                    "text/plain"
                 ],
                 "parameters": [
                     {
                         "in": "body",
-                        "name": "body",
+                        "name": "endpoint",
                         "description": "The endpoint object to be added.",
                         "required": true,
                         "schema": {
@@ -55,27 +59,22 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK. Contains a success message. The `answerCode` is the ID of the newly created endpoint.",
+                        "description": "Endpoint created. The `answerCode` is the ID of the newly created endpoint.",
                         "schema": {
                             "$ref": "#/definitions/Answer"
                         }
                     },
                     "422": {
-                        "description": "An invalid endpoint url was used."
+                        "description": "An invalid endpoint url was used.",
+                        "schema": {
+                            "type": "string",
+                            "description": "error message"
+                        }
                     }
                 }
             }
         },
         "/endpoints/{endpointId}": {
-            "parameters": [
-                {
-                    "name": "endpointId",
-                    "in": "path",
-                    "description": "the id of a object, e.g. an endpoint, rule, action, plugin",
-                    "type": "integer",
-                    "required": true
-                }
-            ],
             "get": {
                 "summary": "Get an endpoint with a certain ID.",
                 "description": "Gets an `Endpoint` Object.",
@@ -83,15 +82,12 @@
                     "endpoint"
                 ],
                 "produces": [
-                    "application/json"
+                    "application/json",
+                    "text/plain"
                 ],
                 "parameters": [
                     {
-                        "name": "endpointId",
-                        "in": "path",
-                        "description": "the id of a object, e.g. an endpoint, rule, action, plugin",
-                        "type": "integer",
-                        "required": true
+                        "$ref": "#/parameters/EndpointPath"
                     }
                 ],
                 "responses": {
@@ -102,7 +98,11 @@
                         }
                     },
                     "404": {
-                        "description": "No endpoint with this id found."
+                        "description": "No endpoint with this id found.",
+                        "schema": {
+                            "type": "string",
+                            "description": "error message"
+                        }
                     }
                 }
             },
@@ -112,17 +112,33 @@
                     "endpoint"
                 ],
                 "produces": [
-                    "application/json"
+                    "application/json",
+                    "text/plain"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/EndpointPath"
+                    }
                 ],
                 "responses": {
+                    "200": {
+                        "description": "Successful Response. The `answerCode` is the ID of the deleted endpoint.",
+                        "schema": {
+                            "$ref": "#/definitions/Answer"
+                        }
+                    },
                     "404": {
-                        "description": "No endpoint with this id found."
+                        "description": "No endpoint with this id found.",
+                        "schema": {
+                            "type": "string",
+                            "description": "error message"
+                        }
                     }
                 }
             },
             "put": {
                 "summary": "Update an endpoint with a certain ID.",
-                "description": "Allows to update one or more properties of an endpoint.",
+                "description": "Allows to update one or more properties of an endpoint. Only the properties to update have to be provided.",
                 "tags": [
                     "endpoint"
                 ],
@@ -130,18 +146,30 @@
                     "application/json",
                     "text/plain"
                 ],
+                "consumes": [
+                    "application/json"
+                ],
                 "parameters": [
                     {
                         "in": "body",
                         "name": "endpoint",
-                        "description": "The updated endpoint. All fields are optional. Only the fields to update are                         required.",
+                        "description": "The updated endpoint. All fields are optional. Only the fields to update are required.",
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/Endpoint"
                         }
+                    },
+                    {
+                        "$ref": "#/parameters/EndpointPath"
                     }
                 ],
                 "responses": {
+                    "200": {
+                        "description": "Successful Response. The `answerCode` is the ID of the updated endpoint.",
+                        "schema": {
+                            "$ref": "#/definitions/Answer"
+                        }
+                    },
                     "404": {
                         "description": "There is no endpoint with the given id.",
                         "schema": {
@@ -214,15 +242,6 @@
             }
         },
         "/rules/{ruleId}": {
-            "parameters": [
-                {
-                    "in": "path",
-                    "name": "ruleId",
-                    "type": "integer",
-                    "required": true,
-                    "description": "The id of a rule."
-                }
-            ],
             "get": {
                 "summary": "Get the rule with the specified id.",
                 "tags": [
@@ -231,6 +250,11 @@
                 "produces": [
                     "application/json",
                     "text/plain"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/RulePath"
+                    }
                 ],
                 "responses": {
                     "200": {
@@ -261,6 +285,9 @@
                     "application/json"
                 ],
                 "parameters": [
+                    {
+                        "$ref": "#/parameters/RulePath"
+                    },
                     {
                         "in": "body",
                         "name": "situation",
@@ -295,6 +322,11 @@
                     "application/json",
                     "text/plain"
                 ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/RulePath"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Delete operation successful.",
@@ -313,15 +345,6 @@
             }
         },
         "/rules/{ruleId}/actions": {
-            "parameters": [
-                {
-                    "in": "path",
-                    "name": "ruleId",
-                    "type": "integer",
-                    "required": true,
-                    "description": "The id of a rule."
-                }
-            ],
             "get": {
                 "summary": "Get all actions associated with the rule with `ruleId`.",
                 "description": "Gets all actions. An empty array if no actions are associated with the rule or the rule with this id does not exist.",
@@ -330,6 +353,11 @@
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/RulePath"
+                    }
                 ],
                 "responses": {
                     "200": {
@@ -358,6 +386,9 @@
                 ],
                 "parameters": [
                     {
+                        "$ref": "#/parameters/RulePath"
+                    },
+                    {
                         "in": "body",
                         "name": "action",
                         "description": "the new action to add",
@@ -385,22 +416,6 @@
             }
         },
         "/rules/{ruleId}/actions/{actionId}": {
-            "parameters": [
-                {
-                    "in": "path",
-                    "name": "ruleId",
-                    "type": "integer",
-                    "required": true,
-                    "description": "The id of a rule."
-                },
-                {
-                    "in": "path",
-                    "name": "actionId",
-                    "type": "integer",
-                    "required": true,
-                    "description": "The id of the action"
-                }
-            ],
             "get": {
                 "summary": "Get the action with the specified id (`actionId`) from the specified rule (`ruleId`).",
                 "produces": [
@@ -409,6 +424,14 @@
                 ],
                 "tags": [
                     "action"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/RulePath"
+                    },
+                    {
+                        "$ref": "#/parameters/ActionPath"
+                    }
                 ],
                 "responses": {
                     "200": {
@@ -440,6 +463,12 @@
                     "application/json"
                 ],
                 "parameters": [
+                    {
+                        "$ref": "#/parameters/RulePath"
+                    },
+                    {
+                        "$ref": "#/parameters/ActionPath"
+                    },
                     {
                         "in": "body",
                         "name": "action",
@@ -474,6 +503,14 @@
                 "produces": [
                     "application/json",
                     "text/plain"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/RulePath"
+                    },
+                    {
+                        "$ref": "#/parameters/ActionPath"
+                    }
                 ],
                 "responses": {
                     "200": {
@@ -599,12 +636,15 @@
                 "tags": [
                     "plugin"
                 ],
-                "produces": "-application/json -text/plain",
+                "produces": [
+                    "application/json",
+                    "text/plain"
+                ],
                 "responses": {
                     "200": {
                         "description": "Delete operation successful.",
                         "schema": {
-                            "$ref": "#/definitions/"
+                            "$ref": "#/definitions/Answer"
                         }
                     },
                     "404": {
@@ -734,6 +774,29 @@
                     "description": "Further specifies the result. Often contains the id of the object the operation refered to."
                 }
             }
+        }
+    },
+    "parameters": {
+        "EndpointPath": {
+            "name": "endpointId",
+            "in": "path",
+            "description": "the id of the Endpoint",
+            "type": "integer",
+            "required": true
+        },
+        "RulePath": {
+            "name": "ruleId",
+            "in": "path",
+            "description": "the id of the rule",
+            "type": "integer",
+            "required": true
+        },
+        "ActionPath": {
+            "name": "actionId",
+            "in": "path",
+            "description": "the id of the action",
+            "type": "integer",
+            "required": true
         }
     }
 }

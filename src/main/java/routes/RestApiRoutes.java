@@ -74,11 +74,7 @@ class RestApiRoutes extends RouteBuilder {
 		createRuleApi();
 		createPluginApi();
 
-		provideDocumentation();
-
-
-
-
+//		provideDocumentation();
 	}
 
 	private void restSetup() {
