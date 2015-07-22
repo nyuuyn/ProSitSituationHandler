@@ -1,5 +1,7 @@
 package api.configuration;
 
+import java.util.List;
+
 import org.apache.camel.Exchange;
 
 import situationHandling.storage.RuleStorageAccess;
@@ -164,12 +166,20 @@ public class RuleAPI {
 	 * @param exchange
 	 *            the exchange that contains the received message. Also serves
 	 *            as container for the answer.
-	 * @return The actions as list. If there are no action or there is no rule
-	 *         with this id, an empty list is returned. The return value is
-	 *         stored in the exchange.
+	 * @return The actions as list. If there are no actions an empty list is
+	 *         returned. If there is no rule with this id, a 404 error is
+	 *         returned. The return value is stored in the exchange.
 	 */
 	public void getActionsByRule(Integer ruleID, Exchange exchange) {
-		exchange.getIn().setBody(rsa.getActionsByRuleID(ruleID));
+		List<Action> actions = rsa.getActionsByRuleID(ruleID);
+		if (actions != null) {
+			exchange.getIn().setBody(actions);
+		} else {
+			exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
+			exchange.getIn().setBody("No rule found with id " + ruleID);
+			exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 404);
+		}
+
 	}
 
 	/**

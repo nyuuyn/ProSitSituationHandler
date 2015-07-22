@@ -29,18 +29,19 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 	/** The logger for this class. */
 	private final static Logger logger = Logger
 			.getLogger(RuleStorageAccess.class);
-	
+
 	/**
 	 * The session factory used to create database sessions.
 	 */
 	private SessionFactory sessionFactory;
-	
+
 	/**
 	 * Creates a new instance of RuleStorageAccessImpl.
 	 * 
-	 * @param sessionFactory The session factory used to create database sessions.
+	 * @param sessionFactory
+	 *            The session factory used to create database sessions.
 	 */
-	 RuleStorageAccessImpl(SessionFactory sessionFactory) {
+	RuleStorageAccessImpl(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
 
@@ -109,9 +110,6 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 		return ruleID;
 	}
 
-	// TODO: Batch add? Klingt zwar sinnvoll, wird praktisch aber wohl nie
-	// benötigt?
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -158,8 +156,7 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 	 */
 	@Override
 	public boolean deleteAction(int actionID) {
-		
-		//TODO: Returns ändern
+
 		logger.debug("Deleting action: " + actionID);
 		Session session = sessionFactory.openSession();
 		Transaction tx = null;
@@ -454,7 +451,7 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 
 		Session session = sessionFactory.openSession();
 		Transaction tx = null;
-		Rule rule = null;
+		List<Action> actions = null;
 		try {
 			tx = session.beginTransaction();
 
@@ -465,12 +462,12 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 							situation.getSituationName()))
 					.add(Restrictions.eq("objectName",
 							situation.getObjectName())).list();
-			if (rules.size() == 1) {
-				rule = (Rule) rules.get(0);
-			}
-
+			
 			tx.commit();
-			return getInitializedRuleActions(rule, session);
+			// there is max one rule for this situation (or there isn't a rule for this situation)
+			if (rules.size() == 1) {
+				actions = getInitializedRuleActions((Rule) rules.get(0), session);
+			}
 		} catch (HibernateException e) {
 			if (tx != null)
 				tx.rollback();
@@ -478,7 +475,7 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 		} finally {
 			session.close();
 		}
-		return new LinkedList<Action>();
+		return actions;
 	}
 
 	/*
@@ -493,7 +490,7 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 		Session session = sessionFactory.openSession();
 		Transaction tx = null;
 		Rule rule = null;
-		LinkedList<Action> actions = new LinkedList<>();
+		List<Action> actions = null;
 		try {
 			tx = session.beginTransaction();
 
@@ -501,7 +498,7 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 
 			tx.commit();
 			if (rule != null) {
-				actions.addAll(getInitializedRuleActions(rule, session));
+				actions = getInitializedRuleActions(rule, session);
 			}
 
 		} catch (HibernateException e) {

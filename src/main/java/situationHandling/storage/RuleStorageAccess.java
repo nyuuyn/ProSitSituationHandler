@@ -187,7 +187,8 @@ public interface RuleStorageAccess {
 	 * @param ruleID
 	 *            the id of the rule
 	 * @return a list of all actions that are associated with the specified
-	 *         rule. An empty list if no actions are available.
+	 *         rule. An empty list if no actions are available. Null if the rule
+	 *         with this ID does not exist.
 	 */
 	public List<Action> getActionsByRuleID(int ruleID);
 
