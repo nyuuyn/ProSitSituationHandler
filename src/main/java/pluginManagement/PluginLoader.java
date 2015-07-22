@@ -39,14 +39,14 @@ class PluginLoader {
 	 * The path to the plugin folder. Jar-Files in this folder are loaded at
 	 * startup.
 	 */
-	private static final String PLUGIN_FOLDER = "plugins";
+	private String pluginFolder;
 
 	/**
 	 * The path to the runtime folder. This folder is used to store jars that
 	 * are added at runtime. It is purged at startup. Therfore, plugins in this
 	 * folder will not be loaded.
 	 */
-	private static final String RUNTIME_FOLDER = "runtime";
+	private String runtimeFolder;
 
 	/**
 	 * This Hashmaps contains an instance of each plugin. The instance is used
@@ -87,12 +87,26 @@ class PluginLoader {
 	/**
 	 * Creates a new instance of Plugin loader.
 	 * 
+	 * @param pluginFolder
+	 *            The path to the plugin folder. Jar-Files in this folder are
+	 *            loaded at startup. This can be a relative or an absolute path.
+	 * @param runtimeFolder
+	 *            The name of the runtime folder. This folder is used to store
+	 *            jars that are added at runtime. It is purged at startup.
+	 *            Therfore, plugins in this folder will not be loaded. This is
+	 *            only the name of a folder and NOT a filepath. The
+	 *            runtimeFolder will be a subdirectory of the
+	 *            {@code pluginFolder}.
+	 * 
 	 */
-	public PluginLoader() {
+	public PluginLoader(String pluginFolder, String runtimeFolder) {
+		this.runtimeFolder = runtimeFolder;
+		this.pluginFolder = pluginFolder;
 		clearRuntimeDir();
 		plugins = new HashMap<String, Plugin>();
 		searchJars();
 		initLoaders();
+
 	}
 
 	/**
@@ -148,8 +162,8 @@ class PluginLoader {
 		// check if plugin already loaded
 		if (plugins.containsKey(ID)) {
 			logger.debug("Plugin: " + ID + " already exists. Nothing was added");
-			//jar not needed anymore
-			if (deleteJar){
+			// jar not needed anymore
+			if (deleteJar) {
 				try {
 					Files.delete(Paths.get(path));
 				} catch (IOException e) {
@@ -161,7 +175,7 @@ class PluginLoader {
 
 		// create folder for runtime plugins if necessary
 		logger.debug("Adding new plugin: " + ID + " at " + path);
-		File file = new File(PLUGIN_FOLDER + File.separator + RUNTIME_FOLDER);
+		File file = new File(pluginFolder + File.separator + runtimeFolder);
 		if (!file.exists()) {
 			file.mkdir();
 		}
@@ -172,7 +186,7 @@ class PluginLoader {
 		try {
 			Files.copy(Paths.get(path), Paths.get(targetPath.getPath()),
 					StandardCopyOption.REPLACE_EXISTING);
-			if (deleteJar){
+			if (deleteJar) {
 				Files.delete(Paths.get(path));
 			}
 			urlClassLoader.addURL(targetPath.toURI().toURL());
@@ -199,7 +213,7 @@ class PluginLoader {
 	 */
 	private File buildTargetPath(String ID) {
 
-		String folderName = PLUGIN_FOLDER + File.separator + RUNTIME_FOLDER
+		String folderName = pluginFolder + File.separator + runtimeFolder
 				+ File.separator;
 		String fileName = ID + ".jar";
 
@@ -281,7 +295,7 @@ class PluginLoader {
 	 */
 	private void searchJars() {
 
-		File folder = new File(PLUGIN_FOLDER);
+		File folder = new File(pluginFolder);
 
 		File[] jarList = folder.listFiles(new FileFilter() {
 			public boolean accept(File file) {
@@ -305,7 +319,7 @@ class PluginLoader {
 	 * Deletes all jars in the runtime directory for plugins.
 	 */
 	private void clearRuntimeDir() {
-		File folder = new File(PLUGIN_FOLDER + File.separator + RUNTIME_FOLDER);
+		File folder = new File(pluginFolder + File.separator + runtimeFolder);
 
 		try {
 			FileUtils.deleteDirectory(folder);

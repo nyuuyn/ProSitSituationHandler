@@ -17,7 +17,7 @@ import situationHandler.plugin.PluginParams;
 class PluginManagerImpl implements PluginManager {
 
 	/** The pluginLoader. */
-	private static final PluginLoader pluginLoader = new PluginLoader();
+	private PluginLoader pluginLoader;
 	
 	/** The logger for this class. */
 	private final static Logger logger = Logger
@@ -26,8 +26,8 @@ class PluginManagerImpl implements PluginManager {
 	/**
 	 * Instantiates a new plugin manager impl.
 	 */
-	public PluginManagerImpl() {
-
+	public PluginManagerImpl(PluginLoader pluginLoader) {
+		this.pluginLoader = pluginLoader;
 	}
 
 	/*
