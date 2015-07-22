@@ -46,8 +46,6 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 
 		// used for serving the wep app
 		from("jetty:http://0.0.0.0:8081?handlers=#webApp").to("stream:out");
-		from("jetty:http://0.0.0.0:8081/config/api-docs?handlers=#swaggerDoc").to("stream:out");
-
 	}
 
 }

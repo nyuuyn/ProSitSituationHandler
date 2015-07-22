@@ -40,6 +40,18 @@ class RestApiRoutes extends RouteBuilder {
 	private int maxFileSize;
 
 	/**
+	 * The camel component that is used for the rest routes.
+	 * 
+	 */
+	private String component;
+
+	/**
+	 * Contains the swagger.json loaded from the file system.
+	 * 
+	 */
+	private Object swaggerDoc;
+
+	/**
 	 * Creates a new instance of RestApiRoutes and does the initialization. Add
 	 * an instance of this class to the camel context to make the routes
 	 * available under the given hostname and port.
@@ -54,11 +66,15 @@ class RestApiRoutes extends RouteBuilder {
 	 * @param maxFileSize
 	 *            the maximum file size that is allowed for post operations in
 	 *            Bytes (especially when submitting files)
+	 * @param component
+	 *            The camel component that is used for the rest routes.
 	 */
-	public RestApiRoutes(String host, int port, int maxFileSize) {
+	public RestApiRoutes(String host, int port, int maxFileSize,
+			String component) {
 		this.host = host;
 		this.port = port;
 		this.maxFileSize = maxFileSize;
+		this.component = component;
 	}
 
 	/*
@@ -74,7 +90,7 @@ class RestApiRoutes extends RouteBuilder {
 		createRuleApi();
 		createPluginApi();
 
-//		provideDocumentation();
+		provideDocumentation();
 	}
 
 	private void restSetup() {
@@ -82,7 +98,8 @@ class RestApiRoutes extends RouteBuilder {
 		// dann vllt auch mit Jetty wieder gehn
 		// set CORS Headers for option requests and max file size
 		from(
-				"jetty:http://"
+				component
+						+ ":http://"
 						+ host
 						+ ":"
 						+ port
@@ -99,7 +116,7 @@ class RestApiRoutes extends RouteBuilder {
 
 		// setup configuration for rest routes and max file size
 		restConfiguration()
-				.component("jetty")
+				.component(component)
 				.port(port)
 				.host(host)
 				.bindingMode(RestBindingMode.json)
@@ -211,23 +228,24 @@ class RestApiRoutes extends RouteBuilder {
 
 	}
 
+
 	private void provideDocumentation() {
-		rest("/config/api-docs").get().bindingMode(RestBindingMode.off)
-				.to("direct:swagger");
-		
+		from(component + ":http://" + host + ":" + port + "/config/api-docs?chunked=false&enableCORS=true")
+				.process(new Processor() {
 
-		from("direct:swagger").process(new Processor() {
-
-			@Override
-			public void process(Exchange exchange) throws Exception {
-				System.out.println("loading File");
-				Object doc = CamelUtil
-						.getConsumerTemplate()
-						.receiveBody(
-								"file:src/main/resources?fileName=swagger.json&noop=true&idempotent=false");
-				exchange.getIn().setBody(doc);
-			}
-		});
-
+					@Override
+					public void process(Exchange exchange) throws Exception {
+						if (swaggerDoc == null) {
+							swaggerDoc = CamelUtil
+									.getConsumerTemplate()
+									.receiveBody(
+											"file:src/main/resources?fileName=swagger.json&noop=true&idempotent=false");
+							System.out.println("Loading Swagger Definition");
+						}
+						exchange.getIn().setBody(swaggerDoc);
+						exchange.getIn().setHeader("Content-Type", "application/json");
+						exchange.getIn().setHeader("connection", "close");
+					}
+				});
 	}
 }

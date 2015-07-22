@@ -40,26 +40,25 @@ public class Main {
 		
 		//resource handler for serving the web app
 		ResourceHandler webapp = new ResourceHandler();
-		ResourceHandler swaggerDoc = new ResourceHandler();
+
 		
 		try {
 			webapp.setBaseResource(Resource.newResource(new File("C:\\Users\\Stefan\\workspace_Masterarbeit\\SituationHandler_WebApp\\app")));
-			swaggerDoc.setBaseResource(Resource.newResource(new File("C:\\Users\\Stefan\\workspace_Masterarbeit\\SituationHandler\\src\\main\\resources\\swagger.json")));
-		} catch (MalformedURLException e1) {
+			} catch (MalformedURLException e1) {
 			e1.printStackTrace();
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
 		
 		registry.bind("webApp", webapp);
-		registry.bind("swaggerDoc", swaggerDoc);
+
 
 
 
 		try {
 			// add routes
 			context.addRoutes(new SituationHandlerRouteBuilder("0.0.0.0", 8081));
-			context.addRoutes(new RestApiRoutes("0.0.0.0", 8081, 15000000));
+			context.addRoutes(new RestApiRoutes("0.0.0.0", 8081, 15000000, "jetty"));
 			context.addRoutes(new SRSRoutes("0.0.0.0", 8081));
 			CamelUtil.initProducerTemplate(context.createProducerTemplate());
 			CamelUtil.initConsumerTemplate(context.createConsumerTemplate());
