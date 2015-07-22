@@ -13,7 +13,7 @@ import org.apache.log4j.Logger;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.util.resource.Resource;
 
-import situationHandling.storage.HibernateUtil;
+import situationHandling.storage.StorageAccessFactory;
 import api.configuration.EndpointAPI;
 import api.configuration.PluginAPI;
 import api.configuration.RuleAPI;
@@ -70,11 +70,11 @@ public class Main {
 
 	// Maybe for later use :)
 	private static void shutdownHandling() {
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			public void run() {
-
-			}
-		});
+//		Runtime.getRuntime().addShutdownHook(new Thread() {
+//			public void run() {
+//
+//			}
+//		});
 	}
 
 	private static void startShutdownListener() {
@@ -99,10 +99,13 @@ public class Main {
 					logger.info("Shutting Down..");
 					CamelUtil.getProducerTemplate().stop();
 					CamelUtil.getConsumerTemplate().stop();
+					logger.info("Stopping Camel");
 					context.stop();
-					HibernateUtil.getSessionFactory().close();
-
+					logger.info("Shuting down storage access");
+					StorageAccessFactory.closeStorageAccess();
+					logger.info("stopping console listener");
 					in.close();
+					logger.info("done");
 				} catch (IOException e) {
 					e.printStackTrace();
 				} catch (Exception e) {

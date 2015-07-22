@@ -14,6 +14,8 @@ package situationHandling.storage;
  */
 public class StorageAccessFactory {
 
+	private static HibernateSession hibernateSession = new HibernateSession();
+
 	/**
 	 * Gets an instance of {@link EndpointStorageAccess} to access the endpoint
 	 * storage.
@@ -21,17 +23,26 @@ public class StorageAccessFactory {
 	 * @return an instance of {@link EndpointStorageAccess}
 	 */
 	public static EndpointStorageAccess getEndpointStorageAccess() {
-		return new EndpointStorageAccessImpl();
+		return new EndpointStorageAccessImpl(
+				hibernateSession.getSessionFactory());
 	}
 
 	/**
-	 * Gets an instance of {@link RuleStorageAccess} to access the rule
-	 * storage.
+	 * Gets an instance of {@link RuleStorageAccess} to access the rule storage.
 	 *
 	 * @return an instance of {@link RuleStorageAccess}
 	 */
 	public static RuleStorageAccess getRuleStorageAccess() {
-		return new RuleStorageAccessImpl();
+		return new RuleStorageAccessImpl(hibernateSession.getSessionFactory());
+	}
+
+	/**
+	 * Closes the access to the storage and releases all occupied ressources.
+	 * Use this method before shutting down. The access cannot be reopened.
+	 * 
+	 */
+	public static void closeStorageAccess() {
+		hibernateSession.shutdown();
 	}
 
 }

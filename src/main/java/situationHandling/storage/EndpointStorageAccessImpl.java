@@ -9,6 +9,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
 import situationHandling.storage.datatypes.Endpoint;
@@ -26,12 +27,20 @@ class EndpointStorageAccessImpl implements EndpointStorageAccess {
 	/** The logger for this class. */
 	private final static Logger logger = Logger
 			.getLogger(EndpointStorageAccessImpl.class);
+	/**
+	 * The session factory used to create database sessions.
+	 */
+	private SessionFactory sessionFactory;
 
 	/**
 	 * Instantiates a new endpoint storage access impl. The default constructor
-	 * for this method.
+	 * for this class.
+	 * 
+	 * @param sessionFactory
+	 *            The session factory used to create database sessions.
 	 */
-	EndpointStorageAccessImpl() {
+	EndpointStorageAccessImpl(SessionFactory sessionFactory) {
+		this.sessionFactory = sessionFactory;
 	}
 
 	/*
@@ -43,7 +52,7 @@ class EndpointStorageAccessImpl implements EndpointStorageAccess {
 	 */
 	@Override
 	public URL getEndpointURL(Situation situation, Operation operation) {
-		Session session = HibernateUtil.getSessionFactory().openSession();
+		Session session = sessionFactory.openSession();
 
 		Transaction tx = null;
 		URL endpointurl = null;
@@ -96,7 +105,7 @@ class EndpointStorageAccessImpl implements EndpointStorageAccess {
 	public List<Endpoint> getAllEndpoints() {
 		logger.debug("Getting all Endpoints");
 
-		Session session = HibernateUtil.getSessionFactory().openSession();
+		Session session = sessionFactory.openSession();
 		Transaction tx = null;
 		LinkedList<Endpoint> endpoints = new LinkedList<>();
 		try {
@@ -132,7 +141,7 @@ class EndpointStorageAccessImpl implements EndpointStorageAccess {
 	public Endpoint getEndpointByID(int endpointID) {
 		logger.debug("Getting endpoint with id " + endpointID);
 
-		Session session = HibernateUtil.getSessionFactory().openSession();
+		Session session = sessionFactory.openSession();
 		Transaction tx = null;
 		Endpoint endpoint = null;
 		try {
@@ -167,7 +176,7 @@ class EndpointStorageAccessImpl implements EndpointStorageAccess {
 	public int addEndpoint(Operation operation, Situation situation,
 			URL endpointURL) {
 
-		Session session = HibernateUtil.getSessionFactory().openSession();
+		Session session = sessionFactory.openSession();
 
 		Transaction tx = null;
 		Integer endpointID = null;
@@ -198,7 +207,7 @@ class EndpointStorageAccessImpl implements EndpointStorageAccess {
 	@Override
 	public boolean deleteEndpoint(int endpointID) {
 		logger.debug("Deleting endpoint: " + endpointID);
-		Session session = HibernateUtil.getSessionFactory().openSession();
+		Session session = sessionFactory.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
@@ -235,12 +244,12 @@ class EndpointStorageAccessImpl implements EndpointStorageAccess {
 			Operation operation, URL endpointURL) {
 
 		logger.debug("Updating endpoint: " + endpointID);
-		Session session = HibernateUtil.getSessionFactory().openSession();
+		Session session = sessionFactory.openSession();
 		// TODO: Das ist echt scheiße, wenn man über die API eine Request
 		// schickt und dort situationName setzt, anstatt situation.situationName
 		// (vor allem beim Update --> hier wird dann der Wert aus
 		// situation.situationName übernommen und nicht situationName.)
-		//Das gleiche gilt für RULE usw vermutlich auch :(
+		// Das gleiche gilt für RULE usw vermutlich auch :(
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();

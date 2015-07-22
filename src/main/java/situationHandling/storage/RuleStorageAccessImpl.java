@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.exception.ConstraintViolationException;
@@ -28,6 +29,20 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 	/** The logger for this class. */
 	private final static Logger logger = Logger
 			.getLogger(RuleStorageAccess.class);
+	
+	/**
+	 * The session factory used to create database sessions.
+	 */
+	private SessionFactory sessionFactory;
+	
+	/**
+	 * Creates a new instance of RuleStorageAccessImpl.
+	 * 
+	 * @param sessionFactory The session factory used to create database sessions.
+	 */
+	 RuleStorageAccessImpl(SessionFactory sessionFactory) {
+		this.sessionFactory = sessionFactory;
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -40,7 +55,7 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 	public int addRule(Situation situation, List<Action> actions) {
 		logger.debug("Adding rule and actions.");
 
-		Session session = HibernateUtil.getSessionFactory().openSession();
+		Session session = sessionFactory.openSession();
 
 		Transaction tx = null;
 		Integer ruleID = null;
@@ -107,7 +122,7 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 	public int addAction(int ruleID, Action action) {
 		logger.debug("Adding actions.");
 
-		Session session = HibernateUtil.getSessionFactory().openSession();
+		Session session = sessionFactory.openSession();
 
 		Transaction tx = null;
 
@@ -146,7 +161,7 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 		
 		//TODO: Returns ändern
 		logger.debug("Deleting action: " + actionID);
-		Session session = HibernateUtil.getSessionFactory().openSession();
+		Session session = sessionFactory.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
@@ -178,7 +193,7 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 	@Override
 	public boolean deleteRule(int ruleID) {
 		logger.debug("Deleting rule: " + ruleID);
-		Session session = HibernateUtil.getSessionFactory().openSession();
+		Session session = sessionFactory.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
@@ -212,7 +227,7 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 	public boolean updateAction(int actionID, String pluginID, String address,
 			String payload, Map<String, String> params) {
 		logger.debug("Updating action: " + actionID);
-		Session session = HibernateUtil.getSessionFactory().openSession();
+		Session session = sessionFactory.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
@@ -262,7 +277,7 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 	public boolean updateRuleSituation(int ruleID, Situation situation) {
 		logger.debug("Updating rule: " + ruleID + " to new Situation "
 				+ situation);
-		Session session = HibernateUtil.getSessionFactory().openSession();
+		Session session = sessionFactory.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
@@ -307,7 +322,7 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 			Situation newSituation) {
 		logger.debug("Updating rule from situation: " + oldSituation
 				+ " to new Situation " + newSituation);
-		Session session = HibernateUtil.getSessionFactory().openSession();
+		Session session = sessionFactory.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
@@ -358,7 +373,7 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 	public List<Rule> getAllRules() {
 		logger.debug("Getting all rules");
 
-		Session session = HibernateUtil.getSessionFactory().openSession();
+		Session session = sessionFactory.openSession();
 		Transaction tx = null;
 		LinkedList<Rule> rules = new LinkedList<>();
 		try {
@@ -399,7 +414,7 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 	public Rule getRuleByID(int ruleID) {
 		logger.debug("Getting rule with id " + ruleID);
 
-		Session session = HibernateUtil.getSessionFactory().openSession();
+		Session session = sessionFactory.openSession();
 		Transaction tx = null;
 		Rule rule = null;
 		try {
@@ -437,7 +452,7 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 	public List<Action> getActionsBySituation(Situation situation) {
 		logger.debug("Getting all actions for situation: " + situation);
 
-		Session session = HibernateUtil.getSessionFactory().openSession();
+		Session session = sessionFactory.openSession();
 		Transaction tx = null;
 		Rule rule = null;
 		try {
@@ -475,7 +490,7 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 	public List<Action> getActionsByRuleID(int ruleID) {
 		logger.debug("Getting all actions of rule: " + ruleID);
 
-		Session session = HibernateUtil.getSessionFactory().openSession();
+		Session session = sessionFactory.openSession();
 		Transaction tx = null;
 		Rule rule = null;
 		LinkedList<Action> actions = new LinkedList<>();
@@ -509,7 +524,7 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 	public Action getActionByID(int actionID) {
 		logger.debug("Getting Action with id " + actionID);
 
-		Session session = HibernateUtil.getSessionFactory().openSession();
+		Session session = sessionFactory.openSession();
 		Transaction tx = null;
 		Action action = null;
 		try {
