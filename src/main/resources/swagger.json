@@ -597,15 +597,6 @@
             }
         },
         "/plugins/{pluginId}": {
-            "parameters": [
-                {
-                    "in": "path",
-                    "name": "pluginId",
-                    "description": "The id of a plugin, e.g. com.example.myPlugin",
-                    "type": "string",
-                    "required": true
-                }
-            ],
             "get": {
                 "summary": "Get the plugin with the specified ID.",
                 "tags": [
@@ -614,6 +605,11 @@
                 "produces": [
                     "application/json",
                     "text/plain"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/PluginPath"
+                    }
                 ],
                 "responses": {
                     "200": {
@@ -639,6 +635,11 @@
                 "produces": [
                     "application/json",
                     "text/plain"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/PluginPath"
+                    }
                 ],
                 "responses": {
                     "200": {
@@ -720,10 +721,8 @@
                     "type": "string"
                 },
                 "params": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
+                    "type": "object",
+                    "description": "Number and description of param depends on the used Plugin. View Plugin Documentation! For example if plugin has parameter example, use `example`':' `value`."
                 }
             }
         },
@@ -796,6 +795,13 @@
             "in": "path",
             "description": "the id of the action",
             "type": "integer",
+            "required": true
+        },
+        "PluginPath": {
+            "in": "path",
+            "name": "pluginId",
+            "description": "The id of a plugin, e.g. com.example.myPlugin",
+            "type": "string",
             "required": true
         }
     }

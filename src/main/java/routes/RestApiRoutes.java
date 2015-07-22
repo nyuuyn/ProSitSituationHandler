@@ -228,9 +228,10 @@ class RestApiRoutes extends RouteBuilder {
 
 	}
 
-
 	private void provideDocumentation() {
-		from(component + ":http://" + host + ":" + port + "/config/api-docs?chunked=false&enableCORS=true")
+		from(
+				component + ":http://" + host + ":" + port
+						+ "/config/api-docs?chunked=false&enableCORS=true")
 				.process(new Processor() {
 
 					@Override
@@ -243,7 +244,8 @@ class RestApiRoutes extends RouteBuilder {
 							System.out.println("Loading Swagger Definition");
 						}
 						exchange.getIn().setBody(swaggerDoc);
-						exchange.getIn().setHeader("Content-Type", "application/json");
+						exchange.getIn().setHeader("Content-Type",
+								"application/json");
 						exchange.getIn().setHeader("connection", "close");
 					}
 				});
