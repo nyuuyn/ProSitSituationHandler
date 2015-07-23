@@ -574,6 +574,15 @@ class RuleStorageAccessDefaultImpl implements RuleStorageAccess {
 		return actions;
 	}
 
+	/**
+	 * Conience Method to create error messages for JDBC Exceptions
+	 * 
+	 * @param e
+	 *            the exception
+	 * @param subject
+	 *            "rule" or "action"
+	 * @return A nicely readable error message.
+	 */
 	private String createErrorMessage(JDBCException e, String subject) {
 		String errorMessage;
 		if (e.getErrorCode() == 1048) {// column not set

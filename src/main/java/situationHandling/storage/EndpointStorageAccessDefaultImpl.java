@@ -186,14 +186,13 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageAccess {
 		Integer endpointID = null;
 		try {
 			tx = session.beginTransaction();
-			Endpoint endpoint = new Endpoint(endpointURL, situation,
-					operation);
+			Endpoint endpoint = new Endpoint(endpointURL, situation, operation);
 			logger.debug("Adding endpoint " + endpoint.toString());
 			endpointID = (Integer) session.save(endpoint);
 			tx.commit();
 		} catch (JDBCException e) {
 			if (tx != null)
-				tx.rollback();		
+				tx.rollback();
 			throw new InvalidEndpointException(createErrorMessage(e), e);
 		} finally {
 			session.close();
@@ -245,7 +244,8 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageAccess {
 	 */
 	@Override
 	public boolean updateEndpoint(int endpointID, Situation situation,
-			Operation operation, String endpointURL) throws InvalidEndpointException {
+			Operation operation, String endpointURL)
+			throws InvalidEndpointException {
 
 		logger.debug("Updating endpoint: " + endpointID);
 		Session session = sessionFactory.openSession();
@@ -254,7 +254,8 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageAccess {
 		// (vor allem beim Update --> hier wird dann der Wert aus
 		// situation.situationName übernommen und nicht situationName.)
 		// Das gleiche gilt für RULE usw vermutlich auch :(
-		// Es ist eigentlich Aufgabe der API zu checken, dass da was valides reinkommt!
+		// Es ist eigentlich Aufgabe der API zu checken, dass da was valides
+		// reinkommt!
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
@@ -308,14 +309,21 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageAccess {
 	private String addTicks(String param) {
 		return "'" + param + "'";
 	}
-	
-	private String createErrorMessage(JDBCException e){
+
+	/**
+	 * Conience Method to create error messages for JDBC Exceptions
+	 * 
+	 * @param e
+	 *            the exception
+	 * @return A nicely readable error message.
+	 */
+	private String createErrorMessage(JDBCException e) {
 		String errorMessage;
-		if (e.getErrorCode() == 1048){//column not set
+		if (e.getErrorCode() == 1048) {// column not set
 			errorMessage = "Endpoint property not set. Please set all properties.";
-		}else if (e.getErrorCode() == 1062){//duplicate
+		} else if (e.getErrorCode() == 1062) {// duplicate
 			errorMessage = "Duplicate endpoint. There exists already an identical endpoint.";
-		}else{//unknown
+		} else {// unknown
 			errorMessage = "Unknown error when creating endpoint.";
 		}
 		logger.debug(errorMessage);

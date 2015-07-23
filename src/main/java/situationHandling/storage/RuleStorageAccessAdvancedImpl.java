@@ -11,12 +11,29 @@ import situationHandling.exceptions.InvalidRuleException;
 import situationHandling.storage.datatypes.Action;
 import situationHandling.storage.datatypes.Situation;
 
+/**
+ * 
+ * Implements the {@link RuleStorageAccess}. Does pretty much the same than
+ * {@link RuleStorageAccessDefaultImpl} but does more checks on the validity
+ * of the input.
+ * 
+ * @author Stefan
+ *
+ */
 class RuleStorageAccessAdvancedImpl extends RuleStorageAccessDefaultImpl {
 
+	/**
+	 * Instantiates a new rule storage access advanced impl.
+	 *
+	 * @param sessionFactory The session factory used to create database sessions.
+	 */
 	RuleStorageAccessAdvancedImpl(SessionFactory sessionFactory) {
 		super(sessionFactory);
 	}
 
+	/* (non-Javadoc)
+	 * @see situationHandling.storage.RuleStorageAccessDefaultImpl#addRule(situationHandling.storage.datatypes.Situation, java.util.List)
+	 */
 	@Override
 	public int addRule(Situation situation, List<Action> actions)
 			throws InvalidRuleException, InvalidActionException {
@@ -37,6 +54,9 @@ class RuleStorageAccessAdvancedImpl extends RuleStorageAccessDefaultImpl {
 		return super.addRule(situation, actions);
 	}
 
+	/* (non-Javadoc)
+	 * @see situationHandling.storage.RuleStorageAccessDefaultImpl#addAction(int, situationHandling.storage.datatypes.Action)
+	 */
 	@Override
 	public int addAction(int ruleID, Action action)
 			throws InvalidActionException, InvalidRuleException {
@@ -47,6 +67,9 @@ class RuleStorageAccessAdvancedImpl extends RuleStorageAccessDefaultImpl {
 		return super.addAction(ruleID, action);
 	}
 
+	/* (non-Javadoc)
+	 * @see situationHandling.storage.RuleStorageAccessDefaultImpl#updateAction(int, java.lang.String, java.lang.String, java.lang.String, java.util.Map)
+	 */
 	@Override
 	public boolean updateAction(int actionID, String pluginID, String address,
 			String payload, Map<String, String> params)
