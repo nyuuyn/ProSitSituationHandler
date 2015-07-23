@@ -65,7 +65,7 @@
                         }
                     },
                     "422": {
-                        "description": "An invalid endpoint url was used.",
+                        "description": "An invalid endpoint url was used or another property was omitted.",
                         "schema": {
                             "type": "string",
                             "description": "error message"
@@ -178,7 +178,7 @@
                         }
                     },
                     "422": {
-                        "description": "An invalid endpoint url was used.",
+                        "description": "An invalid endpoint url was used or another mistake was made.",
                         "schema": {
                             "type": "string",
                             "description": "error message"
@@ -211,7 +211,7 @@
             },
             "post": {
                 "summary": "Add a new notification rule.",
-                "description": "A new notification rule for the specified situation is added. Note that there can be only one rule per situation. In return, a rule can specifiy several actions to execute in this situation. However, adding a rule for an already existing operation appends the actions of the newly added rule to the existing rule. I.e. this operation can also be used to add several actions to a rule at once.",
+                "description": "A new notification rule for the specified situation is added. Note that there can be only one rule per situation. In return, a rule can specifiy several actions to execute in this situation. However, adding a rule for an already existing situation appends the actions of the newly added rule to the existing rule. I.e. this operation can also be used to add several actions to a rule at once. If one of the actions is invalid, it is not added. However, the rule is created and all valid actions are added.",
                 "tags": [
                     "rule"
                 ],
@@ -236,6 +236,13 @@
                         "description": "rule successfully added.",
                         "schema": {
                             "$ref": "#/definitions/Answer"
+                        }
+                    },
+                    "422": {
+                        "description": "An invalid rule was submitted.",
+                        "schema": {
+                            "type": "string",
+                            "description": "error message"
                         }
                     }
                 }
@@ -309,6 +316,13 @@
                         "schema": {
                             "type": "string",
                             "description": "errror message"
+                        }
+                    },
+                    "422": {
+                        "description": "An invalid rule was submitted.",
+                        "schema": {
+                            "type": "string",
+                            "description": "error message"
                         }
                     }
                 }
@@ -411,6 +425,13 @@
                             "type": "string",
                             "description": "error message"
                         }
+                    },
+                    "422": {
+                        "description": "An invalid action was submitted.",
+                        "schema": {
+                            "type": "string",
+                            "description": "error message"
+                        }
                     }
                 }
             }
@@ -488,6 +509,13 @@
                     },
                     "404": {
                         "description": "No action with this id found.",
+                        "schema": {
+                            "type": "string",
+                            "description": "error message"
+                        }
+                    },
+                    "422": {
+                        "description": "An invalid rule was submitted.",
                         "schema": {
                             "type": "string",
                             "description": "error message"
