@@ -3,6 +3,7 @@ package situationHandling.storage;
 import java.net.URL;
 import java.util.List;
 
+import situationHandling.exceptions.InvalidEndpointException;
 import situationHandling.storage.datatypes.Endpoint;
 import situationHandling.storage.datatypes.Operation;
 import situationHandling.storage.datatypes.Situation;
@@ -76,9 +77,12 @@ public interface EndpointStorageAccess {
 	 * @param endpointURL
 	 *            the endpoint url
 	 * @return the id that was assigned to the endpoint.
+	 * 
+	 * @throws InvalidEndpointException
+	 *             When the specified Endpoint is not valid
 	 */
 	public int addEndpoint(Operation operation, Situation situation,
-			URL endpointURL);
+			String endpointURL) throws InvalidEndpointException;
 
 	/**
 	 * Deletes the endpoint with the given id from the directory, so it will not
@@ -114,7 +118,11 @@ public interface EndpointStorageAccess {
 	 *            the new endpoint url for this endpoint. If {@code endpointURL}
 	 *            is {@code null}, the endpoint url will not be updated
 	 * @return {@code true}, if the update was successful, {@code false} else
+	 * 
+	 * @throws InvalidEndpointException
+	 *             When the specified Endpoint is not valid
 	 */
 	public boolean updateEndpoint(int endpointID, Situation situation,
-			Operation operation, URL endpointURL);
+			Operation operation, String endpointURL)
+			throws InvalidEndpointException;
 }

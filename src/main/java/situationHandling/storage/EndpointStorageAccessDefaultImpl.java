@@ -17,20 +17,22 @@ import situationHandling.storage.datatypes.Operation;
 import situationHandling.storage.datatypes.Situation;
 
 /**
- * The Class EndpointStorageAccessImpl provides the standard implementation for
- * the {@code Interface} {@link EndpointStorageAccess}. It uses a relational SQL
- * database to store the endpoints. To access the database JPA 2.0/Hibernate is
- * used.
+ * The Class EndpointStorageAccessDefaultImpl provides the standard
+ * implementation for the {@code Interface} {@link EndpointStorageAccess}. It
+ * uses a relational SQL database to store the endpoints. To access the database
+ * JPA 2.0/Hibernate is used. <br>
+ * The DefaultImpl does only minimal checks on the semantic validity of the
+ * inputs. It can be seen as plain database access.
  */
-class EndpointStorageAccessImpl implements EndpointStorageAccess {
+class EndpointStorageAccessDefaultImpl implements EndpointStorageAccess {
 
 	/** The logger for this class. */
 	private final static Logger logger = Logger
-			.getLogger(EndpointStorageAccessImpl.class);
+			.getLogger(EndpointStorageAccessDefaultImpl.class);
 	/**
 	 * The session factory used to create database sessions.
 	 */
-	private SessionFactory sessionFactory;
+	protected SessionFactory sessionFactory;
 
 	/**
 	 * Instantiates a new endpoint storage access impl. The default constructor
@@ -39,7 +41,7 @@ class EndpointStorageAccessImpl implements EndpointStorageAccess {
 	 * @param sessionFactory
 	 *            The session factory used to create database sessions.
 	 */
-	EndpointStorageAccessImpl(SessionFactory sessionFactory) {
+	EndpointStorageAccessDefaultImpl(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
 
@@ -174,7 +176,7 @@ class EndpointStorageAccessImpl implements EndpointStorageAccess {
 	 */
 	@Override
 	public int addEndpoint(Operation operation, Situation situation,
-			URL endpointURL) {
+			String endpointURL) {
 
 		Session session = sessionFactory.openSession();
 
@@ -182,7 +184,7 @@ class EndpointStorageAccessImpl implements EndpointStorageAccess {
 		Integer endpointID = null;
 		try {
 			tx = session.beginTransaction();
-			Endpoint endpoint = new Endpoint(endpointURL.toString(), situation,
+			Endpoint endpoint = new Endpoint(endpointURL, situation,
 					operation);
 			logger.debug("Adding endpoint " + endpoint.toString());
 			endpointID = (Integer) session.save(endpoint);
@@ -241,7 +243,7 @@ class EndpointStorageAccessImpl implements EndpointStorageAccess {
 	 */
 	@Override
 	public boolean updateEndpoint(int endpointID, Situation situation,
-			Operation operation, URL endpointURL) {
+			Operation operation, String endpointURL) {
 
 		logger.debug("Updating endpoint: " + endpointID);
 		Session session = sessionFactory.openSession();
@@ -250,6 +252,7 @@ class EndpointStorageAccessImpl implements EndpointStorageAccess {
 		// (vor allem beim Update --> hier wird dann der Wert aus
 		// situation.situationName übernommen und nicht situationName.)
 		// Das gleiche gilt für RULE usw vermutlich auch :(
+		// Es ist eigentlich Aufgabe der API zu checken, dass da was valides reinkommt!
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
@@ -276,7 +279,7 @@ class EndpointStorageAccessImpl implements EndpointStorageAccess {
 					endpoint.setQualifier(operation.getQualifier());
 				}
 				if (endpointURL != null) {
-					endpoint.setEndpointURL(endpointURL.toString());
+					endpoint.setEndpointURL(endpointURL);
 				}
 				session.update(endpoint);
 			}

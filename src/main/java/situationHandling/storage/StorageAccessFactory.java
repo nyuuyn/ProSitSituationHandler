@@ -23,7 +23,7 @@ public class StorageAccessFactory {
 	 * @return an instance of {@link EndpointStorageAccess}
 	 */
 	public static EndpointStorageAccess getEndpointStorageAccess() {
-		return new EndpointStorageAccessImpl(
+		return new EndpointStorageAccessDefaultImpl(
 				hibernateSession.getSessionFactory());
 	}
 
