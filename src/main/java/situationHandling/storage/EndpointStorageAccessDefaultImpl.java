@@ -318,6 +318,7 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageAccess {
 		}else{//unknown
 			errorMessage = "Unknown error when creating endpoint.";
 		}
+		logger.debug(errorMessage);
 		return errorMessage;
 	}
 

@@ -8,12 +8,14 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
+import org.hibernate.JDBCException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
-import org.hibernate.exception.ConstraintViolationException;
 
+import situationHandling.exceptions.InvalidActionException;
+import situationHandling.exceptions.InvalidRuleException;
 import situationHandling.storage.datatypes.Action;
 import situationHandling.storage.datatypes.Rule;
 import situationHandling.storage.datatypes.Situation;
@@ -22,9 +24,12 @@ import situationHandling.storage.datatypes.Situation;
  * The Class RuleStorageAccessImpl provides the standard implementation for the
  * {@code Interface} {@link RuleStorageAccess}. It uses a relational SQL
  * database to store the rules. To access the database JPA 2.0/Hibernate is
- * used.
+ * used. <br>
+ * 
+ * The DefaultImpl does only minimal checks on the semantic validity of the
+ * inputs and handles errors on database level.
  */
-class RuleStorageAccessImpl implements RuleStorageAccess {
+class RuleStorageAccessDefaultImpl implements RuleStorageAccess {
 
 	/** The logger for this class. */
 	private final static Logger logger = Logger
@@ -41,7 +46,7 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 	 * @param sessionFactory
 	 *            The session factory used to create database sessions.
 	 */
-	RuleStorageAccessImpl(SessionFactory sessionFactory) {
+	RuleStorageAccessDefaultImpl(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
 
@@ -53,7 +58,8 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 	 * .storage.datatypes.Situation, java.util.List)
 	 */
 	@Override
-	public int addRule(Situation situation, List<Action> actions) {
+	public int addRule(Situation situation, List<Action> actions)
+			throws InvalidRuleException, InvalidActionException {
 		logger.debug("Adding rule and actions.");
 
 		Session session = sessionFactory.openSession();
@@ -96,10 +102,10 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 			ruleID = rule.getId();
 
 			tx.commit();
-		} catch (HibernateException e) {
+		} catch (JDBCException e) {
 			if (tx != null)
 				tx.rollback();
-			logger.error("Hibernate error", e);
+			throw new InvalidRuleException(createErrorMessage(e, "Rule"), e);
 		} finally {
 			session.close();
 		}
@@ -117,7 +123,8 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 	 * situationHandling.storage.datatypes.Action)
 	 */
 	@Override
-	public int addAction(int ruleID, Action action) {
+	public int addAction(int ruleID, Action action)
+			throws InvalidActionException {
 		logger.debug("Adding actions.");
 
 		Session session = sessionFactory.openSession();
@@ -132,11 +139,10 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 			session.update(rule);
 
 			tx.commit();
-		} catch (HibernateException e) {
+		} catch (JDBCException e) {
 			if (tx != null)
 				tx.rollback();
-			logger.error("Hibernate error", e);
-			return -1;
+			throw new InvalidActionException(createErrorMessage(e, "Action"), e);
 		} catch (NullPointerException e) {
 			logger.info("Rule with id " + ruleID
 					+ " not found. No action added.");
@@ -222,7 +228,8 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 	 */
 	@Override
 	public boolean updateAction(int actionID, String pluginID, String address,
-			String payload, Map<String, String> params) {
+			String payload, Map<String, String> params)
+			throws InvalidActionException {
 		logger.debug("Updating action: " + actionID);
 		Session session = sessionFactory.openSession();
 		Transaction tx = null;
@@ -253,11 +260,10 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 			}
 
 			tx.commit();
-		} catch (HibernateException e) {
+		} catch (JDBCException e) {
 			if (tx != null)
 				tx.rollback();
-			logger.error("Hibernate error", e);
-			return false;
+			throw new InvalidActionException(createErrorMessage(e, "Action"), e);
 		} finally {
 			session.close();
 		}
@@ -271,7 +277,8 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 	 * situationHandling.storage.datatypes.Situation)
 	 */
 	@Override
-	public boolean updateRuleSituation(int ruleID, Situation situation) {
+	public boolean updateRuleSituation(int ruleID, Situation situation)
+			throws InvalidRuleException {
 		logger.debug("Updating rule: " + ruleID + " to new Situation "
 				+ situation);
 		Session session = sessionFactory.openSession();
@@ -290,17 +297,10 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 				session.update(rule);
 			}
 			tx.commit();
-		} catch (HibernateException e) {
+		} catch (JDBCException e) {
 			if (tx != null)
 				tx.rollback();
-			if (e instanceof ConstraintViolationException) {
-				logger.info("Update of rule "
-						+ ruleID
-						+ " not possible. There is already a rule for the situation.");
-			} else {
-				logger.error("Hibernate error", e);
-			}
-			return false;
+			throw new InvalidRuleException(createErrorMessage(e, "Rule"), e);
 		} finally {
 			session.close();
 		}
@@ -316,7 +316,7 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 	 */
 	@Override
 	public boolean updateRuleSituation(Situation oldSituation,
-			Situation newSituation) {
+			Situation newSituation) throws InvalidRuleException {
 		logger.debug("Updating rule from situation: " + oldSituation
 				+ " to new Situation " + newSituation);
 		Session session = sessionFactory.openSession();
@@ -344,17 +344,10 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 			}
 
 			tx.commit();
-		} catch (HibernateException e) {
+		} catch (JDBCException e) {
 			if (tx != null)
 				tx.rollback();
-			if (e instanceof ConstraintViolationException) {
-				logger.info("Update of rule "
-						+ oldSituation
-						+ " not possible. There is already a rule for the situation.");
-			} else {
-				logger.error("Hibernate error", e);
-			}
-			return false;
+			throw new InvalidRuleException(createErrorMessage(e, "Rule"), e);
 		} finally {
 			session.close();
 		}
@@ -462,11 +455,13 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 							situation.getSituationName()))
 					.add(Restrictions.eq("objectName",
 							situation.getObjectName())).list();
-			
+
 			tx.commit();
-			// there is max one rule for this situation (or there isn't a rule for this situation)
+			// there is max one rule for this situation (or there isn't a rule
+			// for this situation)
 			if (rules.size() == 1) {
-				actions = getInitializedRuleActions((Rule) rules.get(0), session);
+				actions = getInitializedRuleActions((Rule) rules.get(0),
+						session);
 			}
 		} catch (HibernateException e) {
 			if (tx != null)
@@ -578,4 +573,18 @@ class RuleStorageAccessImpl implements RuleStorageAccess {
 		return actions;
 	}
 
+	private String createErrorMessage(JDBCException e, String subject) {
+		String errorMessage;
+		if (e.getErrorCode() == 1048) {// column not set
+			errorMessage = subject
+					+ " property not set. Please set all properties.";
+		} else if (e.getErrorCode() == 1062) {// duplicate
+			errorMessage = "Duplicate " + subject
+					+ ". There exists already an identical " + subject + ".";
+		} else {// unknown
+			errorMessage = "Unknown error when creating " + subject + ".";
+		}
+		logger.debug(errorMessage);
+		return errorMessage;
+	}
 }
