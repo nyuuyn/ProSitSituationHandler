@@ -55,7 +55,8 @@ public interface RuleStorageAccess {
 	 * @return the id that was assigned to the rule
 	 * @throws InvalidRuleException
 	 *             when an invalid rule is specified.
-	 * @throws InvalidActionException When an invalid action is used.
+	 * @throws InvalidActionException
+	 *             When an invalid action is used.
 	 */
 	public int addRule(Situation situation, List<Action> actions)
 			throws InvalidRuleException, InvalidActionException;
@@ -78,9 +79,10 @@ public interface RuleStorageAccess {
 	 * 
 	 * @throws InvalidActionException
 	 *             When an invalid action is specified.
+	 * @throws InvalidRuleException When the rule with this ID was not found
 	 */
 	public int addAction(int ruleID, Action action)
-			throws InvalidActionException;
+			throws InvalidActionException, InvalidRuleException;
 
 	/**
 	 * Deletes the action with the specified id from the storage. The action
@@ -124,12 +126,13 @@ public interface RuleStorageAccess {
 	 * @param params
 	 *            the new params. If {@code params} is {@code null}, the params
 	 *            will not be updated
-	 * @return true, if successful 
-	 * @throws InvalidActionException When an
-	 *         invalid action is specified.
+	 * @return true, if successful
+	 * @throws InvalidActionException
+	 *             When an invalid action is specified.
 	 */
 	public boolean updateAction(int actionID, String pluginID, String address,
-			String payload, Map<String, String> params) throws InvalidActionException;
+			String payload, Map<String, String> params)
+			throws InvalidActionException;
 
 	/**
 	 * Updates the situation of an existing rule with the specified id. Note

@@ -1,5 +1,6 @@
 package situationHandling.storage;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -20,18 +21,29 @@ class RuleStorageAccessAdvancedImpl extends RuleStorageAccessDefaultImpl {
 	public int addRule(Situation situation, List<Action> actions)
 			throws InvalidRuleException, InvalidActionException {
 
-		for (Action action : actions) {
-			new ActionValidityChecker(action.getParams(), action.getPluginID())
-					.checkAction();
+		// we check the new rule for invalid actions. If one action is invalid,
+		// we just remove the action and go on.
+		Iterator<Action> it = actions.iterator();
+		while (it.hasNext()) {
+			Action action = it.next();
+			try {
+				new ActionValidityChecker(action.getParams(),
+						action.getPluginID()).checkAction();
+			} catch (InvalidActionException e) {
+				it.remove();
+			}
 		}
+
 		return super.addRule(situation, actions);
 	}
 
 	@Override
 	public int addAction(int ruleID, Action action)
-			throws InvalidActionException {
+			throws InvalidActionException, InvalidRuleException {
+
 		new ActionValidityChecker(action.getParams(), action.getPluginID())
 				.checkAction();
+
 		return super.addAction(ruleID, action);
 	}
 

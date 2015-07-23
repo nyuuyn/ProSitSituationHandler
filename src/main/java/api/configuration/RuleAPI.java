@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.apache.camel.Exchange;
 
+import situationHandling.exceptions.InvalidActionException;
+import situationHandling.exceptions.InvalidRuleException;
 import situationHandling.storage.RuleStorageAccess;
 import situationHandling.storage.StorageAccessFactory;
 import situationHandling.storage.datatypes.Action;
@@ -83,15 +85,21 @@ public class RuleAPI {
 	 *            an instance of {@link Rule} in the body. Also serves as
 	 *            container for the answer.
 	 * @return The id of the new rule. The return value is stored in the
-	 *         exchange.
+	 *         exchange. A 422-error if an invalid rule is used.
 	 */
 	public void addRule(Exchange exchange) {
 		Rule rule = exchange.getIn().getBody(Rule.class);
-		int ruleID = rsa.addRule(rule.getSituation(), rule.getActions());
-
-		exchange.getIn().setBody(
-				new RestAnswer("Rule successfully added.", String
-						.valueOf(ruleID)));
+		int ruleID;
+		try {
+			ruleID = rsa.addRule(rule.getSituation(), rule.getActions());
+			exchange.getIn().setBody(
+					new RestAnswer("Rule successfully added.", String
+							.valueOf(ruleID)));
+		} catch (InvalidRuleException | InvalidActionException e) {
+			exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
+			exchange.getIn().setBody(e.getMessage());
+			exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 422);
+		}
 
 	}
 
@@ -107,23 +115,30 @@ public class RuleAPI {
 	 *            an instance of {@link Situation} in the body. Also serves as
 	 *            container for the answer.
 	 * @return A 404-error, if there is no rule with the given id or there
-	 *         already exists a rule with this id.
+	 *         already exists a rule with this id. An 422-error if an invalid
+	 *         rule is used
 	 */
 	public void updateRuleSituation(Integer ruleID, Exchange exchange) {
 		Situation situation = exchange.getIn().getBody(Situation.class);
 
-		if (rsa.updateRuleSituation(ruleID, situation)) {
-			exchange.getIn().setBody(
-					new RestAnswer("Rule successfully updated", String
-							.valueOf(ruleID)));
-		} else {
+		try {
+			if (rsa.updateRuleSituation(ruleID, situation)) {
+				exchange.getIn().setBody(
+						new RestAnswer("Rule successfully updated", String
+								.valueOf(ruleID)));
+			} else {
+				exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
+				exchange.getIn()
+						.setBody(
+								"Rule "
+										+ ruleID
+										+ " could not be updated. No rule with this id exists.");
+				exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 404);
+			}
+		} catch (InvalidRuleException e) {
 			exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
-			exchange.getIn()
-					.setBody(
-							"Rule "
-									+ ruleID
-									+ " could not be updated. There is already an rule for this Situation or no rule with this id exists.");
-			exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 404);
+			exchange.getIn().setBody(e.getMessage());
+			exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 422);
 		}
 	}
 
@@ -195,18 +210,24 @@ public class RuleAPI {
 	 *            the exchange that contains the received message. Must contain
 	 *            an instance of {@link Action} in the body. Also serves as
 	 *            container for the answer.
-	 * @return A 404-error, if there is no rule with the given id.
+	 * @return A 404-error, if there is no rule with the given id.A 422 error if
+	 *         an invalid action was submitted.
 	 */
 	public void addAction(Integer ruleID, Exchange exchange) {
 		Action action = exchange.getIn().getBody(Action.class);
-		int actionID = rsa.addAction(ruleID, action);
-		if (actionID != -1) {
+		int actionID;
+		try {
+			actionID = rsa.addAction(ruleID, action);
 			exchange.getIn().setBody(
 					new RestAnswer("Action successfully added.", String
 							.valueOf(actionID)));
-		} else {
+		} catch (InvalidActionException e) {
 			exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
-			exchange.getIn().setBody("No rule found with id " + ruleID);
+			exchange.getIn().setBody(e.getMessage());
+			exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 422);
+		} catch (InvalidRuleException e) {
+			exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
+			exchange.getIn().setBody(e.getMessage());
 			exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 404);
 		}
 	}
@@ -273,24 +294,32 @@ public class RuleAPI {
 	 *            the exchange that contains the received message. Must contain
 	 *            an instance of {@link Action} in the body. Also serves as
 	 *            container for the answer.
-	 * @return A 404-error, if there is no action with the given id.
+	 * @return A 404-error, if there is no action with the given id. A 422 error
+	 *         if an invalid action was submitted.
 	 */
 	public void updateAction(Integer actionID, Exchange exchange) {
 		Action action = exchange.getIn().getBody(Action.class);
 
-		if (rsa.updateAction(actionID.intValue(), action.getPluginID(),
-				action.getAddress(), action.getPayload(), action.getParams())) {
-			exchange.getIn().setBody(
-					new RestAnswer("Action successfully updated", String
-							.valueOf(actionID)));
-		} else {
+		try {
+			if (rsa.updateAction(actionID.intValue(), action.getPluginID(),
+					action.getAddress(), action.getPayload(),
+					action.getParams())) {
+				exchange.getIn().setBody(
+						new RestAnswer("Action successfully updated", String
+								.valueOf(actionID)));
+			} else {
+				exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
+				exchange.getIn()
+						.setBody(
+								"Action "
+										+ actionID
+										+ " could not be updated. There is no action with this id.");
+				exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 404);
+			}
+		} catch (InvalidActionException e) {
 			exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
-			exchange.getIn()
-					.setBody(
-							"Action "
-									+ actionID
-									+ " could not be updated. There is no action with this id.");
-			exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 404);
+			exchange.getIn().setBody(e.getMessage());
+			exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 422);
 		}
 	}
 

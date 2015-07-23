@@ -124,7 +124,7 @@ class RuleStorageAccessDefaultImpl implements RuleStorageAccess {
 	 */
 	@Override
 	public int addAction(int ruleID, Action action)
-			throws InvalidActionException {
+			throws InvalidActionException, InvalidRuleException {
 		logger.debug("Adding actions.");
 
 		Session session = sessionFactory.openSession();
@@ -146,7 +146,8 @@ class RuleStorageAccessDefaultImpl implements RuleStorageAccess {
 		} catch (NullPointerException e) {
 			logger.info("Rule with id " + ruleID
 					+ " not found. No action added.");
-			return -1;
+			throw new InvalidRuleException("Rule with id " + ruleID
+					+ " not found. No action added.", e);
 		} finally {
 			session.close();
 		}

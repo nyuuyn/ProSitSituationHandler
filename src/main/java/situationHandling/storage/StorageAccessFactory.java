@@ -33,7 +33,7 @@ public class StorageAccessFactory {
 	 * @return an instance of {@link RuleStorageAccess}
 	 */
 	public static RuleStorageAccess getRuleStorageAccess() {
-		return new RuleStorageAccessDefaultImpl(hibernateSession.getSessionFactory());
+		return new RuleStorageAccessAdvancedImpl(hibernateSession.getSessionFactory());
 	}
 
 	/**

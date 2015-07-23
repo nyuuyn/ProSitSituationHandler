@@ -3,7 +3,9 @@ package situationHandling.storage;
 import java.util.HashMap;
 import java.util.LinkedList;
 
+import situationHandling.exceptions.InvalidActionException;
 import situationHandling.exceptions.InvalidEndpointException;
+import situationHandling.exceptions.InvalidRuleException;
 import situationHandling.storage.datatypes.Action;
 import situationHandling.storage.datatypes.Operation;
 import situationHandling.storage.datatypes.Situation;
@@ -55,7 +57,13 @@ public class DatabaseFiller {
 		actions.add(new Action("situationHandler.http",
 				"http://localhost:4434/miniwebservice", soapBody, params));
 
-		rsa.addRule(new Situation("situation1", "object1"), actions);
+		try {
+			rsa.addRule(new Situation("situation1", "object1"), actions);
+		} catch (InvalidRuleException e) {
+			e.printStackTrace();
+		} catch (InvalidActionException e) {
+			e.printStackTrace();
+		}
 		// --------------
 		// rule 2
 		actions = new LinkedList<>();
@@ -70,6 +78,12 @@ public class DatabaseFiller {
 		actions.add(new Action("situationHandler.http",
 				"http://localhost:4435/miniwebservice", soapBody, params));
 
-		rsa.addRule(new Situation("situation2", "object1"), actions);
+		try {
+			rsa.addRule(new Situation("situation2", "object1"), actions);
+		} catch (InvalidRuleException e) {
+			e.printStackTrace();
+		} catch (InvalidActionException e) {
+			e.printStackTrace();
+		}
 	}
 }

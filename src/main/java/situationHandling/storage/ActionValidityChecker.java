@@ -1,5 +1,6 @@
 package situationHandling.storage;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,9 +26,19 @@ class ActionValidityChecker {
 	}
 
 	private void checkParameters() throws InvalidActionException {
-		Set<String> allParams = PluginManagerFactory.getPluginManager()
+		Set<String> allValidParams = PluginManagerFactory.getPluginManager()
 				.getPluginParamDescriptions(pluginId);
-		for (String param : allParams) {
+		//check if too much params were specified by the action
+		if (allValidParams.size() < params.size()){
+			HashSet<String> temp = new HashSet<>();
+			temp.addAll(params.keySet());
+			temp.removeAll(allValidParams);
+			throw new InvalidActionException(
+					"Unknown Params: " + temp.toString());
+		}
+		
+		//check if parameters in action contain all params specified by the plugin
+		for (String param : allValidParams) {
 			if (!params.containsKey(param)) {
 				throw new InvalidActionException(
 						"Action does not specifiy parameter " + param + ".");

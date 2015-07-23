@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import situationHandling.exceptions.InvalidActionException;
+import situationHandling.exceptions.InvalidRuleException;
 import situationHandling.storage.datatypes.Action;
 import situationHandling.storage.datatypes.Situation;
 
@@ -28,7 +30,8 @@ public class RuleStorageTest {
 		RuleStorageAccess rsa = StorageAccessFactory.getRuleStorageAccess();
 
 		// test exception handling by using non-valid ids for different methods
-		rsa.addAction(-1, buildAction());
+		try {
+			rsa.addAction(-1, buildAction());
 		rsa.deleteAction(-1);
 		rsa.deleteRule(-1);
 		rsa.updateAction(-1, null, null, null, null);
@@ -102,6 +105,10 @@ public class RuleStorageTest {
 		System.out.println("Final Print");
 		rsa.getAllRules().forEach(rule -> System.out.println(rule.toString()));
 
+		} catch (InvalidActionException | InvalidRuleException e) {
+			e.printStackTrace();
+		}
+		
 		System.exit(0);
 
 	}
