@@ -1,10 +1,9 @@
 package situationHandling.storage;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedList;
 
+import situationHandling.exceptions.InvalidEndpointException;
 import situationHandling.storage.datatypes.Action;
 import situationHandling.storage.datatypes.Operation;
 import situationHandling.storage.datatypes.Situation;
@@ -25,12 +24,12 @@ public class DatabaseFiller {
 
 		try {
 			esa.addEndpoint(new Operation("test", "miniwebservice"),
-					new Situation("situation1", "object1"), new URL(
-							"http://localhost:4434/miniwebservice"));
+					new Situation("situation1", "object1"), 
+							"http://localhost:4434/miniwebservice");
 			esa.addEndpoint(new Operation("test", "miniwebservice"),
-					new Situation("situation2", "object1"), new URL(
-							"http://localhost:4435/miniwebservice"));
-		} catch (MalformedURLException e) {
+					new Situation("situation2", "object1"), 
+							"http://localhost:4435/miniwebservice");
+		} catch (InvalidEndpointException e) {
 			e.printStackTrace();
 		}
 	}

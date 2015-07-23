@@ -1,10 +1,8 @@
 package api.configuration;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-
 import org.apache.camel.Exchange;
 
+import situationHandling.exceptions.InvalidEndpointException;
 import situationHandling.storage.EndpointStorageAccess;
 import situationHandling.storage.StorageAccessFactory;
 import situationHandling.storage.datatypes.Endpoint;
@@ -61,19 +59,19 @@ public class EndpointAPI {
 	 */
 	public void addEndpoint(Exchange exchange) {
 		Endpoint endpoint = exchange.getIn().getBody(Endpoint.class);
-		URL endpointURL;
+
 		try {
-			endpointURL = new URL(endpoint.getEndpointURL());
+
 			int endpointID = esa.addEndpoint(endpoint.getOperation(),
-					endpoint.getSituation(), endpointURL);
+					endpoint.getSituation(), endpoint.getEndpointURL());
 
 			exchange.getIn().setBody(
 					new RestAnswer(
 							"Endpoint successfully added.",
 							String.valueOf(endpointID)));
-		} catch (MalformedURLException e) {
+		} catch (InvalidEndpointException e) {
 			exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
-			exchange.getIn().setBody("Invalid endpoint url.");
+			exchange.getIn().setBody(e.getMessage());
 			exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 422);
 		}
 	}
@@ -146,19 +144,11 @@ public class EndpointAPI {
 	public void updateEndpoint(Integer endpointID, Exchange exchange) {
 		Endpoint endpoint = exchange.getIn().getBody(Endpoint.class);
 
-		
-		URL endpointURL = null;
 		try {
-			// the URL is optional in this case, so check for null before
-			// converting.
-			if (endpoint.getEndpointURL() != null) {
-				endpointURL = new URL(endpoint.getEndpointURL());
-			}
-
 			System.out.println(endpoint.getSituation());
 
 			if (esa.updateEndpoint(endpointID, endpoint.getSituation(),
-					endpoint.getOperation(), endpointURL)) {
+					endpoint.getOperation(), endpoint.getEndpointURL())) {
 				exchange.getIn().setBody(new RestAnswer("Endpoint successfully updated", String.valueOf(endpointID)));
 			} else {
 				exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
@@ -166,9 +156,9 @@ public class EndpointAPI {
 						"Endpoint " + endpointID + " not found.");
 				exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 404);
 			}
-		} catch (MalformedURLException e) {
+		} catch (InvalidEndpointException e) {
 			exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
-			exchange.getIn().setBody("No update possible, due to invalid URL");
+			exchange.getIn().setBody(e.getMessage());
 			exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 422);
 		}
 

@@ -8,10 +8,12 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
+import org.hibernate.JDBCException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
+import situationHandling.exceptions.InvalidEndpointException;
 import situationHandling.storage.datatypes.Endpoint;
 import situationHandling.storage.datatypes.Operation;
 import situationHandling.storage.datatypes.Situation;
@@ -22,7 +24,7 @@ import situationHandling.storage.datatypes.Situation;
  * uses a relational SQL database to store the endpoints. To access the database
  * JPA 2.0/Hibernate is used. <br>
  * The DefaultImpl does only minimal checks on the semantic validity of the
- * inputs. It can be seen as plain database access.
+ * inputs and handles errors on database level.
  */
 class EndpointStorageAccessDefaultImpl implements EndpointStorageAccess {
 
@@ -176,7 +178,7 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageAccess {
 	 */
 	@Override
 	public int addEndpoint(Operation operation, Situation situation,
-			String endpointURL) {
+			String endpointURL) throws InvalidEndpointException {
 
 		Session session = sessionFactory.openSession();
 
@@ -189,10 +191,10 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageAccess {
 			logger.debug("Adding endpoint " + endpoint.toString());
 			endpointID = (Integer) session.save(endpoint);
 			tx.commit();
-		} catch (HibernateException e) {
+		} catch (JDBCException e) {
 			if (tx != null)
-				tx.rollback();
-			logger.error("Hibernate error", e);
+				tx.rollback();		
+			throw new InvalidEndpointException(createErrorMessage(e), e);
 		} finally {
 			session.close();
 		}
@@ -243,7 +245,7 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageAccess {
 	 */
 	@Override
 	public boolean updateEndpoint(int endpointID, Situation situation,
-			Operation operation, String endpointURL) {
+			Operation operation, String endpointURL) throws InvalidEndpointException {
 
 		logger.debug("Updating endpoint: " + endpointID);
 		Session session = sessionFactory.openSession();
@@ -284,11 +286,10 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageAccess {
 				session.update(endpoint);
 			}
 			tx.commit();
-		} catch (HibernateException e) {
+		} catch (JDBCException e) {
 			if (tx != null)
 				tx.rollback();
-			logger.error("Hibernate error", e);
-			return false;
+			throw new InvalidEndpointException(createErrorMessage(e));
 		} finally {
 			session.close();
 		}
@@ -306,6 +307,18 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageAccess {
 	 */
 	private String addTicks(String param) {
 		return "'" + param + "'";
+	}
+	
+	private String createErrorMessage(JDBCException e){
+		String errorMessage;
+		if (e.getErrorCode() == 1048){//column not set
+			errorMessage = "Endpoint property not set. Please set all properties.";
+		}else if (e.getErrorCode() == 1062){//duplicate
+			errorMessage = "Duplicate endpoint. There exists already an identical endpoint.";
+		}else{//unknown
+			errorMessage = "Unknown error when creating endpoint.";
+		}
+		return errorMessage;
 	}
 
 }
