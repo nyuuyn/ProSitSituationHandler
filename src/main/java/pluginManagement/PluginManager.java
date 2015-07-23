@@ -139,5 +139,14 @@ public interface PluginManager {
 	 * @return true, if successful, false if no plugin with this id exists.
 	 */
 	public boolean removePlugin(String ID);
+	
+	/**
+	 * 
+	 * Checks wheter a plugin exists, i.e. is registred with the PluginManager.
+	 * 
+	 * @param Id The id of the plugin to check
+	 * @return true, if plugin exists, false else
+	 */
+	public boolean pluginExists (String Id);
 
 }

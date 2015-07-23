@@ -18,7 +18,7 @@ class PluginManagerImpl implements PluginManager {
 
 	/** The pluginLoader. */
 	private PluginLoader pluginLoader;
-	
+
 	/** The logger for this class. */
 	private final static Logger logger = Logger
 			.getLogger(PluginManagerImpl.class);
@@ -133,6 +133,16 @@ class PluginManagerImpl implements PluginManager {
 					p.getNoOfRequiredParams(), p.getParamDescriptions());
 		}
 		return pluginInfo;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see pluginManagement.PluginManager#pluginExists(java.lang.String)
+	 */
+	@Override
+	public boolean pluginExists(String Id) {
+		return (pluginLoader.getPluginByID(Id) != null);
 	}
 
 }
