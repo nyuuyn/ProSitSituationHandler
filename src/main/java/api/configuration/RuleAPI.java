@@ -302,7 +302,7 @@ public class RuleAPI {
 
 		try {
 			if (rsa.updateAction(actionID.intValue(), action.getPluginID(),
-					action.getAddress(), action.getPayload(),
+					action.getAddress(), action.getPayload(), action.getExecutionTime(),
 					action.getParams())) {
 				exchange.getIn().setBody(
 						new RestAnswer("Action successfully updated", String

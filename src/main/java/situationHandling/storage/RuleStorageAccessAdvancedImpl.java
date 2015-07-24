@@ -4,11 +4,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
 
 import situationHandling.exceptions.InvalidActionException;
 import situationHandling.exceptions.InvalidRuleException;
 import situationHandling.storage.datatypes.Action;
+import situationHandling.storage.datatypes.Action.ExecutionTime;
 import situationHandling.storage.datatypes.Situation;
 
 /**
@@ -21,6 +23,11 @@ import situationHandling.storage.datatypes.Situation;
  *
  */
 class RuleStorageAccessAdvancedImpl extends RuleStorageAccessDefaultImpl {
+	
+	/** The logger for this class. */
+	private final static Logger logger = Logger
+			.getLogger(RuleStorageAccessAdvancedImpl.class);
+
 
 	/**
 	 * Instantiates a new rule storage access advanced impl.
@@ -45,8 +52,9 @@ class RuleStorageAccessAdvancedImpl extends RuleStorageAccessDefaultImpl {
 			Action action = it.next();
 			try {
 				new ActionValidityChecker(action.getParams(),
-						action.getPluginID()).checkAction();
+						action.getPluginID(), action.getExecutionTime()).checkAction(false, null);
 			} catch (InvalidActionException e) {
+				logger.info("Action not added to rule: " + e.getMessage());
 				it.remove();
 			}
 		}
@@ -61,8 +69,8 @@ class RuleStorageAccessAdvancedImpl extends RuleStorageAccessDefaultImpl {
 	public int addAction(int ruleID, Action action)
 			throws InvalidActionException, InvalidRuleException {
 
-		new ActionValidityChecker(action.getParams(), action.getPluginID())
-				.checkAction();
+		new ActionValidityChecker(action.getParams(), action.getPluginID(), action.getExecutionTime())
+				.checkAction(false, null);
 
 		return super.addAction(ruleID, action);
 	}
@@ -72,10 +80,10 @@ class RuleStorageAccessAdvancedImpl extends RuleStorageAccessDefaultImpl {
 	 */
 	@Override
 	public boolean updateAction(int actionID, String pluginID, String address,
-			String payload, Map<String, String> params)
+			String payload, ExecutionTime executionTime,Map<String, String> params)
 			throws InvalidActionException {
-		new ActionValidityChecker(params, pluginID).checkAction();
-		return super.updateAction(actionID, pluginID, address, payload, params);
+		new ActionValidityChecker(params, pluginID, executionTime).checkAction(true, actionID);
+		return super.updateAction(actionID, pluginID, address, payload, executionTime, params);
 	}
 
 }

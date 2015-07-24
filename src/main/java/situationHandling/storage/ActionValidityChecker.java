@@ -7,6 +7,7 @@ import java.util.Set;
 import pluginManagement.PluginManagerFactory;
 import situationHandling.exceptions.InvalidActionException;
 import situationHandling.storage.datatypes.Action;
+import situationHandling.storage.datatypes.Action.ExecutionTime;
 
 /**
  * The Class ActionValidityChecker is used to do semantic checks on an action. <br>
@@ -17,6 +18,7 @@ import situationHandling.storage.datatypes.Action;
  * <li>The plugin exists</li>
  * <li>The right number of params is used</li>
  * <li>The correct params are used</li>
+ * <li>The execution time is set</li>
  * </ol>
  * 
  * Uses the {@link InvalidActionException} to signalize constraint violations.
@@ -32,6 +34,11 @@ class ActionValidityChecker {
 	private String pluginId;
 
 	/**
+	 * The execution time.
+	 */
+	private ExecutionTime executionTime;
+
+	/**
 	 * Instantiates a new action validity checker. Checks the params and the
 	 * plugin, see class description.
 	 *
@@ -40,10 +47,11 @@ class ActionValidityChecker {
 	 * @param pluginId
 	 *            the plugin id
 	 */
-	ActionValidityChecker(Map<String, String> params, String pluginId) {
-		super();
+	ActionValidityChecker(Map<String, String> params, String pluginId,
+			ExecutionTime executionTime) {
 		this.params = params;
 		this.pluginId = pluginId;
+		this.executionTime = executionTime;
 	}
 
 	/**
@@ -89,14 +97,57 @@ class ActionValidityChecker {
 	}
 
 	/**
+	 * Checks if the execution time is properly set.
+	 * 
+	 * @throws InvalidActionException
+	 */
+	private void checkExecutionTime() throws InvalidActionException {
+		if (executionTime == null) {
+			throw new InvalidActionException(
+					"Action does not specify execution time.");
+		}
+	}
+
+	/**
 	 * Checks the action. See the class description to see wich checks are
 	 * performed
+	 * 
+	 * @param update
+	 *            use true if the check is performed before an update of an
+	 *            existing action. Use false if the check is performed on a new
+	 *            action.
+	 * @param the
+	 *            id of the action if an update is done. When checking a new
+	 *            action this value can be null.
 	 *
 	 * @throws InvalidActionException
 	 *             if one of the defined constraints is violated.
 	 */
-	public void checkAction() throws InvalidActionException {
-		checkPluginId();
-		checkParameters();
+	public void checkAction(boolean update, Integer actionID)
+			throws InvalidActionException {
+		if (update) {// check only specified params
+
+			if (pluginId != null) {
+				checkPluginId();
+			}
+			;
+			if (params != null) {
+				if (pluginId == null) {
+					// no update on plugin. We have to load
+					// the plugin from the existing action to be able to check
+					// the params
+					pluginId = StorageAccessFactory.getRuleStorageAccess()
+							.getActionByID(actionID).getPluginID();
+
+				}
+				checkParameters();
+			}
+		} else {// do full check
+			checkExecutionTime();
+			checkPluginId();
+			checkParameters();
+		}
+
 	}
+
 }

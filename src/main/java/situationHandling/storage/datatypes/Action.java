@@ -7,6 +7,8 @@ import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -18,18 +20,28 @@ import javax.persistence.Table;
  * occurs. The situation is defined by a {@link Rule}. <div>
  * 
  * An Action is described by a pluginID, an address, a payload and several
- * optional parameters.<div>
+ * optional parameters. Furthermore, an action allows to specify the moment in
+ * which it is executed.<div>
  * 
  * The pluginID refers to the plugin that exectutes the action. The address
- * describes the address of the endpoint or the receiver of the message/payload. The
- * payload is the payload for the interaction (or simply the message that is sent
- * to someone). Furthermore, optional Parameters can be used by the action. A
- * single parameter is a key-value pair. See the documentation of the plugin for
+ * describes the address of the endpoint or the receiver of the message/payload.
+ * The payload is the payload for the interaction (or simply the message that is
+ * sent to someone). The execution time specifies, when exactly the action is
+ * executed. Possibilities are:
+ * <ul>
+ * <li>When the situation occurs</li>
+ * <li>When the situation disappears</li>
+ * <li>Whe the situation changes</li>
+ * </ul>
+ * The situation is specified in the rule the action is associated to.
+ * Furthermore, optional Parameters can be used by the action. A single
+ * parameter is a key-value pair. See the documentation of the plugin for
  * information about optional paramters. <div> The class is conform to the java
  * bean specification.
  * 
  * @author Stefan
  * @see Rule
+ * @see Situation
  */
 /*
  * An instance of Action can be mapped to the table actions using JPA.
@@ -37,6 +49,24 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "actions")
 public class Action {
+	/**
+	 * 
+	 * Enum to specify the execution time of an action. An action can be
+	 * executed in the following cases:
+	 *
+	 * 
+	 * <ul>
+	 * <li>When the situation occurs</li>
+	 * <li>When the situation disappears</li>
+	 * <li>Whe the situation changes</li>
+	 * </ul>
+	 * 
+	 * @see Action
+	 *
+	 */
+	public enum ExecutionTime {
+		onSituationAppear, onSituationDisappear, onSituationChange
+	}
 
 	/** The id used in the database aka the PRIMARY KEY. */
 	@Id
@@ -44,14 +74,31 @@ public class Action {
 	@Column(name = "id")
 	private int id;
 
+	/**
+	 * The id of the plugin to use.
+	 */
 	@Column(name = "plugin_id")
 	private String pluginID;
 
+	/**
+	 * The receiver of the message/payload.
+	 * 
+	 */
 	@Column(name = "address")
 	private String address;
 
+	/**
+	 * The payload to send.
+	 */
 	@Column(name = "payload")
 	private String payload;
+
+	/**
+	 * The point in time to execute the action.
+	 */
+	@Column(name = "execution_time")
+	@Enumerated(EnumType.STRING)
+	private ExecutionTime executionTime;
 
 	/**
 	 * The hashmap is stored in the table "parameters", using the id of this
@@ -61,7 +108,7 @@ public class Action {
 	@MapKeyColumn(name = "name")
 	@Column(name = "value")
 	@CollectionTable(name = "parameters", joinColumns = @JoinColumn(name = "action_id"))
-	private Map<String, String> params = new HashMap<String, String>();
+	private Map<String, String> params;
 
 	/**
 	 * Default Constructor. Use the setters to set the values
@@ -83,12 +130,15 @@ public class Action {
 	 *            the payload/message
 	 * @param params
 	 *            optional parameters
+	 * @param executionTime
+	 *            the point in time when the action should be executed.
 	 */
 	public Action(String pluginID, String address, String payload,
-			HashMap<String, String> params) {
+			ExecutionTime executionTime, HashMap<String, String> params) {
 		this.pluginID = pluginID;
 		this.address = address;
 		this.payload = payload;
+		this.executionTime = executionTime;
 		this.params = params;
 	}
 
@@ -166,6 +216,25 @@ public class Action {
 	 */
 	public void setPayload(String payload) {
 		this.payload = payload;
+	}
+
+	/**
+	 * Get the point in time when the action should be executed.
+	 * 
+	 * @return the executionTime
+	 */
+	public ExecutionTime getExecutionTime() {
+		return executionTime;
+	}
+
+	/**
+	 * Set the point in time when the action should be executed.
+	 * 
+	 * @param executionTime
+	 *            the executionTime to set
+	 */
+	public void setExecutionTime(ExecutionTime executionTime) {
+		this.executionTime = executionTime;
 	}
 
 	/**

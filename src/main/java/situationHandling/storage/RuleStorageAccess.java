@@ -7,6 +7,7 @@ import java.util.Map;
 import situationHandling.exceptions.InvalidActionException;
 import situationHandling.exceptions.InvalidRuleException;
 import situationHandling.storage.datatypes.Action;
+import situationHandling.storage.datatypes.Action.ExecutionTime;
 import situationHandling.storage.datatypes.Rule;
 import situationHandling.storage.datatypes.Situation;
 
@@ -79,7 +80,8 @@ public interface RuleStorageAccess {
 	 * 
 	 * @throws InvalidActionException
 	 *             When an invalid action is specified.
-	 * @throws InvalidRuleException When the rule with this ID was not found
+	 * @throws InvalidRuleException
+	 *             When the rule with this ID was not found
 	 */
 	public int addAction(int ruleID, Action action)
 			throws InvalidActionException, InvalidRuleException;
@@ -123,6 +125,9 @@ public interface RuleStorageAccess {
 	 * @param payload
 	 *            the new payload to send. If {@code payload} is {@code null},
 	 *            the payload will not be updated
+	 * @param executionTime
+	 *            the new execution Time.If {@code executionTime} is
+	 *            {@code null}, the executionTime will not be updated
 	 * @param params
 	 *            the new params. If {@code params} is {@code null}, the params
 	 *            will not be updated
@@ -131,8 +136,8 @@ public interface RuleStorageAccess {
 	 *             When an invalid action is specified.
 	 */
 	public boolean updateAction(int actionID, String pluginID, String address,
-			String payload, Map<String, String> params)
-			throws InvalidActionException;
+			String payload, ExecutionTime executionTime,
+			Map<String, String> params) throws InvalidActionException;
 
 	/**
 	 * Updates the situation of an existing rule with the specified id. Note

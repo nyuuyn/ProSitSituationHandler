@@ -17,6 +17,7 @@ import org.hibernate.criterion.Restrictions;
 import situationHandling.exceptions.InvalidActionException;
 import situationHandling.exceptions.InvalidRuleException;
 import situationHandling.storage.datatypes.Action;
+import situationHandling.storage.datatypes.Action.ExecutionTime;
 import situationHandling.storage.datatypes.Rule;
 import situationHandling.storage.datatypes.Situation;
 
@@ -33,7 +34,7 @@ class RuleStorageAccessDefaultImpl implements RuleStorageAccess {
 
 	/** The logger for this class. */
 	private final static Logger logger = Logger
-			.getLogger(RuleStorageAccess.class);
+			.getLogger(RuleStorageAccessDefaultImpl.class);
 
 	/**
 	 * The session factory used to create database sessions.
@@ -229,7 +230,7 @@ class RuleStorageAccessDefaultImpl implements RuleStorageAccess {
 	 */
 	@Override
 	public boolean updateAction(int actionID, String pluginID, String address,
-			String payload, Map<String, String> params)
+			String payload,ExecutionTime executionTime, Map<String, String> params)
 			throws InvalidActionException {
 		logger.debug("Updating action: " + actionID);
 		Session session = sessionFactory.openSession();
@@ -255,6 +256,9 @@ class RuleStorageAccessDefaultImpl implements RuleStorageAccess {
 				}
 				if (params != null) {
 					action.setParams(params);
+				}
+				if (executionTime != null){
+					action.setExecutionTime(executionTime);
 				}
 
 				session.update(action);

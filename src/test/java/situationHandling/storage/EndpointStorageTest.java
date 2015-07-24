@@ -11,6 +11,7 @@ import situationHandling.storage.datatypes.Situation;
  * different methods. Note that this is not a unit test. The test just runs all
  * methods. If no Exceptions etc. are thrown and the outputs looks ok, it is
  * assumed that everything works.
+ * @deprecated  probably not running anymore.
  */
 public class EndpointStorageTest {
 
