@@ -433,6 +433,87 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageAccess {
 		return handledSituation;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * situationHandling.storage.EndpointStorageAccess#addHandledSituation(int,
+	 * situationHandling.storage.datatypes.HandledSituation)
+	 */
+	@Override
+	public int addHandledSituation(int endpointId,
+			HandledSituation handledSituation) throws InvalidEndpointException {
+		logger.debug("Adding situation to endpoint " + endpointId);
+
+		Session session = sessionFactory.openSession();
+
+		Transaction tx = null;
+
+		try {
+			tx = session.beginTransaction();
+			// get endpoint and add situation
+			Endpoint endpoint = (Endpoint) session.get(Endpoint.class,
+					endpointId);
+			if (endpoint != null) {
+				endpoint.getSituations().add(handledSituation);
+				session.update(endpoint);
+			} else {
+				logger.info("Endpoint with id " + endpointId
+						+ " not found. No situation added.");
+				throw new InvalidEndpointException("Endpoint with id "
+						+ endpointId + " not found. No situation added.");
+			}
+
+			tx.commit();
+		} catch (JDBCException e) {
+			if (tx != null)
+				tx.rollback();
+			throw new InvalidEndpointException(createErrorMessage(e), e);
+		} finally {
+			session.close();
+		}
+		logger.debug("Situation added. ID = " + handledSituation.getId());
+
+		return handledSituation.getId();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * situationHandling.storage.EndpointStorageAccess#getSituationsByEndpoint
+	 * (int)
+	 */
+	@Override
+	public List<HandledSituation> getSituationsByEndpoint(int endpointId) {
+		logger.debug("Getting all situations of endpoint: " + endpointId);
+
+		Session session = sessionFactory.openSession();
+		Transaction tx = null;
+		List<HandledSituation> situations = null;
+
+		try {
+			tx = session.beginTransaction();
+
+			Endpoint endpoint = (Endpoint) session.get(Endpoint.class,
+					endpointId);
+
+			if (endpoint != null) {
+				Hibernate.initialize(endpoint.getSituations());
+				situations = endpoint.getSituations();
+			}
+			tx.commit();
+
+		} catch (HibernateException e) {
+			if (tx != null)
+				tx.rollback();
+			logger.error("Hibernate error", e);
+		} finally {
+			session.close();
+		}
+		return situations;
+	}
+
 	/**
 	 * Helper method to wrap a String in {@code '} tokens. Can be used for
 	 * database queries to wrap the params.

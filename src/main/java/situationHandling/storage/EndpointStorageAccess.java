@@ -165,7 +165,7 @@ public interface EndpointStorageAccess {
 	public boolean deleteHandledSituation(int id);
 
 	/**
-	 * Gets the Situtation with the given ID
+	 * Gets the Situation with the given ID
 	 * 
 	 * @param id
 	 *            the id of the requested
@@ -173,8 +173,28 @@ public interface EndpointStorageAccess {
 	 */
 	public HandledSituation getHandledSituationById(int id);
 
-	// TODO
-	// public int addHandledSituation(int endpointId,
-	// HandledSituation handledSituation) throws InvalidEndpointException;
-	// public List<HandledSituation> getSituationsByEndpoint(int endpointId);
+	/**
+	 * Add a new situation to handle for an existing endpoint.
+	 * 
+	 * @param endpointId
+	 *            the endpoint this situation is added to.
+	 * @param handledSituation
+	 *            The situation to add.
+	 * @return the id of the newly addded situation
+	 * @throws InvalidEndpointException
+	 *             when the new situation or the endpoint is invalid.
+	 */
+	public int addHandledSituation(int endpointId,
+			HandledSituation handledSituation) throws InvalidEndpointException;
+
+	/**
+	 * Get all situations handled by an specific endpoint.
+	 * 
+	 * @param endpointId
+	 *            the id of the endpoint.
+	 * @return the situations handled by the endpoint. An empty list if no
+	 *         situations are handled. {@code Null} if the endpoint does not
+	 *         exist.
+	 */
+	public List<HandledSituation> getSituationsByEndpoint(int endpointId);
 }
