@@ -5,6 +5,7 @@ import java.util.List;
 
 import situationHandling.exceptions.InvalidEndpointException;
 import situationHandling.storage.datatypes.Endpoint;
+import situationHandling.storage.datatypes.HandledSituation;
 import situationHandling.storage.datatypes.Operation;
 import situationHandling.storage.datatypes.Situation;
 
@@ -31,7 +32,7 @@ public interface EndpointStorageAccess {
 
 	// TODO: Default Endpunkt oder Null returnen, falls kein passender Endpunkt
 	// gefunden?? -->Klären
-	/**
+	/**TODO: DIese Methode ist nutzlos
 	 * Gets the endpoint url of an endpoint that offers the specified operation
 	 * and that suits the specified situation. SOAP Messages can be sent to this
 	 * endpoint.
@@ -72,8 +73,7 @@ public interface EndpointStorageAccess {
 	 *
 	 * @param operation
 	 *            the operation that is implemented by this endpoint
-	 * @param situation
-	 *            the situation in which this endpoint should be used
+	 *            TODO
 	 * @param endpointURL
 	 *            the endpoint url
 	 * @return the id that was assigned to the endpoint.
@@ -81,7 +81,7 @@ public interface EndpointStorageAccess {
 	 * @throws InvalidEndpointException
 	 *             When the specified Endpoint is not valid
 	 */
-	public int addEndpoint(Operation operation, Situation situation,
+	public int addEndpoint(Operation operation, List <HandledSituation>situations,
 			String endpointURL) throws InvalidEndpointException;
 
 	/**
@@ -108,9 +108,7 @@ public interface EndpointStorageAccess {
 	 *
 	 * @param endpointID
 	 *            the endpoint id that is used to uniquely identify an endpoint.
-	 * @param situation
-	 *            the new situation for this endpoint. If {@code situation} is
-	 *            {@code null}, the situation will not be updated
+	 *            TODO
 	 * @param operation
 	 *            the new operation for this endpoint. If {@code operation} is
 	 *            {@code null}, the operation will not be updated
@@ -122,7 +120,7 @@ public interface EndpointStorageAccess {
 	 * @throws InvalidEndpointException
 	 *             When the specified Endpoint is not valid
 	 */
-	public boolean updateEndpoint(int endpointID, Situation situation,
+	public boolean updateEndpoint(int endpointID, List<HandledSituation> situations,
 			Operation operation, String endpointURL)
 			throws InvalidEndpointException;
 }

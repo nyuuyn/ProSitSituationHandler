@@ -1,12 +1,21 @@
 package situationHandling.storage.datatypes;
 
-import javax.persistence.*;
+import java.util.List;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 /**
- * A wrapper class that contains all information about an endpoint for a soap
- * message. Stores the information that is required to forward a soap message
- * from a workflow to an arbitrary endpoint that accepts the message received by
- * the workflow. <div>
+ * TODO: DOKU für neuen Endpunkt aktualisieren A wrapper class that contains all
+ * information about an endpoint for a soap message. Stores the information that
+ * is required to forward a soap message from a workflow to an arbitrary
+ * endpoint that accepts the message received by the workflow. <div>
  *
  * An endpoint is decribed by the following information:
  * <ul>
@@ -42,13 +51,12 @@ public class Endpoint {
 	@Column(name = "id")
 	private int endpointID;
 
-	/** The situation name. */
-	@Column(name = "situation_name")
-	private String situationName;
-
-	/** The object name. */
-	@Column(name = "object_name")
-	private String objectName;
+	/**
+	 * TODO
+	 */
+	@OneToMany(cascade = CascadeType.ALL)
+	@JoinColumn(name = "endpoint_id")
+	private List<HandledSituation> situations;
 
 	/** The operation name. */
 	// operation
@@ -63,7 +71,7 @@ public class Endpoint {
 	@Column(name = "endpoint_url")
 	private String endpointURL;
 
-	/**
+	/**TODO
 	 * Instantiates a new endpoint. Allows to specify the name of the situation
 	 * etc. See documentation of the class for the description of the
 	 * parameters.
@@ -71,41 +79,34 @@ public class Endpoint {
 	 * @param endpointURL
 	 *            the endpoint url. This MUST be a valid URL. Otherwise,
 	 *            fowarding the message will fail
-	 * @param situationName
-	 *            the situation name
-	 * @param objectName
-	 *            the object name
 	 * @param operationName
 	 *            the operation name
 	 * @param qualifier
 	 *            the qualifier
 	 */
-	public Endpoint(String endpointURL, String situationName,
-			String objectName, String operationName, String qualifier) {
+	public Endpoint(String endpointURL, List<HandledSituation> situations,
+			String operationName, String qualifier) {
 		this.endpointURL = endpointURL;
-		this.situationName = situationName;
-		this.objectName = objectName;
+		this.situations = situations;
 		this.operationName = operationName;
 		this.qualifier = qualifier;
 	}
 
-	/**
+	/**TODO
 	 * Instantiates a new endpoint. See documentation of the class for the
 	 * description of the parameters.
 	 *
 	 * @param endpointURL
 	 *            the endpoint url.This MUST be a valid URL. Otherwise,
 	 *            fowarding the message will fail.
-	 * @param situation
-	 *            the situation
 	 * @param operation
 	 *            the operation
 	 */
-	public Endpoint(String endpointURL, Situation situation, Operation operation) {
+	public Endpoint(String endpointURL, List<HandledSituation> situations,
+			Operation operation) {
 		this.endpointURL = endpointURL;
 
-		this.situationName = situation.getSituationName();
-		this.objectName = situation.getObjectName();
+		this.situations = situations;
 
 		this.operationName = operation.getOperationName();
 		this.qualifier = operation.getQualifier();
@@ -137,26 +138,6 @@ public class Endpoint {
 	 */
 	public void setEndpointURL(String endpointURL) {
 		this.endpointURL = endpointURL;
-	}
-
-	/**
-	 * Gets the situation.
-	 *
-	 * @return the situation
-	 */
-	public Situation getSituation() {
-		return new Situation(situationName, objectName);
-	}
-
-	/**
-	 * Sets the situation.
-	 *
-	 * @param situation
-	 *            the new situation
-	 */
-	public void setSituation(Situation situation) {
-		this.situationName = situation.getSituationName();
-		this.objectName = situation.getObjectName();
 	}
 
 	/**
@@ -199,43 +180,21 @@ public class Endpoint {
 	public void setEndpointID(int endpointID) {
 		this.endpointID = endpointID;
 	}
+	
+	
 
-	/**
-	 * Gets the situation name.
-	 *
-	 * @return the situation name
+	/**TODO
+	 * @return the situations
 	 */
-	public String getSituationName() {
-		return situationName;
+	public List<HandledSituation> getSituations() {
+		return situations;
 	}
 
-	/**
-	 * Sets the situation name.
-	 *
-	 * @param situationName
-	 *            the new situation name
+	/**TODO
+	 * @param situations the situations to set
 	 */
-	public void setSituationName(String situationName) {
-		this.situationName = situationName;
-	}
-
-	/**
-	 * Gets the object name.
-	 *
-	 * @return the object name
-	 */
-	public String getObjectName() {
-		return objectName;
-	}
-
-	/**
-	 * Sets the object name.
-	 *
-	 * @param objectName
-	 *            the new object name
-	 */
-	public void setObjectName(String objectName) {
-		this.objectName = objectName;
+	public void setSituations(List<HandledSituation> situations) {
+		this.situations = situations;
 	}
 
 	/**
@@ -284,9 +243,8 @@ public class Endpoint {
 	@Override
 	public String toString() {
 
-		return "[" + endpointID + " | " + situationName + " | " + objectName
-				+ " | " + operationName + " | " + qualifier + " | "
-				+ endpointURL.toString() + "]";
+		return "[" + endpointID + " | " + operationName + " | " + qualifier
+				+ " | " + endpointURL.toString() + situations.toString() + "]";
 	}
 
 }

@@ -38,23 +38,24 @@ public class EndpointStorageTest {
 			String endpointURL = "http://example.com";
 
 			System.out.println("Adding endpoint");
-			int epID = esa.addEndpoint(operation, situation, endpointURL);
-			ids.add(epID);
+			int epID;
+//			epID = esa.addEndpoint(operation, situation, endpointURL);
+//			ids.add(epID);
 
-			System.out.println("Endpoint added. ID:" + epID);
+//			System.out.println("Endpoint added. ID:" + epID);
 			System.out.println("Endpoint Query");
 			System.out.println("URL: "
 					+ esa.getEndpointURL(situation, operation).toString());
 
 			// Getting Endpoint by ID
 			System.out.println("Getting Endpoint by ID");
-			System.out.println(esa.getEndpointByID(epID));
+//			System.out.println(esa.getEndpointByID(epID));
 
 			System.out.println("Adding further Endpoints");
 
-			ids.add(esa.addEndpoint(operation, situation, endpointURL));
-			ids.add(esa.addEndpoint(operation, situation, endpointURL));
-			ids.add(esa.addEndpoint(operation, situation, endpointURL));
+//			ids.add(esa.addEndpoint(operation, situation, endpointURL));
+//			ids.add(esa.addEndpoint(operation, situation, endpointURL));
+//			ids.add(esa.addEndpoint(operation, situation, endpointURL));
 
 			System.out.println("Getting all Endpoints");
 			esa.getAllEndpoints().forEach(
@@ -66,7 +67,7 @@ public class EndpointStorageTest {
 
 			String endpointURLUp = "http://safhjkafhk.com";
 
-			esa.updateEndpoint(ids.get(0), situationUp, null, null);
+//			esa.updateEndpoint(ids.get(0), situationUp, null, null);
 			esa.updateEndpoint(ids.get(1), null, operationUp, null);
 			esa.updateEndpoint(ids.get(2), null, null, endpointURLUp);
 

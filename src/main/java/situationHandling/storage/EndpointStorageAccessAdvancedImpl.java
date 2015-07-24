@@ -1,10 +1,12 @@
 package situationHandling.storage;
 
+import java.util.List;
+
 import org.hibernate.SessionFactory;
 
 import situationHandling.exceptions.InvalidEndpointException;
+import situationHandling.storage.datatypes.HandledSituation;
 import situationHandling.storage.datatypes.Operation;
-import situationHandling.storage.datatypes.Situation;
 
 /**
  * 
@@ -37,11 +39,12 @@ class EndpointStorageAccessAdvancedImpl extends
 	 * situationHandling.storage.datatypes.Situation, java.lang.String)
 	 */
 	@Override
-	public int addEndpoint(Operation operation, Situation situation,
+	public int addEndpoint(Operation operation, List<HandledSituation> situations,
 			String endpointURL) throws InvalidEndpointException {
+		//TODO: Check ob mind eine Aktion angegeben (bei Update auch)
 		new EndpointValidityChecker(endpointURL).checkBeforeAdd();
 
-		return super.addEndpoint(operation, situation, endpointURL);
+		return super.addEndpoint(operation, situations, endpointURL);
 	}
 
 	/*
@@ -53,12 +56,12 @@ class EndpointStorageAccessAdvancedImpl extends
 	 * situationHandling.storage.datatypes.Operation, java.lang.String)
 	 */
 	@Override
-	public boolean updateEndpoint(int endpointID, Situation situation,
+	public boolean updateEndpoint(int endpointID, List<HandledSituation> situations,
 			Operation operation, String endpointURL)
 			throws InvalidEndpointException {
 		new EndpointValidityChecker(endpointURL).checkBeforeUpdate();
 
-		return super.updateEndpoint(endpointID, situation, operation,
+		return super.updateEndpoint(endpointID, situations, operation,
 				endpointURL);
 	}
 

@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.JDBCException;
 import org.hibernate.Session;
@@ -15,6 +16,7 @@ import org.hibernate.Transaction;
 
 import situationHandling.exceptions.InvalidEndpointException;
 import situationHandling.storage.datatypes.Endpoint;
+import situationHandling.storage.datatypes.HandledSituation;
 import situationHandling.storage.datatypes.Operation;
 import situationHandling.storage.datatypes.Situation;
 
@@ -122,7 +124,9 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageAccess {
 			Iterator it = queryResults.iterator();
 
 			while (it.hasNext()) {
-				endpoints.add((Endpoint) it.next());
+				Endpoint endpoint = (Endpoint) it.next();
+				Hibernate.initialize(endpoint.getSituations());
+				endpoints.add(endpoint);
 			}
 
 			tx.commit();
@@ -155,6 +159,8 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageAccess {
 
 			if (endpoint == null) {
 				logger.info("No endpoint found with id = " + endpointID);
+			}else{
+				Hibernate.initialize(endpoint.getSituations());
 			}
 
 			tx.commit();
@@ -177,8 +183,9 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageAccess {
 	 * situationHandling.storage.datatypes.Situation, java.net.URL)
 	 */
 	@Override
-	public int addEndpoint(Operation operation, Situation situation,
-			String endpointURL) throws InvalidEndpointException {
+	public int addEndpoint(Operation operation,
+			List<HandledSituation> situations, String endpointURL)
+			throws InvalidEndpointException {
 
 		Session session = sessionFactory.openSession();
 
@@ -186,7 +193,7 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageAccess {
 		Integer endpointID = null;
 		try {
 			tx = session.beginTransaction();
-			Endpoint endpoint = new Endpoint(endpointURL, situation, operation);
+			Endpoint endpoint = new Endpoint(endpointURL, situations, operation);
 			logger.debug("Adding endpoint " + endpoint.toString());
 			endpointID = (Integer) session.save(endpoint);
 			tx.commit();
@@ -243,9 +250,9 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageAccess {
 	 * situationHandling.storage.datatypes.Operation, java.net.URL)
 	 */
 	@Override
-	public boolean updateEndpoint(int endpointID, Situation situation,
-			Operation operation, String endpointURL)
-			throws InvalidEndpointException {
+	public boolean updateEndpoint(int endpointID,
+			List<HandledSituation> situations, Operation operation,
+			String endpointURL) throws InvalidEndpointException {
 
 		logger.debug("Updating endpoint: " + endpointID);
 		Session session = sessionFactory.openSession();
@@ -268,13 +275,18 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageAccess {
 				return false;
 			} else {
 
+				// TODO: Da stellt sich jetzt die Frage: Soll ich Updates für
+				// die Situationen einzeln zulassen? Glaub eher nicht, das wird
+				// dann sehr kompliziert...Wobei, könnte man machen, aber nicht
+				// auf der Oberfläche!
 				// params are optional, so check for null..
-				if (situation != null && situation.getSituationName() != null) {
-					endpoint.setSituationName(situation.getSituationName());
-				}
-				if (situation != null && situation.getObjectName() != null) {
-					endpoint.setObjectName(situation.getObjectName());
-				}
+				// if (situation != null && situation.getSituationName() !=
+				// null) {
+				// endpoint.setSituationName(situation.getSituationName());
+				// }
+				// if (situation != null && situation.getObjectName() != null) {
+				// endpoint.setObjectName(situation.getObjectName());
+				// }
 				if (operation != null && operation.getOperationName() != null) {
 					endpoint.setOperationName(operation.getOperationName());
 				}

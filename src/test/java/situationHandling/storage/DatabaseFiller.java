@@ -30,16 +30,16 @@ public class DatabaseFiller {
 		EndpointStorageAccess esa = StorageAccessFactory
 				.getEndpointStorageAccess();
 
-		try {
-			esa.addEndpoint(new Operation("test", "miniwebservice"),
-					new Situation("situation1", "object1"),
-					"http://localhost:4434/miniwebservice");
-			esa.addEndpoint(new Operation("test", "miniwebservice"),
-					new Situation("situation2", "object1"),
-					"http://localhost:4435/miniwebservice");
-		} catch (InvalidEndpointException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			esa.addEndpoint(new Operation("test", "miniwebservice"),
+//					new Situation("situation1", "object1"),
+//					"http://localhost:4434/miniwebservice");
+//			esa.addEndpoint(new Operation("test", "miniwebservice"),
+//					new Situation("situation2", "object1"),
+//					"http://localhost:4435/miniwebservice");
+//		} catch (InvalidEndpointException e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	private static void addSampleRule() {
