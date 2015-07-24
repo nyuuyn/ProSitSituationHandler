@@ -34,7 +34,7 @@ public class EndpointAPI {
 	}
 
 	/**
-	 * Gets all endpoints that are currently stored in the rule directory.
+	 * Gets all endpoints that are currently available.
 	 * <p>
 	 * Target method for a camel route. The exchange is created by camel.
 	 * 
