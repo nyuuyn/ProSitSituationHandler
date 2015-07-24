@@ -57,8 +57,7 @@ public class EndpointAPI {
 	 *            the exchange that contains the received message. Must contain
 	 *            an instance of {@link Endpoint} in the body. Also serves as
 	 *            container for the answer.
-	 * @return The id of the new endpoint. An 422-Error if the endpoint url is
-	 *         not a valid URL. The return value is stored in the exchange.
+	 * @return The id of the new endpoint. An 422-Error if the endpoint is invalid. The return value is stored in the exchange.
 	 */
 	public void addEndpoint(Exchange exchange) {
 		Endpoint endpoint = exchange.getIn().getBody(Endpoint.class);
