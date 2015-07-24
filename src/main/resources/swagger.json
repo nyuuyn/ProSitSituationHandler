@@ -36,6 +36,7 @@
             },
             "post": {
                 "summary": "Creates a new endpoint.",
+                "description": "The endpoint has to contain at least one Handled Situation. Else a 422 error will be returned.",
                 "tags": [
                     "endpoint"
                 ],
@@ -138,7 +139,7 @@
             },
             "put": {
                 "summary": "Update an endpoint with a certain ID.",
-                "description": "Allows to update one or more properties of an endpoint. Only the properties to update have to be provided.",
+                "description": "Allows to update one or more properties of an endpoint. Only the properties to update have to be provided. When the handled situations are updated, note that it is required to state at least the id of the situation(s) to update. Otherwise the update of the situation is not possible. However, all other attributes are optional.",
                 "tags": [
                     "endpoint"
                 ],
@@ -182,6 +183,215 @@
                         "schema": {
                             "type": "string",
                             "description": "error message"
+                        }
+                    }
+                }
+            }
+        },
+        "/endpoints/{endpointId}/handledSituations": {
+            "get": {
+                "summary": "Get all situations of the endpoint.",
+                "tags": [
+                    "endpoint",
+                    "HandledSituation"
+                ],
+                "produces": [
+                    "application/json",
+                    "text/plain"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/EndpointPath"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get Successful",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/HandledSituation"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Endpoint not found.",
+                        "schema": {
+                            "title": "message",
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Add a new situation to an endpoint.",
+                "tags": [
+                    "endpoint",
+                    "HandledSituation"
+                ],
+                "produces": [
+                    "application/json",
+                    "text/plain"
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/EndpointPath"
+                    },
+                    {
+                        "in": "body",
+                        "name": "situation",
+                        "description": "the new situation to add",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/HandledSituation"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Situation successfully added. Answer code is the id of the new situation.",
+                        "schema": {
+                            "$ref": "#/definitions/Answer"
+                        }
+                    },
+                    "404": {
+                        "description": "Endpoint not found.",
+                        "schema": {
+                            "title": "message",
+                            "type": "string"
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid situation",
+                        "schema": {
+                            "title": "error message",
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/endpoints/{endpointId}/handledSituations/{situationId}": {
+            "get": {
+                "summary": "Get a specific situation.",
+                "tags": [
+                    "endpoint",
+                    "HandledSituation"
+                ],
+                "produces": [
+                    "application/json",
+                    "text/plain"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/EndpointPath"
+                    },
+                    {
+                        "$ref": "#/parameters/SituationPath"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get successful.",
+                        "schema": {
+                            "$ref": "#/definitions/HandledSituation"
+                        }
+                    },
+                    "404": {
+                        "description": "Situation not found.",
+                        "schema": {
+                            "title": "message",
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "summary": "Update a situation",
+                "tags": [
+                    "endpoint",
+                    "HandledSituation"
+                ],
+                "produces": [
+                    "application/json",
+                    "text/plain"
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/EndpointPath"
+                    },
+                    {
+                        "$ref": "#/parameters/SituationPath"
+                    },
+                    {
+                        "in": "body",
+                        "name": "situation",
+                        "description": "the updated situation",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/HandledSituation"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get successful.",
+                        "schema": {
+                            "$ref": "#/definitions/HandledSituation"
+                        }
+                    },
+                    "404": {
+                        "description": "Situation/Endpoint not found.",
+                        "schema": {
+                            "title": "message",
+                            "type": "string"
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid situation",
+                        "schema": {
+                            "title": "error message",
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete the situation.",
+                "tags": [
+                    "endpoint",
+                    "HandledSituation"
+                ],
+                "produces": [
+                    "application/json",
+                    "text/plain"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/EndpointPath"
+                    },
+                    {
+                        "$ref": "#/parameters/SituationPath"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get successful.",
+                        "schema": {
+                            "$ref": "#/definitions/HandledSituation"
+                        }
+                    },
+                    "404": {
+                        "description": "Situation not found.",
+                        "schema": {
+                            "title": "message",
+                            "type": "string"
                         }
                     }
                 }
@@ -695,12 +905,6 @@
                     "type": "integer",
                     "description": "the unique ID of this endpoint"
                 },
-                "situationName": {
-                    "type": "string"
-                },
-                "objectName": {
-                    "type": "string"
-                },
                 "operationName": {
                     "type": "string"
                 },
@@ -710,6 +914,12 @@
                 "endpointURL": {
                     "type": "string",
                     "description": "A valid url."
+                },
+                "situations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/HandledSituation"
+                    }
                 }
             }
         },
@@ -742,6 +952,10 @@
                 "pluginID": {
                     "type": "string"
                 },
+                "executionTime": {
+                    "type": "string",
+                    "description": "Specifies the time when an action is executed. There are three choices':' onSituationChange (The action is executed every time the situation changes), onSituationAppear (The action is executed only when the situation appears) and onSituationDisappear (The action is executed only when the situation disappears)"
+                },
                 "address": {
                     "type": "string"
                 },
@@ -762,6 +976,29 @@
                 },
                 "objectName": {
                     "type": "string"
+                }
+            }
+        },
+        "HandledSituation": {
+            "description": "A HandledSituation is a situation that is handled by an endpoint. A handled situation posses all attributes of an Situation (name and object). Furthermore a HandledSituation states wheter the situation must hold or not. A HandledSituation can also optional, meaning that the endpoint can be used even if the situation holds (or not). It can be stated that a rollback action has to be initiated by the endpoint if the Handled Situation changes.",
+            "properties": {
+                "situationName": {
+                    "type": "string"
+                },
+                "objectName": {
+                    "type": "string"
+                },
+                "situationHolds": {
+                    "type": "string",
+                    "description": "boolean value. Use 'true' or 'false'"
+                },
+                "optional": {
+                    "type": "string",
+                    "description": "boolean value. Use 'true' or 'false'"
+                },
+                "rollbackOnChange": {
+                    "type": "string",
+                    "description": "boolean value. Use 'true' or 'false'"
                 }
             }
         },
@@ -808,6 +1045,13 @@
             "name": "endpointId",
             "in": "path",
             "description": "the id of the Endpoint",
+            "type": "integer",
+            "required": true
+        },
+        "SituationPath": {
+            "name": "situationId",
+            "in": "path",
+            "description": "the id of the situation",
             "type": "integer",
             "required": true
         },
