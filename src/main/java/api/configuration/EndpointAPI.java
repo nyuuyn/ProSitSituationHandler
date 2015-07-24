@@ -145,8 +145,6 @@ public class EndpointAPI {
 		Endpoint endpoint = exchange.getIn().getBody(Endpoint.class);
 
 		try {
-			System.out.println(endpoint.getSituations());
-
 			if (esa.updateEndpoint(endpointID, endpoint.getSituations(),
 					endpoint.getOperation(), endpoint.getEndpointURL())) {
 				exchange.getIn().setBody(new RestAnswer("Endpoint successfully updated", String.valueOf(endpointID)));

@@ -159,7 +159,7 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageAccess {
 
 			if (endpoint == null) {
 				logger.info("No endpoint found with id = " + endpointID);
-			}else{
+			} else {
 				Hibernate.initialize(endpoint.getSituations());
 			}
 
@@ -274,19 +274,8 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageAccess {
 						+ " found. No endpoint updated");
 				return false;
 			} else {
-
-				// TODO: Da stellt sich jetzt die Frage: Soll ich Updates für
-				// die Situationen einzeln zulassen? Glaub eher nicht, das wird
-				// dann sehr kompliziert...Wobei, könnte man machen, aber nicht
-				// auf der Oberfläche!
 				// params are optional, so check for null..
-				// if (situation != null && situation.getSituationName() !=
-				// null) {
-				// endpoint.setSituationName(situation.getSituationName());
-				// }
-				// if (situation != null && situation.getObjectName() != null) {
-				// endpoint.setObjectName(situation.getObjectName());
-				// }
+
 				if (operation != null && operation.getOperationName() != null) {
 					endpoint.setOperationName(operation.getOperationName());
 				}
@@ -299,6 +288,67 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageAccess {
 				session.update(endpoint);
 			}
 			tx.commit();
+			// update situations manually (avoids hibernate messing everything up)
+			if (situations != null) {
+				for (HandledSituation handledSituation: situations){
+					updateHandledSituation(
+							handledSituation.getId(), handledSituation);
+				}
+			}
+		} catch (JDBCException e ) {
+			if (tx != null)
+				tx.rollback();
+			throw new InvalidEndpointException(createErrorMessage(e));
+		} finally {
+			session.close();
+		}
+		return true;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see situationHandling.storage.EndpointStorageAccess#updateHandledSituation(int, situationHandling.storage.datatypes.HandledSituation)
+	 */
+	@Override
+	public boolean updateHandledSituation(int id, HandledSituation newSituation)
+			throws InvalidEndpointException {
+		logger.debug("Updating Situation: " + id);
+		Session session = sessionFactory.openSession();
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
+			HandledSituation existingSituation = (HandledSituation) session
+					.get(HandledSituation.class, id);
+
+			if (existingSituation == null) {
+				logger.info("No Situation with id " + id
+						+ " found. Situation endpoint updated");
+				return false;
+			} else {
+				//check for props to update and do update if check successful
+				if (newSituation.getObjectName() != null) {
+					existingSituation.setObjectName(newSituation
+							.getObjectName());
+				}
+				if (newSituation.getSituationName() != null) {
+					existingSituation.setSituationName(newSituation
+							.getSituationName());
+				}
+				if (newSituation.isSituationHolds() != null) {
+					existingSituation.setSituationHolds(newSituation
+							.isSituationHolds());
+				}
+				if (newSituation.isOptional() != null) {
+					existingSituation.setOptional(newSituation.isOptional());
+				}
+				if (newSituation.isRollbackOnChange() != null) {
+					existingSituation.setRollbackOnChange(newSituation
+							.isRollbackOnChange());
+				}
+				session.update(existingSituation);
+
+			}
+			tx.commit();
 		} catch (JDBCException e) {
 			if (tx != null)
 				tx.rollback();
@@ -307,6 +357,7 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageAccess {
 			session.close();
 		}
 		return true;
+
 	}
 
 	/**

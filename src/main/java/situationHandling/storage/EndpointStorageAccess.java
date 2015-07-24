@@ -32,10 +32,10 @@ public interface EndpointStorageAccess {
 
 	// TODO: Default Endpunkt oder Null returnen, falls kein passender Endpunkt
 	// gefunden?? -->Klären
-	/**TODO: DIese Methode ist nutzlos
-	 * Gets the endpoint url of an endpoint that offers the specified operation
-	 * and that suits the specified situation. SOAP Messages can be sent to this
-	 * endpoint.
+	/**
+	 * TODO: DIese Methode ist nutzlos Gets the endpoint url of an endpoint that
+	 * offers the specified operation and that suits the specified situation.
+	 * SOAP Messages can be sent to this endpoint.
 	 *
 	 * @param situation
 	 *            the situation that currently holds
@@ -72,8 +72,7 @@ public interface EndpointStorageAccess {
 	 * endpoint. The id can be used to refer to the endpoint after it was added.
 	 *
 	 * @param operation
-	 *            the operation that is implemented by this endpoint
-	 *            TODO
+	 *            the operation that is implemented by this endpoint TODO
 	 * @param endpointURL
 	 *            the endpoint url
 	 * @return the id that was assigned to the endpoint.
@@ -81,8 +80,9 @@ public interface EndpointStorageAccess {
 	 * @throws InvalidEndpointException
 	 *             When the specified Endpoint is not valid
 	 */
-	public int addEndpoint(Operation operation, List <HandledSituation>situations,
-			String endpointURL) throws InvalidEndpointException;
+	public int addEndpoint(Operation operation,
+			List<HandledSituation> situations, String endpointURL)
+			throws InvalidEndpointException;
 
 	/**
 	 * Deletes the endpoint with the given id from the directory, so it will not
@@ -120,7 +120,17 @@ public interface EndpointStorageAccess {
 	 * @throws InvalidEndpointException
 	 *             When the specified Endpoint is not valid
 	 */
-	public boolean updateEndpoint(int endpointID, List<HandledSituation> situations,
-			Operation operation, String endpointURL)
+	public boolean updateEndpoint(int endpointID,
+			List<HandledSituation> situations, Operation operation,
+			String endpointURL) throws InvalidEndpointException;
+
+	/**
+	 * TODO
+	 * @param id
+	 * @param newSituation
+	 * @return
+	 * @throws InvalidEndpointException
+	 */
+	public boolean updateHandledSituation(int id, HandledSituation newSituation)
 			throws InvalidEndpointException;
 }

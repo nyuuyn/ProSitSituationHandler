@@ -37,15 +37,15 @@ public class HandledSituation {
 
 	@Column(name = "situation_holds")
 	@Type(type = "org.hibernate.type.NumericBooleanType")
-	private boolean situationHolds;
+	private Boolean situationHolds;
 
 	@Column(name = "optional")
 	@Type(type = "org.hibernate.type.NumericBooleanType")
-	private boolean optional;
+	private Boolean optional;
 
 	@Column(name = "rollback_on_change")
 	@Type(type = "org.hibernate.type.NumericBooleanType")
-	private boolean rollbackOnChange;
+	private Boolean rollbackOnChange;
 
 	public HandledSituation() {
 	}
@@ -116,7 +116,7 @@ public class HandledSituation {
 	/**
 	 * @return the situationHolds
 	 */
-	public boolean isSituationHolds() {
+	public Boolean isSituationHolds() {
 		return situationHolds;
 	}
 
@@ -124,14 +124,14 @@ public class HandledSituation {
 	 * @param situationHolds
 	 *            the situationHolds to set
 	 */
-	public void setSituationHolds(boolean situationHolds) {
+	public void setSituationHolds(Boolean situationHolds) {
 		this.situationHolds = situationHolds;
 	}
 
 	/**
 	 * @return the optional
 	 */
-	public boolean isOptional() {
+	public Boolean isOptional() {
 		return optional;
 	}
 
@@ -139,14 +139,14 @@ public class HandledSituation {
 	 * @param optional
 	 *            the optional to set
 	 */
-	public void setOptional(boolean optional) {
+	public void setOptional(Boolean optional) {
 		this.optional = optional;
 	}
 
 	/**
 	 * @return the rollbackOnChange
 	 */
-	public boolean isRollbackOnChange() {
+	public Boolean isRollbackOnChange() {
 		return rollbackOnChange;
 	}
 
@@ -154,7 +154,7 @@ public class HandledSituation {
 	 * @param rollbackOnChange
 	 *            the rollbackOnChange to set
 	 */
-	public void setRollbackOnChange(boolean rollbackOnChange) {
+	public void setRollbackOnChange(Boolean rollbackOnChange) {
 		this.rollbackOnChange = rollbackOnChange;
 	}
 
