@@ -12,16 +12,22 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 /**
- * TODO: DOKU für neuen Endpunkt aktualisieren A wrapper class that contains all
- * information about an endpoint for a soap message. Stores the information that
- * is required to forward a soap message from a workflow to an arbitrary
- * endpoint that accepts the message received by the workflow. <div>
+ * A wrapper class that contains all information about an endpoint for a soap
+ * message. Stores the information that is required to forward a soap message
+ * from a workflow to an arbitrary endpoint that accepts the message received by
+ * the workflow. <div>
  *
  * An endpoint is decribed by the following information:
  * <ul>
  * <li>
- * The Situation. The situation in which an endpoint is used. A situation
- * consists of a situation name the name of an object.</li>
+ * One or more handled situations. The situations in which an endpoint is used.
+ * A situation consists of a situation name the name of an object. Furthermore a
+ * situation can be optional, i.e. the endpoint can also be used when the
+ * situation did not occur. A situation can hold or not (i.e. it appeared or it
+ * did not). When a situation changes it is possible that the endpoint cannot be
+ * used anymore and a rollback has to be triggered.<br>
+ * An endpoint can only be used if ALL handled situations occured (or not). This
+ * means the handled situations are combined with a logical "AND" expression.</li>
  * <li>
  * The Operation. The operation of the endpoint to be used. A operation consists
  * of the operation name and a qualifier, like namespace, porttype etc..</li>
@@ -33,6 +39,7 @@ import javax.persistence.Table;
  *
  * @author Stefan
  * @see Situation
+ * @see HandledSituation
  * @see Operation
  */
 /*
@@ -52,7 +59,7 @@ public class Endpoint {
 	private int endpointID;
 
 	/**
-	 * TODO
+	 * The list of situations handled by this endpoint.
 	 */
 	@OneToMany(cascade = CascadeType.ALL)
 	@JoinColumn(name = "endpoint_id")
@@ -71,16 +78,17 @@ public class Endpoint {
 	@Column(name = "endpoint_url")
 	private String endpointURL;
 
-	/**TODO
-	 * Instantiates a new endpoint. Allows to specify the name of the situation
-	 * etc. See documentation of the class for the description of the
-	 * parameters.
+	/**
+	 * Instantiates a new endpoint. Allows to specify the situations etc. See
+	 * documentation of the class for the description of the parameters.
 	 *
 	 * @param endpointURL
 	 *            the endpoint url. This MUST be a valid URL. Otherwise,
 	 *            fowarding the message will fail
 	 * @param operationName
 	 *            the operation name
+	 * @param situations
+	 *            list of situations handled by this endpoint.
 	 * @param qualifier
 	 *            the qualifier
 	 */
@@ -92,13 +100,15 @@ public class Endpoint {
 		this.qualifier = qualifier;
 	}
 
-	/**TODO
+	/**
 	 * Instantiates a new endpoint. See documentation of the class for the
 	 * description of the parameters.
 	 *
 	 * @param endpointURL
 	 *            the endpoint url.This MUST be a valid URL. Otherwise,
 	 *            fowarding the message will fail.
+	 * @param situations
+	 *            of situations handled by this endpoint.
 	 * @param operation
 	 *            the operation
 	 */
@@ -180,18 +190,19 @@ public class Endpoint {
 	public void setEndpointID(int endpointID) {
 		this.endpointID = endpointID;
 	}
-	
-	
 
-	/**TODO
-	 * @return the situations
+	/**
+	 * 
+	 * @return list of situations handled by this endpoint.
 	 */
 	public List<HandledSituation> getSituations() {
 		return situations;
 	}
 
-	/**TODO
-	 * @param situations the situations to set
+	/**
+	 * 
+	 * @param situations
+	 *            list of situations handled by this endpoint.
 	 */
 	public void setSituations(List<HandledSituation> situations) {
 		this.situations = situations;

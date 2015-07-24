@@ -75,6 +75,8 @@ public interface EndpointStorageAccess {
 	 *            the operation that is implemented by this endpoint TODO
 	 * @param endpointURL
 	 *            the endpoint url
+	 * @param situations
+	 *            the situations handled by this endpoint
 	 * @return the id that was assigned to the endpoint.
 	 * 
 	 * @throws InvalidEndpointException
@@ -100,8 +102,13 @@ public interface EndpointStorageAccess {
 
 	/**
 	 * Updates an existing endpoint with the specified id. It is possible to
-	 * update the situation in which the endpoint is used, the operation to use
+	 * update the situations in which the endpoint is used, the operation to use
 	 * and also the URL.
+	 * <p>
+	 * When the handled situations are updated, note that it is required to
+	 * state at least the id of the situation(s) to update. Otherwise the update
+	 * of the situation is not possible. However, all other attributes are
+	 * optional.
 	 * <p>
 	 * Note that all parameters except {@code endpointID} are optional. If no
 	 * endpoint with this id exists, nothing happens.
@@ -115,6 +122,8 @@ public interface EndpointStorageAccess {
 	 * @param endpointURL
 	 *            the new endpoint url for this endpoint. If {@code endpointURL}
 	 *            is {@code null}, the endpoint url will not be updated
+	 * @param situations
+	 *            the situations to update.
 	 * @return {@code true}, if the update was successful, {@code false} else
 	 * 
 	 * @throws InvalidEndpointException
@@ -125,28 +134,47 @@ public interface EndpointStorageAccess {
 			String endpointURL) throws InvalidEndpointException;
 
 	/**
-	 * TODO
+	 * Updates an existing situation with the specified id. It is possible to
+	 * update properties of the situation (except the endpoint it is associated
+	 * with).
 	 * 
 	 * @param id
+	 *            the id of the situation to update. If no situation with this
+	 *            id exists, nothing happens.
 	 * @param newSituation
-	 * @return
+	 *            The new Situation. Note that all properties of
+	 *            {@code newSituation} are optional, i.e. they can be null. If a
+	 *            property is null, this property will remain unchanged.
+	 * @return true if the update was successful. False if no situation with
+	 *         this id exists.
 	 * @throws InvalidEndpointException
+	 *             If an error occurred during update.
 	 */
 	public boolean updateHandledSituation(int id, HandledSituation newSituation)
 			throws InvalidEndpointException;
 
 	/**
-	 * TODO
+	 * Delete the situation with the specified id. It won't be used with its
+	 * endpoint any longer.
 	 * 
 	 * @param id
-	 * @return
+	 *            the id of the situation to delete
+	 * @return true if the deletion was successful, false else (probably no
+	 *         situation with this id exists)
 	 */
 	public boolean deleteHandledSituation(int id);
 
 	/**
-	 * TODO
+	 * Gets the Situtation with the given ID
+	 * 
 	 * @param id
-	 * @return
+	 *            the id of the requested
+	 * @return the Situation if found. False, if the situation does not exist.
 	 */
 	public HandledSituation getHandledSituationById(int id);
+
+	// TODO
+	// public int addHandledSituation(int endpointId,
+	// HandledSituation handledSituation) throws InvalidEndpointException;
+	// public List<HandledSituation> getSituationsByEndpoint(int endpointId);
 }

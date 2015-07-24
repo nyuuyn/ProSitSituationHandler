@@ -9,7 +9,18 @@ import javax.persistence.Table;
 import org.hibernate.annotations.Type;
 
 /**
- * TODO: Javadoc
+ * 
+ * A HandledSituation is a situation that is handled by an endpoint. <br>
+ * A handled situation posses all attributes of an {@link Situation} (name and
+ * object). Furthermore a HandledSituation states wheter the situation must hold
+ * or not. A HandledSituation can also optional, meaning that the endpoint can
+ * be used even if the situation holds (or not). It can be stated that a
+ * rollback action has to be initiated by the endpoint if the Handled Situation
+ * changes.
+ * 
+ * 
+ * @see Situation
+ * @see Endpoint
  * 
  * @author Stefan
  *
@@ -35,28 +46,53 @@ public class HandledSituation {
 	@Column(name = "object_name")
 	private String objectName;
 
+	/**
+	 * Describes the usage of the situation. When true, the situation occured,
+	 * when false not.
+	 */
 	@Column(name = "situation_holds")
 	@Type(type = "org.hibernate.type.NumericBooleanType")
 	private Boolean situationHolds;
 
+	/**
+	 * States whether the handled situation is optional to be handled or not.
+	 */
 	@Column(name = "optional")
 	@Type(type = "org.hibernate.type.NumericBooleanType")
 	private Boolean optional;
 
+	/**
+	 * States whether a rollback action has to be done, if the situation
+	 * changes.
+	 */
 	@Column(name = "rollback_on_change")
 	@Type(type = "org.hibernate.type.NumericBooleanType")
 	private Boolean rollbackOnChange;
 
+	/**
+	 * Default constructor. Does not initialize anything. Use the setters.
+	 */
 	public HandledSituation() {
 	}
 
 	/**
 	 * @param id
+	 *            The handled situation's id. Used as primary key in the
+	 *            database. Never set this manually. The database will generate
+	 *            this value.
 	 * @param situationName
+	 *            The situation name
 	 * @param objectName
+	 *            The object name.
 	 * @param situationHolds
+	 *            Describes the usage of the situation. When true, the situation
+	 *            occured, when false not.
 	 * @param optional
+	 *            States whether the handled situation is optional to be handled
+	 *            or not.
 	 * @param rollbackOnChange
+	 *            States whether a rollback action has to be done, if the
+	 *            situation changes.
 	 */
 	public HandledSituation(int id, String situationName, String objectName,
 			boolean situationHolds, boolean optional, boolean rollbackOnChange) {
@@ -69,7 +105,8 @@ public class HandledSituation {
 	}
 
 	/**
-	 * @return the id
+	 * @return The handled situation's id. Used as primary key in the database.
+	 *         Never set this manually. The database will generate this value.
 	 */
 	public int getId() {
 		return id;
@@ -77,7 +114,9 @@ public class HandledSituation {
 
 	/**
 	 * @param id
-	 *            the id to set
+	 *            The handled situation's id. Used as primary key in the
+	 *            database. Never set this manually. The database will generate
+	 *            this value.
 	 */
 	public void setId(int id) {
 		this.id = id;
@@ -114,45 +153,60 @@ public class HandledSituation {
 	}
 
 	/**
-	 * @return the situationHolds
+	 * Describes the usage of the situation. When true, the situation occured,
+	 * when false not.
+	 * 
+	 * @return situationHolds
 	 */
 	public Boolean isSituationHolds() {
 		return situationHolds;
 	}
 
 	/**
+	 * 
+	 * Describes the usage of the situation. When true, the situation occured,
+	 * when false not.
+	 * 
 	 * @param situationHolds
-	 *            the situationHolds to set
 	 */
 	public void setSituationHolds(Boolean situationHolds) {
 		this.situationHolds = situationHolds;
 	}
 
 	/**
-	 * @return the optional
+	 * 
+	 * States whether the handled situation is optional to be handled or not.
+	 * 
+	 * @return
 	 */
 	public Boolean isOptional() {
 		return optional;
 	}
 
 	/**
+	 * States whether the handled situation is optional to be handled or not.
+	 * 
 	 * @param optional
-	 *            the optional to set
 	 */
 	public void setOptional(Boolean optional) {
 		this.optional = optional;
 	}
 
 	/**
-	 * @return the rollbackOnChange
+	 * States whether a rollback action has to be done, if the situation
+	 * changes.
+	 * 
+	 * @return
 	 */
 	public Boolean isRollbackOnChange() {
 		return rollbackOnChange;
 	}
 
 	/**
+	 * States whether a rollback action has to be done, if the situation
+	 * changes.
+	 * 
 	 * @param rollbackOnChange
-	 *            the rollbackOnChange to set
 	 */
 	public void setRollbackOnChange(Boolean rollbackOnChange) {
 		this.rollbackOnChange = rollbackOnChange;
