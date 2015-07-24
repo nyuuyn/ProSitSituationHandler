@@ -42,7 +42,7 @@ class EndpointStorageAccessAdvancedImpl extends
 	public int addEndpoint(Operation operation, List<HandledSituation> situations,
 			String endpointURL) throws InvalidEndpointException {
 		//TODO: Check ob mind eine Aktion angegeben (bei Update auch)
-		new EndpointValidityChecker(endpointURL).checkBeforeAdd();
+		new EndpointValidityChecker(endpointURL, situations).checkBeforeAdd();
 
 		return super.addEndpoint(operation, situations, endpointURL);
 	}
@@ -59,7 +59,7 @@ class EndpointStorageAccessAdvancedImpl extends
 	public boolean updateEndpoint(int endpointID, List<HandledSituation> situations,
 			Operation operation, String endpointURL)
 			throws InvalidEndpointException {
-		new EndpointValidityChecker(endpointURL).checkBeforeUpdate();
+		new EndpointValidityChecker(endpointURL, null).checkBeforeUpdate();
 
 		return super.updateEndpoint(endpointID, situations, operation,
 				endpointURL);
