@@ -126,6 +126,7 @@ public interface EndpointStorageAccess {
 
 	/**
 	 * TODO
+	 * 
 	 * @param id
 	 * @param newSituation
 	 * @return
@@ -133,4 +134,19 @@ public interface EndpointStorageAccess {
 	 */
 	public boolean updateHandledSituation(int id, HandledSituation newSituation)
 			throws InvalidEndpointException;
+
+	/**
+	 * TODO
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public boolean deleteHandledSituation(int id);
+
+	/**
+	 * TODO
+	 * @param id
+	 * @return
+	 */
+	public HandledSituation getHandledSituationById(int id);
 }

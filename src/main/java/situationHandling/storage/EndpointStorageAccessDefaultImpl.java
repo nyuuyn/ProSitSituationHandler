@@ -288,14 +288,15 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageAccess {
 				session.update(endpoint);
 			}
 			tx.commit();
-			// update situations manually (avoids hibernate messing everything up)
+			// update situations manually (avoids hibernate messing everything
+			// up)
 			if (situations != null) {
-				for (HandledSituation handledSituation: situations){
-					updateHandledSituation(
-							handledSituation.getId(), handledSituation);
+				for (HandledSituation handledSituation : situations) {
+					updateHandledSituation(handledSituation.getId(),
+							handledSituation);
 				}
 			}
-		} catch (JDBCException e ) {
+		} catch (JDBCException e) {
 			if (tx != null)
 				tx.rollback();
 			throw new InvalidEndpointException(createErrorMessage(e));
@@ -307,7 +308,10 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageAccess {
 
 	/*
 	 * (non-Javadoc)
-	 * @see situationHandling.storage.EndpointStorageAccess#updateHandledSituation(int, situationHandling.storage.datatypes.HandledSituation)
+	 * 
+	 * @see
+	 * situationHandling.storage.EndpointStorageAccess#updateHandledSituation
+	 * (int, situationHandling.storage.datatypes.HandledSituation)
 	 */
 	@Override
 	public boolean updateHandledSituation(int id, HandledSituation newSituation)
@@ -325,7 +329,7 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageAccess {
 						+ " found. Situation endpoint updated");
 				return false;
 			} else {
-				//check for props to update and do update if check successful
+				// check for props to update and do update if check successful
 				if (newSituation.getObjectName() != null) {
 					existingSituation.setObjectName(newSituation
 							.getObjectName());
@@ -357,7 +361,76 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageAccess {
 			session.close();
 		}
 		return true;
+	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * situationHandling.storage.EndpointStorageAccess#deleteHandledSituation
+	 * (int)
+	 */
+	@Override
+	public boolean deleteHandledSituation(int id) {
+		logger.debug("Deleting Handled Situation: " + id);
+		Session session = sessionFactory.openSession();
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
+			HandledSituation handledSituation = (HandledSituation) session.get(
+					HandledSituation.class, id);
+			if (handledSituation == null) {
+				logger.info("No Handled Situation with id " + id
+						+ " found. No Handled Situation deleted");
+				return false;
+			} else {
+				session.delete(handledSituation);
+			}
+			tx.commit();
+		} catch (HibernateException e) {
+			if (tx != null)
+				tx.rollback();
+			logger.error("Hibernate error", e);
+			return false;
+		} finally {
+			session.close();
+		}
+		return true;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * situationHandling.storage.EndpointStorageAccess#getHandledSituationById
+	 * (int)
+	 */
+	@Override
+	public HandledSituation getHandledSituationById(int id) {
+		logger.debug("Getting handled situation with id " + id);
+
+		Session session = sessionFactory.openSession();
+		Transaction tx = null;
+		HandledSituation handledSituation = null;
+		try {
+			tx = session.beginTransaction();
+
+			handledSituation = (HandledSituation) session.get(
+					HandledSituation.class, id);
+
+			if (handledSituation == null) {
+				logger.info("No endpoint found with id = " + id);
+			}
+
+			tx.commit();
+		} catch (HibernateException e) {
+			if (tx != null)
+				tx.rollback();
+			logger.error("Hibernate error", e);
+		} finally {
+			session.close();
+		}
+		return handledSituation;
 	}
 
 	/**
