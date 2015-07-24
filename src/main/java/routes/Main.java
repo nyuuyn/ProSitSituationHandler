@@ -31,34 +31,32 @@ public class Main {
 		context = new DefaultCamelContext();
 
 		JndiRegistry registry = context.getRegistry(JndiRegistry.class);
-				
-		
+
 		// register beans for use
 		registry.bind("ruleApi", RuleAPI.class);
 		registry.bind("endpointApi", EndpointAPI.class);
 		registry.bind("pluginApi", PluginAPI.class);
-		
-		//resource handler for serving the web app
+
+		// resource handler for serving the web app
 		ResourceHandler webapp = new ResourceHandler();
 
-		
 		try {
-			webapp.setBaseResource(Resource.newResource(new File("C:\\Users\\Stefan\\workspace_Masterarbeit\\SituationHandler_WebApp\\app")));
-			} catch (MalformedURLException e1) {
+			webapp.setBaseResource(Resource
+					.newResource(new File(
+							"C:\\Users\\Stefan\\workspace_Masterarbeit\\SituationHandler_WebApp\\app")));
+		} catch (MalformedURLException e1) {
 			e1.printStackTrace();
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
-		
+
 		registry.bind("webApp", webapp);
-
-
-
 
 		try {
 			// add routes
 			context.addRoutes(new SituationHandlerRouteBuilder("0.0.0.0", 8081));
-			context.addRoutes(new RestApiRoutes("0.0.0.0", 8081, 15000000, "jetty"));
+			context.addRoutes(new RestApiRoutes("0.0.0.0", 8081, 15000000,
+					"jetty"));
 			context.addRoutes(new SRSRoutes("0.0.0.0", 8081));
 			CamelUtil.initProducerTemplate(context.createProducerTemplate());
 			CamelUtil.initConsumerTemplate(context.createConsumerTemplate());
@@ -73,11 +71,11 @@ public class Main {
 
 	// Maybe for later use :)
 	private static void shutdownHandling() {
-//		Runtime.getRuntime().addShutdownHook(new Thread() {
-//			public void run() {
-//
-//			}
-//		});
+		// Runtime.getRuntime().addShutdownHook(new Thread() {
+		// public void run() {
+		//
+		// }
+		// });
 	}
 
 	private static void startShutdownListener() {
@@ -93,10 +91,12 @@ public class Main {
 				try {
 					while (line.equalsIgnoreCase("quit") == false) {
 						line = in.readLine();
-						if (line.equalsIgnoreCase("routes")){
-							System.out.println(context.createRouteStaticEndpointJson(null));
-						}else if (line.equalsIgnoreCase("endpoint")){
-//							System.out.println(context.explainEipJson("blubb", true));
+						if (line.equalsIgnoreCase("routes")) {
+							System.out.println(context
+									.createRouteStaticEndpointJson(null));
+						} else if (line.equalsIgnoreCase("endpoint")) {
+							// System.out.println(context.explainEipJson("blubb",
+							// true));
 						}
 					}
 					logger.info("Shutting Down..");

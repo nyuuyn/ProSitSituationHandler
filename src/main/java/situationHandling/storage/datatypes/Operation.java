@@ -22,7 +22,8 @@ public class Operation {
 	}
 
 	/**
-	 * Instantiates a new operation by specifiying an operation name and a qualifier.
+	 * Instantiates a new operation by specifiying an operation name and a
+	 * qualifier.
 	 *
 	 * @param operationName
 	 *            the operation name
@@ -70,6 +71,16 @@ public class Operation {
 	 */
 	public void setQualifier(String qualifier) {
 		this.qualifier = qualifier;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return operationName + ":" + qualifier;
 	}
 
 }

@@ -65,15 +65,15 @@ public class OperationHandlerImpl implements OperationHandler {
 			// möglichen Kombinationen abgefragt werden..Sinnvolles Vorgehen?
 			// was tun bei mehreren möglichen Endpunkten?
 
-			String url = esa.getEndpointURL(
-					new Situation("situation1", "object1"),
-					new Operation(operationName, qualifier)).toString();
-
-			Future<Map<String, String>> response = threadExecutor.submit(pm
-					.getPluginSender("situationHandler.http", url, soapBody,
-							params));
-
-			exchange.getIn().setBody(response.get().get("body"), String.class);
+//			String url = esa.getEndpointURL(
+//					new Situation("situation1", "object1"),
+//					new Operation(operationName, qualifier)).toString();
+//
+//			Future<Map<String, String>> response = threadExecutor.submit(pm
+//					.getPluginSender("situationHandler.http", url, soapBody,
+//							params));
+//
+//			exchange.getIn().setBody(response.get().get("body"), String.class);
 
 		} catch (Exception e) {
 			e.printStackTrace();

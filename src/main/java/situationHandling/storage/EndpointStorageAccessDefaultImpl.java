@@ -1,7 +1,5 @@
 package situationHandling.storage;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,12 +11,12 @@ import org.hibernate.JDBCException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.criterion.Restrictions;
 
 import situationHandling.exceptions.InvalidEndpointException;
 import situationHandling.storage.datatypes.Endpoint;
 import situationHandling.storage.datatypes.HandledSituation;
 import situationHandling.storage.datatypes.Operation;
-import situationHandling.storage.datatypes.Situation;
 
 /**
  * The Class EndpointStorageAccessDefaultImpl provides the standard
@@ -57,49 +55,41 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageAccess {
 	 * situationHandling.storage.datatypes.Operation)
 	 */
 	@Override
-	public URL getEndpointURL(Situation situation, Operation operation) {
+	public List<Endpoint> getCandidateEndpoints(Operation operation) {
 		Session session = sessionFactory.openSession();
-
+		logger.debug("Getting all endpoints for Operation: " + operation);
 		Transaction tx = null;
-		URL endpointurl = null;
+		LinkedList<Endpoint> endpoints = new LinkedList<>();
 		try {
 			tx = session.beginTransaction();
 
-			// get all endpoints for the situation and operation
+			// get all endpoints for the operation
 			@SuppressWarnings("rawtypes")
-			List endpoints = session.createQuery(
-					"SELECT E.endpointURL FROM Endpoint E WHERE E.situationName =  "
-							+ addTicks(situation.getSituationName())
-							+ " AND E.objectName =  "
-							+ addTicks(situation.getObjectName())
-							+ " AND E.operationName = "
-							+ addTicks(operation.getOperationName())
-							+ " AND E.qualifier = "
-							+ addTicks(operation.getQualifier())).list();
-
-			if (endpoints.size() == 0) {
-				logger.error("No endpoint found for situation!");
-			} else {
-				// if more than one endpoint was found, return the first one in
-				// the list
-				endpointurl = new URL((String) endpoints.iterator().next());
-				if (endpoints.size() > 1) {
-					logger.debug("Found more than one endpoint for situation.");
-				}
-				logger.debug("Endpoint URL: " + endpointurl.toString());
+			List candidates = session
+					.createCriteria(Endpoint.class)
+					.add(Restrictions.eq("operationName",
+							operation.getOperationName()))
+					.add(Restrictions.eq("qualifier", operation.getQualifier()))
+					.list();
+			
+			
+			// initialize endpoints and add to returned list
+			@SuppressWarnings("rawtypes")
+			Iterator it = candidates.iterator();
+			while (it.hasNext()) {
+				Endpoint endpoint = (Endpoint) it.next();
+				Hibernate.initialize(endpoint.getSituations());
+				endpoints.add(endpoint);
 			}
-
 			tx.commit();
 		} catch (HibernateException e) {
 			if (tx != null)
 				tx.rollback();
 			logger.error("Hibernate error", e);
-		} catch (MalformedURLException e) {
-			logger.error("Bad Url", e);
 		} finally {
 			session.close();
 		}
-		return endpointurl;
+		return endpoints;
 	}
 
 	/*
@@ -514,18 +504,6 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageAccess {
 		return situations;
 	}
 
-	/**
-	 * Helper method to wrap a String in {@code '} tokens. Can be used for
-	 * database queries to wrap the params.
-	 *
-	 * @param param
-	 *            the String that should be wrapped with ' tokens.
-	 * @return the param String wrapped with '. When param is "foo", the method
-	 *         returns "'foo'"
-	 */
-	private String addTicks(String param) {
-		return "'" + param + "'";
-	}
 
 	/**
 	 * Conience Method to create error messages for JDBC Exceptions

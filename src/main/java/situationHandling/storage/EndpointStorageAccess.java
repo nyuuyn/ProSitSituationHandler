@@ -1,6 +1,5 @@
 package situationHandling.storage;
 
-import java.net.URL;
 import java.util.List;
 
 import situationHandling.exceptions.InvalidEndpointException;
@@ -30,23 +29,15 @@ import situationHandling.storage.datatypes.Situation;
  */
 public interface EndpointStorageAccess {
 
-	// TODO: Default Endpunkt oder Null returnen, falls kein passender Endpunkt
-	// gefunden?? -->Klären
 	/**
-	 * TODO: DIese Methode ist nutzlos Gets the endpoint url of an endpoint that
-	 * offers the specified operation and that suits the specified situation.
-	 * SOAP Messages can be sent to this endpoint.
-	 *
-	 * @param situation
-	 *            the situation that currently holds
+	 * Gets the endpoints that offer the specified operation
+	 * 
 	 * @param operation
 	 *            the operation that should be executed
-	 * @return the url of the endpoint that provides an appropriate
-	 *         implementation of the specified operation depending on the
-	 *         specified situation. Returns {@code Null} if no endpoint was
-	 *         found.
+	 * @return A list of endpoints that implement the specified operation.
+	 *         Returns an empty list if no endpoint was found.
 	 */
-	public URL getEndpointURL(Situation situation, Operation operation);
+	public List<Endpoint> getCandidateEndpoints(Operation operation);
 
 	/**
 	 * Gets all endpoints that are currently stored, independent of the
