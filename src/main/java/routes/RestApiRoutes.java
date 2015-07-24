@@ -8,6 +8,7 @@ import org.apache.camel.model.rest.RestBindingMode;
 import pluginManagement.PluginInfo;
 import situationHandling.storage.datatypes.Action;
 import situationHandling.storage.datatypes.Endpoint;
+import situationHandling.storage.datatypes.HandledSituation;
 import situationHandling.storage.datatypes.Rule;
 import situationHandling.storage.datatypes.Situation;
 
@@ -156,6 +157,35 @@ class RestApiRoutes extends RouteBuilder {
 				.put()
 				.type(Endpoint.class)
 				.to("bean:endpointApi?method=updateEndpoint(${header.endpointId})");
+
+		// ../endpoints/<id>/handledSituations -->GET: get all handled
+		// situations
+		rest("/config/endpoints/{endpointId}/handledSituations")
+				.get()
+				.outTypeList(HandledSituation.class)
+				.to("bean:endpointApi?method=getAllHandledSituations(${header.endpointId})");
+
+		// ../endpoints/<id>/handledSituations -->POST: add handled situation
+		rest("/config/endpoints/{endpointId}/handledSituations")
+				.post()
+				.type(HandledSituation.class)
+				.to("bean:endpointApi?method=addHandledSituation(${header.endpointId})");
+		// ../endpoints/<id>/handledSituations/<id> -->GET: get handled
+		// situation
+		rest("/config/endpoints/{endpointId}/handledSituations/{situationId}")
+				.get()
+				.outType(HandledSituation.class)
+				.to("bean:endpointApi?method=getHandledSituation(${header.situationId})");
+		// ../endpoints/<id>/handledSituations/<id> -->DELETE: delete handled
+		// situation
+		rest("/config/endpoints/{endpointId}/handledSituations/{situationId}")
+				.delete()
+				.to("bean:endpointApi?method=deleteHandledSituation(${header.situationId})");
+		// ../endpoints/<id>/handledSituations/<id> -->PUT: update handled
+		// situation
+		rest("/config/endpoints/{endpointId}/handledSituations/{situationId}")
+				.put().type(HandledSituation.class)
+				.to("bean:endpointApi?method=updateHandledSituation(${header.situationId})");
 
 	}
 

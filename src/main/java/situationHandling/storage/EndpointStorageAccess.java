@@ -169,7 +169,7 @@ public interface EndpointStorageAccess {
 	 * 
 	 * @param id
 	 *            the id of the requested
-	 * @return the Situation if found. False, if the situation does not exist.
+	 * @return the Situation if found. Null, if the situation does not exist.
 	 */
 	public HandledSituation getHandledSituationById(int id);
 
