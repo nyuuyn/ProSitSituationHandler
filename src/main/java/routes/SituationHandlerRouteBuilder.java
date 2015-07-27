@@ -2,8 +2,6 @@ package routes;
 
 import org.apache.camel.builder.RouteBuilder;
 
-import situationHandling.OperationHandlerEndpoint;
-
 class SituationHandlerRouteBuilder extends RouteBuilder {
 	private String hostname;
 	private int port;

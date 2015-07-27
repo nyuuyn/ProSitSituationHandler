@@ -16,9 +16,13 @@ class SoapParser {
 		try {
 			SOAPMessage soapReq = MessageFactory.newInstance().createMessage(
 					null, inputStream);
-
-			operation = soapReq.getSOAPPart().getEnvelope().getBody()
-					.getChildNodes().item(1).getNodeName();
+			// TODO: Hier muss man mal noch final klaren, was genau jetzt
+			// eigentlich als qualifier benutzt wird: namespace oder porttype
+			// (bei namespace kann man den ersten teil vom split nehmen)
+			String qualifiedOperation = soapReq.getSOAPPart().getEnvelope()
+					.getBody().getChildNodes().item(1).getNodeName();
+			String[] temp = qualifiedOperation.split(":");
+			operation = temp[1];
 
 		} catch (SOAPException e) {
 			e.printStackTrace();
@@ -29,8 +33,8 @@ class SoapParser {
 		return operation;
 
 	}
-	
-	static String getQualifier(){
+
+	static String getQualifier() {
 		return null;
 	}
 

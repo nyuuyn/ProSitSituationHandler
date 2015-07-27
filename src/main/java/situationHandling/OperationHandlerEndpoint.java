@@ -17,20 +17,22 @@ public class OperationHandlerEndpoint {
 			.getLogger(OperationHandlerEndpoint.class);
 
 	public void receiveRequest(Exchange exchange) {
+		String body = exchange.getIn().getBody(String.class);
+		
 		logger.debug("Received request:/n"
-				+ exchange.getIn().getBody(String.class));
+				+ body);
 		
 		String qualifier = exchange.getIn()
 				.getHeader("CamelHttpPath", String.class).replace("/", "")
 				.trim();
 		OperationHandlingResult result = OperationHandlerFactory
 				.getOperationHandler().handleOperation(
-						exchange.getIn().getBody(String.class), qualifier);
+						body, qualifier);
 
 		if (result == OperationHandlingResult.success) {
 			exchange.getOut().setBody("");
 		} else if (result == OperationHandlingResult.noMatchFound) {
-			exchange.getOut().setBody("No matching operation found.");
+			exchange.getOut().setBody("No matching endpoint found.");
 			exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, 404);
 		} else if (result == OperationHandlingResult.error) {
 			exchange.getOut().setBody("Arbitrary error.");

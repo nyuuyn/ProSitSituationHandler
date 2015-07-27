@@ -34,6 +34,8 @@ class OperationHandlerImpl implements OperationHandler {
 		Endpoint chosenEndpoint = chooseEndpoint(new Operation(operationName,
 				qualifier));
 		if (chosenEndpoint == null) {
+			logger.warn("No endpoint found for Operation: " + operationName
+					+ ":" + qualifier);
 			return OperationHandlingResult.noMatchFound;
 		}
 
