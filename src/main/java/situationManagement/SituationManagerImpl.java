@@ -5,31 +5,31 @@ import java.util.Map;
 import situationHandling.storage.datatypes.Situation;
 
 class SituationManagerImpl implements SituationManager {
-	
-	private Map <Situation, SubscriptionHandler> subscriptions;
-	
-	SituationManagerImpl (Map <Situation, SubscriptionHandler> subscriptions){
+
+	private Map<Situation, SubscriptionHandler> subscriptions;
+
+	SituationManagerImpl(Map<Situation, SubscriptionHandler> subscriptions) {
 		this.subscriptions = subscriptions;
 	}
 
 	@Override
-	public boolean situationOccured() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void subscribeOnSituation() {
-		// TODO Auto-generated method stub
-		//subscription nachschauen und adden
-		
+	public boolean situationOccured(Situation situation) {
+		// TODO:
+		return Math.random() > 0.5;
 
 	}
 
 	@Override
-	public void removeSubscription() {
+	public void subscribeOnSituation(Situation situation) {
 		// TODO Auto-generated method stub
-		//subscription nachschauen und entfernen
+		// subscription nachschauen und adden
+
+	}
+
+	@Override
+	public void removeSubscription(Situation situation) {
+		// TODO Auto-generated method stub
+		// subscription nachschauen und entfernen
 
 	}
 

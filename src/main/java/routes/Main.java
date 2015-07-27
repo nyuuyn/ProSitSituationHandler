@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.util.resource.Resource;
 
+import situationHandling.OperationHandlerEndpoint;
 import situationHandling.storage.StorageAccessFactory;
 import api.configuration.EndpointAPI;
 import api.configuration.PluginAPI;
@@ -36,6 +37,7 @@ public class Main {
 		registry.bind("ruleApi", RuleAPI.class);
 		registry.bind("endpointApi", EndpointAPI.class);
 		registry.bind("pluginApi", PluginAPI.class);
+		registry.bind("operationHandlerEndpoint", OperationHandlerEndpoint.class);
 
 		// resource handler for serving the web app
 		ResourceHandler webapp = new ResourceHandler();

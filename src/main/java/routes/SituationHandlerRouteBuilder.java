@@ -2,7 +2,7 @@ package routes;
 
 import org.apache.camel.builder.RouteBuilder;
 
-import situationHandling.OperationHandlerImpl;
+import situationHandling.OperationHandlerEndpoint;
 
 class SituationHandlerRouteBuilder extends RouteBuilder {
 	private String hostname;
@@ -28,8 +28,13 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 		// Handler
 		from(
 				"jetty:http://" + hostname + ":" + port
-						+ "/SoapEndpoint?matchOnUriPrefix=true").to(
-				"stream:out").bean(OperationHandlerImpl.class);
+						+ "/RequestEndpoint?matchOnUriPrefix=true").to(
+				"stream:out").to("bean:operationHandlerEndpoint?method=receiveRequest");
+		
+		from(
+				"jetty:http://" + hostname + ":" + port
+				+ "/AnswerEndpoint?matchOnUriPrefix=true").to(
+						"stream:out").to("bean:operationHandlerEndpoint?method=receiveAnswer");
 
 		// set CORS Headers for option requests and max file size
 		from(

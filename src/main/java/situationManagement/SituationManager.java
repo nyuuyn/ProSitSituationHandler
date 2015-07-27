@@ -1,12 +1,14 @@
 package situationManagement;
 
+import situationHandling.storage.datatypes.Situation;
+
 public interface SituationManager {
 	
-	public boolean situationOccured ();
+	public boolean situationOccured (Situation situation);
 	
-	public void subscribeOnSituation();
+	public void subscribeOnSituation(Situation situation);
 
-	public void removeSubscription();
+	public void removeSubscription(Situation situation);
 	
 
 }
