@@ -5,13 +5,16 @@ import situationHandling.storage.datatypes.Situation;
 class SituationManagerImpl implements SituationManager {
 
 	private SubscriptionHandler subscriptionHandler;
+	private SRSCommunicator srsCommunicator;
 
-	SituationManagerImpl(SubscriptionHandler subscriptionHandler) {
+	SituationManagerImpl(SubscriptionHandler subscriptionHandler, SRSCommunicator srsCommunicator) {
 		this.subscriptionHandler = subscriptionHandler;
+		this.srsCommunicator = srsCommunicator;
 	}
 
 	@Override
 	public boolean situationOccured(Situation situation) {
+		srsCommunicator.getSituation(situation);
 		if (situation.getSituationName().equals("test")){
 			return true;
 		}
@@ -21,6 +24,10 @@ class SituationManagerImpl implements SituationManager {
 
 	@Override
 	public void subscribeOnSituation(Situation situation) {
+		//TODO:Remove   this
+		//				 |
+		//				\ /
+		subscriptionHandler.toString();
 		// TODO Auto-generated method stub
 		// subscription nachschauen und adden
 
