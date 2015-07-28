@@ -14,7 +14,9 @@ class SituationManagerImpl implements SituationManager {
 
 	@Override
 	public boolean situationOccured(Situation situation) {
-		// TODO:
+		if (situation.getSituationName().equals("test")){
+			return true;
+		}
 		return Math.random() > 0.5;
 
 	}

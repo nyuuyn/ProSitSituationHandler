@@ -5,6 +5,8 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.sun.xml.bind.v2.schemagen.xmlschema.Occurs;
+
 import pluginManagement.PluginManager;
 import pluginManagement.PluginManagerFactory;
 import situationHandler.plugin.PluginParams;
@@ -79,7 +81,10 @@ class OperationHandlerImpl implements OperationHandler {
 		Endpoint bestCandidate = null;
 		int bestScore = -1;
 
+		logger.debug("Candidates: \n" + candidateEndpoints.toString());
+
 		for (Endpoint currentCandidate : candidateEndpoints) {
+			logger.debug("Candidate: " + currentCandidate.getEndpointID());
 			int score = 0;
 			for (HandledSituation handledSituation : currentCandidate
 					.getSituations()) {
@@ -92,22 +97,35 @@ class OperationHandlerImpl implements OperationHandler {
 
 				if (situationManager.situationOccured(situation) == handledSituation
 						.isSituationHolds()) {
+					logger.debug(situation.toString() + " occured.");
 					score += handledSituation.isOptional() ? 1 : 2;
 				} else {
 					if (!handledSituation.isOptional()) {
+						logger.debug(situation.toString()
+								+ " not occured --> stop.");
 						// abort computation if situation is not fulfilled.
-						score = -1;
-						continue;
+						score = -2;
+						break;
+					} else {
+						logger.debug(situation.toString()
+								+ " not occured but optional.");
 					}
 				}
 			}
+			logger.debug("Endpoint " + currentCandidate.getEndpointID()
+					+ ": Score " + score);
+
 			if (score >= bestScore) {
 				bestCandidate = currentCandidate;
 				bestScore = score;
-				logger.debug("Choosing Endpoint with score " + bestScore
-						+ "./n" + bestCandidate);
+				logger.debug("Choosing Endpoint "
+						+ bestCandidate.getEndpointID() + " with score "
+						+ bestScore);
 			}
 		}
+
+		logger.debug("Best candidate - Score: " + bestScore + "\n"
+				+ bestCandidate);
 
 		return bestCandidate;
 	}
