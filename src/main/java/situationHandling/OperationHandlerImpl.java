@@ -5,8 +5,6 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.sun.xml.bind.v2.schemagen.xmlschema.Occurs;
-
 import pluginManagement.PluginManager;
 import pluginManagement.PluginManagerFactory;
 import situationHandler.plugin.PluginParams;

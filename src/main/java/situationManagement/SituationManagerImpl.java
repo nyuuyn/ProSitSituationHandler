@@ -1,15 +1,13 @@
 package situationManagement;
 
-import java.util.Map;
-
 import situationHandling.storage.datatypes.Situation;
 
 class SituationManagerImpl implements SituationManager {
 
-	private Map<Situation, SubscriptionHandler> subscriptions;
+	private SubscriptionHandler subscriptionHandler;
 
-	SituationManagerImpl(Map<Situation, SubscriptionHandler> subscriptions) {
-		this.subscriptions = subscriptions;
+	SituationManagerImpl(SubscriptionHandler subscriptionHandler) {
+		this.subscriptionHandler = subscriptionHandler;
 	}
 
 	@Override

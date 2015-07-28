@@ -24,7 +24,7 @@ class SituationHandlerImpl implements SituationHandler {
 		PluginManager pm = PluginManagerFactory.getPluginManager();
 
 		List<Action> actions = rsa.getActionsBySituation(situation);
-		//TODO: Hier muss noch auf true und false überprüft werden!
+		//TODO: Hier muss noch auf true und false überprüft werden! (Das eher als Query machen)
 		actions.forEach(action -> threadExecutor.submit(pm.getPluginSender(
 				action.getPluginID(), action.getAddress(), action.getPayload(),
 				new PluginParams(action.getParams()))));

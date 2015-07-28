@@ -2,7 +2,6 @@ package situationManagement;
 
 class SRSCommunicator {
 
-	private static final String SUBSCRIPTION_RECEIVER_URL = "";
 
 	public static void subscribe() {
 		// TODO: Subscribe methode --> benötigt als Param noch die Situation

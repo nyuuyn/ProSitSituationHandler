@@ -15,6 +15,7 @@ import org.eclipse.jetty.util.resource.Resource;
 
 import situationHandling.OperationHandlerEndpoint;
 import situationHandling.storage.StorageAccessFactory;
+import situationManagement.SituationEndpoint;
 import api.configuration.EndpointAPI;
 import api.configuration.PluginAPI;
 import api.configuration.RuleAPI;
@@ -38,6 +39,7 @@ public class Main {
 		registry.bind("endpointApi", EndpointAPI.class);
 		registry.bind("pluginApi", PluginAPI.class);
 		registry.bind("operationHandlerEndpoint", OperationHandlerEndpoint.class);
+		registry.bind("situationEndpoint", SituationEndpoint.class);
 
 		// resource handler for serving the web app
 		ResourceHandler webapp = new ResourceHandler();
@@ -59,7 +61,6 @@ public class Main {
 			context.addRoutes(new SituationHandlerRouteBuilder("0.0.0.0", 8081));
 			context.addRoutes(new RestApiRoutes("0.0.0.0", 8081, 15000000,
 					"jetty"));
-			context.addRoutes(new SRSRoutes("0.0.0.0", 8081));
 			CamelUtil.initProducerTemplate(context.createProducerTemplate());
 			CamelUtil.initConsumerTemplate(context.createConsumerTemplate());
 
