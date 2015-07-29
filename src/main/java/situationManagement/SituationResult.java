@@ -18,7 +18,7 @@ class SituationResult {
 	/**
 	 * 
 	 */
-	SituationResult() {
+	public SituationResult() {
 
 	}
 	
@@ -41,90 +41,118 @@ class SituationResult {
 		this.occured = occured;
 		this.sensorvalues = sensorvalues;
 	}
+	
+
 	/**
 	 * @return the _id
 	 */
-	String get_id() {
+	public String get_id() {
 		return _id;
 	}
+
 	/**
 	 * @param _id the _id to set
 	 */
-	void set_id(String _id) {
+	public void set_id(String _id) {
 		this._id = _id;
 	}
+
 	/**
 	 * @return the _rev
 	 */
-	String get_rev() {
+	public String get_rev() {
 		return _rev;
 	}
+
 	/**
 	 * @param _rev the _rev to set
 	 */
-	void set_rev(String _rev) {
+	public void set_rev(String _rev) {
 		this._rev = _rev;
 	}
+
 	/**
 	 * @return the thing
 	 */
-	String getThing() {
+	public String getThing() {
 		return thing;
 	}
+
 	/**
 	 * @param thing the thing to set
 	 */
-	void setThing(String thing) {
+	public void setThing(String thing) {
 		this.thing = thing;
 	}
+
 	/**
 	 * @return the timestamp
 	 */
-	String getTimestamp() {
+	public String getTimestamp() {
 		return timestamp;
 	}
+
 	/**
 	 * @param timestamp the timestamp to set
 	 */
-	void setTimestamp(String timestamp) {
+	public void setTimestamp(String timestamp) {
 		this.timestamp = timestamp;
 	}
+
 	/**
 	 * @return the situationtemplate
 	 */
-	String getSituationtemplate() {
+	public String getSituationtemplate() {
 		return situationtemplate;
 	}
+
 	/**
 	 * @param situationtemplate the situationtemplate to set
 	 */
-	void setSituationtemplate(String situationtemplate) {
+	public void setSituationtemplate(String situationtemplate) {
 		this.situationtemplate = situationtemplate;
 	}
+
 	/**
 	 * @return the occured
 	 */
-	boolean isOccured() {
+	public boolean isOccured() {
 		return occured;
 	}
+
 	/**
 	 * @param occured the occured to set
 	 */
-	void setOccured(boolean occured) {
+	public void setOccured(boolean occured) {
 		this.occured = occured;
 	}
+
 	/**
 	 * @return the sensorvalues
 	 */
-	List<String> getSensorvalues() {
+	public List<String> getSensorvalues() {
 		return sensorvalues;
 	}
+
 	/**
 	 * @param sensorvalues the sensorvalues to set
 	 */
-	void setSensorvalues(List<String> sensorvalues) {
+	public void setSensorvalues(List<String> sensorvalues) {
 		this.sensorvalues = sensorvalues;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "SituationResult [_id=" + _id + ", _rev=" + _rev + ", thing="
+				+ thing + ", timestamp=" + timestamp + ", situationtemplate="
+				+ situationtemplate + ", occured=" + occured
+				+ ", sensorvalues=" + sensorvalues + "]";
+	}
+	
+	
 
 
 }

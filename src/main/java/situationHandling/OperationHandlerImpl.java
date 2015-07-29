@@ -95,17 +95,20 @@ class OperationHandlerImpl implements OperationHandler {
 
 				if (situationManager.situationOccured(situation) == handledSituation
 						.isSituationHolds()) {
-					logger.debug(situation.toString() + " occured.");
+					logger.debug(situation.toString() + " is "
+							+ handledSituation.isSituationHolds() + " occured.");
 					score += handledSituation.isOptional() ? 1 : 2;
 				} else {
 					if (!handledSituation.isOptional()) {
-						logger.debug(situation.toString()
+						logger.debug(situation.toString() + " is "
+								+ handledSituation.isSituationHolds()
 								+ " not occured --> stop.");
 						// abort computation if situation is not fulfilled.
 						score = -2;
 						break;
 					} else {
-						logger.debug(situation.toString()
+						logger.debug(situation.toString() + " is "
+								+ handledSituation.isSituationHolds()
 								+ " not occured but optional.");
 					}
 				}

@@ -1,19 +1,26 @@
 package situationManagement;
 
+import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
 import org.apache.camel.ProducerTemplate;
+import org.apache.log4j.Logger;
 
 import routes.CamelUtil;
 import situationHandling.storage.datatypes.Situation;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 class SRSCommunicator {
 
 	private URL srsUrl;
 
-	// private final String situationPath = "/situations";
+	/** The logger for this class. */
+	private final static Logger logger = Logger
+			.getLogger(SRSCommunicator.class);
 
 	SRSCommunicator(URL srsUrl) {
 		this.srsUrl = srsUrl;
@@ -31,23 +38,31 @@ class SRSCommunicator {
 	SituationResult getSituation(Situation situation) {
 		ProducerTemplate pt = CamelUtil.getProducerTemplate();
 
-		String query = "?thing=" + situation.getObjectName()
-				+ "situationtemplate=" + situation.getSituationName();
+		String query = "thing=" + situation.getObjectName()
+				+ "&situationtemplate=" + situation.getSituationName();
 
-		Exchange exchange = pt.send(srsUrl.toString()
-				+ "/situations/ByThingAndTemplate" + query, new Processor() {
-			public void process(Exchange exchange) throws Exception {
-				exchange.getIn().setHeader(Exchange.HTTP_METHOD, "GET");
-			}
-		});
+		Map<String, Object> headers = new HashMap<>();
 
-		System.out.println(exchange.getOut().getBody(String.class));
+		headers.put(Exchange.HTTP_METHOD, "GET");
+		headers.put(Exchange.HTTP_QUERY, query);
+		headers.put(Exchange.HTTP_PATH, "/situations/ByThingAndTemplate");
 
-		// TODO: Get Abfrage an SRS ; Situation als Param benötigt
-		return new SituationResult();
+		String answer = pt.requestBodyAndHeaders(srsUrl.toString(), null,
+				headers, String.class);
+		SituationResult situationResult = null;
+		try {
+			situationResult = new ObjectMapper().readValue(answer,
+					SituationResult.class);
+			logger.debug("Situation Result: " + situationResult.toString());
+
+		} catch (IOException e) {
+			logger.debug("Situation " + situation + " does not exist");
+		}
+		return situationResult;
+
 	}
 
-	static void receiveSituationChange(SituationResult situationResult) {
+	static void receiveSituationChange(Situation situation) {
 		// TODO: Das hier als Zielmethode für die entsprechende Camel ROute/Rest
 		// OP --> Sit Handling einleiten
 		// TODO: fraglich ob das hier überhaupt nötig ist, oder ob die Sit

@@ -9,6 +9,7 @@ public class SituationManagerFactory {
 		URL ownAdress;
 		URL srsUrl;
 		try {
+//			srsUrl = new URL ("http://localhost:8888");
 			srsUrl = new URL ("http://192.168.209.200:10010");
 			srsCommunicator = new SRSCommunicator(srsUrl);
 			
