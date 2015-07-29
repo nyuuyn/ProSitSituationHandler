@@ -18,7 +18,7 @@ class SituationHandlerImpl implements SituationHandler {
 			.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
 	@Override
-	public void handleSituation(Situation situation) {
+	public void situationChanged(Situation situation, boolean state) {
 
 		RuleStorageAccess rsa = StorageAccessFactory.getRuleStorageAccess();
 		PluginManager pm = PluginManagerFactory.getPluginManager();

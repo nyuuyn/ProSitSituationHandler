@@ -10,5 +10,7 @@ public interface SituationManager {
 
 	public void removeSubscription(Situation situation);
 	
+	public void init ();
+	
 
 }

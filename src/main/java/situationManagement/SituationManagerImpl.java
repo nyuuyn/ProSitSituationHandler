@@ -26,20 +26,19 @@ class SituationManagerImpl implements SituationManager {
 
 	@Override
 	public void subscribeOnSituation(Situation situation) {
-		// TODO:Remove this
-		// |
-		// \ /
-		subscriptionHandler.toString();
-		// TODO Auto-generated method stub
-		// subscription nachschauen und adden
+		subscriptionHandler.subscribe(situation);
 
 	}
 
 	@Override
 	public void removeSubscription(Situation situation) {
-		// TODO Auto-generated method stub
-		// subscription nachschauen und entfernen
-
+		subscriptionHandler.removeSubscription(situation);
 	}
 
+	@Override
+	public void init() {
+		subscriptionHandler.reloadSubscriptions();
+	}
+
+	
 }

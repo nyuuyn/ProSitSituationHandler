@@ -4,6 +4,12 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+import situationHandling.storage.EndpointStorageAccess;
+import situationHandling.storage.RuleStorageAccess;
+import situationHandling.storage.StorageAccessFactory;
+import situationHandling.storage.datatypes.Endpoint;
+import situationHandling.storage.datatypes.HandledSituation;
+import situationHandling.storage.datatypes.Rule;
 import situationHandling.storage.datatypes.Situation;
 
 class SubscriptionHandler {
@@ -17,7 +23,7 @@ class SubscriptionHandler {
 		this.srsCommunicator = srsCommunicator;
 	}
 
-	public void subscribe(Situation situation) {
+	void subscribe(Situation situation) {
 		if (subscriptions.containsKey(situation)) {
 			subscriptions.get(situation).addSubscription();
 		} else {
@@ -27,7 +33,7 @@ class SubscriptionHandler {
 
 	}
 
-	public void removeSubscription(Situation situation) {
+	void removeSubscription(Situation situation) {
 		if (subscriptions.containsKey(situation)) {
 			Subscription subscription = subscriptions.get(situation);
 			subscription.removeSubsription();
@@ -38,7 +44,26 @@ class SubscriptionHandler {
 		}
 	}
 
-	public String getSubscriptionsAsString() {
+	void reloadSubscriptions() {
+		subscriptions.clear();
+		// do subscriptions for all rules
+		RuleStorageAccess rsa = StorageAccessFactory.getRuleStorageAccess();
+		for (Rule rule : rsa.getAllRules()) {
+			subscribe(rule.getSituation());
+		}
+
+		// do subscriptions for all situations handled by endpoints
+		EndpointStorageAccess esa = StorageAccessFactory
+				.getEndpointStorageAccess();
+		for (Endpoint endpoint : esa.getAllEndpoints()) {
+			for (HandledSituation handledSituation : endpoint.getSituations()) {
+				subscribe(new Situation(handledSituation.getSituationName(),
+						handledSituation.getObjectName()));
+			}
+		}
+	}
+
+	String getSubscriptionsAsString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("-----------Subscriptions:-----------");
 		sb.append(System.getProperty("line.separator"));

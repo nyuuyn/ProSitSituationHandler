@@ -1,11 +1,45 @@
 package situationManagement;
 
+import java.io.IOException;
+
 import org.apache.camel.Exchange;
+import org.apache.log4j.Logger;
+
+import situationHandling.OperationHandlerFactory;
+import situationHandling.SituationHandlerFactory;
+import situationHandling.storage.datatypes.Situation;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class SituationEndpoint {
 
-	public void situationReceived (Exchange exchange){
-		
+	/** The logger for this class. */
+	private final static Logger logger = Logger
+			.getLogger(SituationEndpoint.class);
+
+	public void situationReceived(Exchange exchange) {
+		String changedSituation = exchange.getIn().getBody(String.class);
+
+		SituationResult situationResult;
+		try {
+			// transform situation
+			situationResult = new ObjectMapper().readValue(changedSituation,
+					SituationResult.class);
+			Situation situation = new Situation(
+					situationResult.getSituationtemplate(),
+					situationResult.getThing());
+			// notify notification and workflow handling
+			SituationHandlerFactory.getSituationHandler().situationChanged(
+					situation, situationResult.isOccured());
+			OperationHandlerFactory.getOperationHandler().situationChanged(
+					situation, situationResult.isOccured());
+			
+			//TODO Update Cache
+		} catch (IOException e) {
+			logger.warn("Received invalid message from Situation Recognition System."
+					+ e.getMessage());
+		}
+
 	}
-	
+
 }

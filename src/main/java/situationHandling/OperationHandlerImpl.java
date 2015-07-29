@@ -50,6 +50,13 @@ class OperationHandlerImpl implements OperationHandler {
 
 	}
 
+	@Override
+	public void situationChanged(Situation situation, boolean state) {
+		logger.debug(situation.toString() + " changed to " + state
+				+ ". Check Rollback.");
+		//TODO: Rollback
+	}
+
 	/**
 	 * Chooses an endpoint for an operation. The endpoint is chosen by the
 	 * following criteria:

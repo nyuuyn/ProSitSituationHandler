@@ -4,6 +4,6 @@ import situationHandling.storage.datatypes.Situation;
 
 public interface SituationHandler {
 	
-	public void handleSituation (Situation situation);
+	public void situationChanged (Situation situation, boolean state);
 
 }
