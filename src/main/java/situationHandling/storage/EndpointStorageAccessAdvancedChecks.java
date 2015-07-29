@@ -17,7 +17,7 @@ import situationHandling.storage.datatypes.Operation;
  * @author Stefan
  *
  */
-class EndpointStorageAccessAdvancedImpl extends
+class EndpointStorageAccessAdvancedChecks extends
 		EndpointStorageAccessDefaultImpl {
 
 	/**
@@ -26,7 +26,7 @@ class EndpointStorageAccessAdvancedImpl extends
 	 * @param sessionFactory
 	 *            The session factory used to create database sessions.
 	 */
-	public EndpointStorageAccessAdvancedImpl(SessionFactory sessionFactory) {
+	public EndpointStorageAccessAdvancedChecks(SessionFactory sessionFactory) {
 		super(sessionFactory);
 	}
 

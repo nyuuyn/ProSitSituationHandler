@@ -23,7 +23,7 @@ public class StorageAccessFactory {
 	 * @return an instance of {@link EndpointStorageAccess}
 	 */
 	public static EndpointStorageAccess getEndpointStorageAccess() {
-		return new EndpointStorageAccessAdvancedImpl(
+		return new EndpointStorageAccessAdvancedChecks(
 				hibernateSession.getSessionFactory());
 	}
 
@@ -33,7 +33,7 @@ public class StorageAccessFactory {
 	 * @return an instance of {@link RuleStorageAccess}
 	 */
 	public static RuleStorageAccess getRuleStorageAccess() {
-		return new RuleStorageAccessAdvancedImpl(hibernateSession.getSessionFactory());
+		return new RuleStorageAccessAdvancedChecks(hibernateSession.getSessionFactory());
 	}
 
 	/**

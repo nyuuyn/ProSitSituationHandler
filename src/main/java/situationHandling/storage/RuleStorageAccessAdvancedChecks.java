@@ -22,11 +22,11 @@ import situationHandling.storage.datatypes.Situation;
  * @author Stefan
  *
  */
-class RuleStorageAccessAdvancedImpl extends RuleStorageAccessDefaultImpl {
+class RuleStorageAccessAdvancedChecks extends RuleStorageAccessDefaultImpl {
 	
 	/** The logger for this class. */
 	private final static Logger logger = Logger
-			.getLogger(RuleStorageAccessAdvancedImpl.class);
+			.getLogger(RuleStorageAccessAdvancedChecks.class);
 
 
 	/**
@@ -34,7 +34,7 @@ class RuleStorageAccessAdvancedImpl extends RuleStorageAccessDefaultImpl {
 	 *
 	 * @param sessionFactory The session factory used to create database sessions.
 	 */
-	RuleStorageAccessAdvancedImpl(SessionFactory sessionFactory) {
+	RuleStorageAccessAdvancedChecks(SessionFactory sessionFactory) {
 		super(sessionFactory);
 	}
 
