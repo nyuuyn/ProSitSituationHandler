@@ -4,6 +4,8 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 import situationHandling.storage.EndpointStorageAccess;
 import situationHandling.storage.RuleStorageAccess;
 import situationHandling.storage.StorageAccessFactory;
@@ -13,6 +15,9 @@ import situationHandling.storage.datatypes.Rule;
 import situationHandling.storage.datatypes.Situation;
 
 class SubscriptionHandler {
+
+	private final static Logger logger = Logger
+			.getLogger(SubscriptionHandler.class);
 
 	private Map<Situation, Subscription> subscriptions = new HashMap<Situation, Subscription>();
 	private SRSCommunicator srsCommunicator;
@@ -27,6 +32,7 @@ class SubscriptionHandler {
 		if (subscriptions.containsKey(situation)) {
 			subscriptions.get(situation).addSubscription();
 		} else {
+			logger.debug("Creating subscription on " + situation.toString());
 			subscriptions.put(situation, new Subscription());
 			srsCommunicator.subscribe(situation, ownAddress);
 		}
@@ -38,6 +44,7 @@ class SubscriptionHandler {
 			Subscription subscription = subscriptions.get(situation);
 			subscription.removeSubsription();
 			if (!subscription.subsriptionsAvailable()) {
+				logger.debug("Removing subscription on " + situation.toString());
 				srsCommunicator.unsubscribe(situation, ownAddress);
 				subscriptions.remove(situation);
 			}
@@ -61,6 +68,8 @@ class SubscriptionHandler {
 						handledSituation.getObjectName()));
 			}
 		}
+
+		logger.debug("Subscriptions reloaded:\n" + getSubscriptionsAsString());
 	}
 
 	String getSubscriptionsAsString() {

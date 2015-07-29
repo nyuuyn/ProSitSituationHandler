@@ -16,6 +16,7 @@ import org.eclipse.jetty.util.resource.Resource;
 import situationHandling.OperationHandlerEndpoint;
 import situationHandling.storage.StorageAccessFactory;
 import situationManagement.SituationEndpoint;
+import situationManagement.SituationManagerFactory;
 import api.configuration.EndpointAPI;
 import api.configuration.PluginAPI;
 import api.configuration.RuleAPI;
@@ -74,6 +75,10 @@ public class Main {
 		}
 
 		logger.info("Camel context initialized");
+		
+		
+		//situation handler initialization
+		SituationManagerFactory.getSituationManager().init();
 	}
 
 	// Maybe for later use :)
