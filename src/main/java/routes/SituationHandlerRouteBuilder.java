@@ -38,7 +38,7 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 
 		// to receive Subscriptions
 		from("jetty:http://" + hostname + ":" + port + "/SituationEndpoint")
-				.to("bean:situationEndpoint?method=subscriptionReceived");
+				.to("bean:situationEndpoint?method=situationReceived");
 
 		// set CORS Headers for option requests and max file size
 		from(

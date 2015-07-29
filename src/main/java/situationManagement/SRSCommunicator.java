@@ -16,23 +16,74 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 class SRSCommunicator {
 
-	private URL srsUrl;
-
 	/** The logger for this class. */
 	private final static Logger logger = Logger
 			.getLogger(SRSCommunicator.class);
+
+	private URL srsUrl;
 
 	SRSCommunicator(URL srsUrl) {
 		this.srsUrl = srsUrl;
 	}
 
-	void subscribe() {
-		// TODO: Subscribe methode --> benötigt als Param noch die Situation
-		// oder so
+	void subscribe(Situation situation, URL address) {
+		// http://192.168.209.200:10010/situations/changes?ID=test&CallbackURL=test&once=false
+		// TODO: Momentan ist das noch quatsch --> die richtige Methode
+		// existiert noch nicht
+		ProducerTemplate pt = CamelUtil.getProducerTemplate();
+
+		String query = "situationTemplate=" + situation.getSituationName()
+				+ "thing=" + situation.getObjectName() + "&CallbackURL="
+				+ situation.getSituationName() + "&once=false";
+
+		Map<String, Object> headers = new HashMap<>();
+
+		headers.put(Exchange.HTTP_METHOD, "POST");
+		headers.put(Exchange.HTTP_QUERY, query);
+		headers.put(Exchange.HTTP_PATH, "/changes");
+
+		// String answer = pt.requestBodyAndHeaders(srsUrl.toString(), null,
+		// headers, String.class);
+		// SituationResult situationResult = null;
+		// try {
+		// situationResult = new ObjectMapper().readValue(answer,
+		// SituationResult.class);
+		// logger.debug("Situation Result: " + situationResult.toString());
+		//
+		// } catch (IOException e) {
+		// logger.debug("Situation " + situation + " does not exist");
+		// }
 	}
 
-	void unsubscribe() {
-		// TODO:unsubscrobe --> Sitaution als Param
+	void unsubscribe(Situation situation, URL address) {
+		// curl -X DELETE --header "Accept: application/json"
+		// "http://192.168.209.200:10010/situations/changes?ID=test&CallbackURL=test"
+
+		// TODO: Momentan ist das noch quatsch --> die richtige Methode
+		// existiert noch nicht
+		ProducerTemplate pt = CamelUtil.getProducerTemplate();
+
+		String query = "situationTemplate=" + situation.getSituationName()
+				+ "thing=" + situation.getObjectName() + "&CallbackURL="
+				+ situation.getSituationName();
+
+		Map<String, Object> headers = new HashMap<>();
+
+		headers.put(Exchange.HTTP_METHOD, "DELETE");
+		headers.put(Exchange.HTTP_QUERY, query);
+		headers.put(Exchange.HTTP_PATH, "/changes");
+
+		// String answer = pt.requestBodyAndHeaders(srsUrl.toString(), null,
+		// headers, String.class);
+		// SituationResult situationResult = null;
+		// try {
+		// situationResult = new ObjectMapper().readValue(answer,
+		// SituationResult.class);
+		// logger.debug("Situation Result: " + situationResult.toString());
+		//
+		// } catch (IOException e) {
+		// logger.debug("Situation " + situation + " does not exist");
+		// }
 	}
 
 	SituationResult getSituation(Situation situation) {
@@ -60,14 +111,5 @@ class SRSCommunicator {
 		}
 		return situationResult;
 
-	}
-
-	static void receiveSituationChange(Situation situation) {
-		// TODO: Das hier als Zielmethode für die entsprechende Camel ROute/Rest
-		// OP --> Sit Handling einleiten
-		// TODO: fraglich ob das hier überhaupt nötig ist, oder ob die Sit
-		// Handler komponente direkt als Ziel dient
-		// --> erstmal lassen und eine Klasse noch dazwischen schalten --> die
-		// kann dann notfalls noch in den Cache schreiben
 	}
 }

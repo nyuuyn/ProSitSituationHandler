@@ -5,7 +5,7 @@ class Subscription {
 	private int subscriptionCount = 0;
 
 	Subscription() {
-		subscriptionCount++;
+		subscriptionCount = 1;
 	}
 
 	boolean subsriptionsAvailable() {
@@ -19,4 +19,14 @@ class Subscription {
 	void removeSubsription(){
 		subscriptionCount--;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "Subscription [subscriptionCount=" + subscriptionCount + "]";
+	}
+	
+	
 }

@@ -4,7 +4,7 @@ import org.apache.camel.Exchange;
 
 public class SituationEndpoint {
 
-	public void subscriptionReceived (Exchange exchange){
+	public void situationReceived (Exchange exchange){
 		
 	}
 	
