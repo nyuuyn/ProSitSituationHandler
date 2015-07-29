@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.JDBCException;
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -230,8 +231,8 @@ class RuleStorageAccessDefaultImpl implements RuleStorageAccess {
 	 */
 	@Override
 	public boolean updateAction(int actionID, String pluginID, String address,
-			String payload,ExecutionTime executionTime, Map<String, String> params)
-			throws InvalidActionException {
+			String payload, ExecutionTime executionTime,
+			Map<String, String> params) throws InvalidActionException {
 		logger.debug("Updating action: " + actionID);
 		Session session = sessionFactory.openSession();
 		Transaction tx = null;
@@ -257,7 +258,7 @@ class RuleStorageAccessDefaultImpl implements RuleStorageAccess {
 				if (params != null) {
 					action.setParams(params);
 				}
-				if (executionTime != null){
+				if (executionTime != null) {
 					action.setExecutionTime(executionTime);
 				}
 
@@ -468,6 +469,69 @@ class RuleStorageAccessDefaultImpl implements RuleStorageAccess {
 				actions = getInitializedRuleActions((Rule) rules.get(0),
 						session);
 			}
+		} catch (HibernateException e) {
+			if (tx != null)
+				tx.rollback();
+			logger.error("Hibernate error", e);
+		} finally {
+			session.close();
+		}
+		return actions;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * situationHandling.storage.RuleStorageAccess#getActionsBySituationAndState
+	 * (situationHandling.storage.datatypes.Situation, boolean)
+	 */
+	@Override
+	public List<Action> getActionsBySituationAndExecutionTime(
+			Situation situation, ExecutionTime executionTime) {
+
+		logger.debug("Getting all actions for situation: " + situation
+				+ " with execution time " + executionTime.toString());
+
+		Session session = sessionFactory.openSession();
+		Transaction tx = null;
+		List<Action> actions = null;
+		try {
+			tx = session.beginTransaction();
+
+			SQLQuery query = session
+					.createSQLQuery("SELECT actions.* FROM rules, actions WHERE rules.id = actions.rule_id AND rules.situation_name = 'A0' AND rules.object_name = '1' AND (actions.execution_time = '"
+							+ executionTime
+							+ "' OR actions.execution_time = 'onSituationChange')");
+			query.addEntity(Action.class);
+			@SuppressWarnings("rawtypes")
+			List result = query.list();
+
+			// alternative to the above expression that does not work
+			// @SuppressWarnings("rawtypes")
+			// List rules = session
+			// .createCriteria(Rule.class)
+			// .add(Restrictions.eq("situationName",
+			// situation.getSituationName()))
+			// .add(Restrictions.eq("objectName",
+			// situation.getObjectName()))
+			// .createAlias(
+			// "actions",
+			// "act",
+			// JoinType.INNER_JOIN,
+			// Restrictions.or(Restrictions.eq(
+			// "act.executionTime",
+			// ExecutionTime.onSituationChange),
+			// Restrictions.eq("act.executionTime",
+			// executionTime))).list();
+
+			actions = new LinkedList<>();
+			for (Object o : result) {
+				Action action = (Action) o;
+				Hibernate.initialize(action.getParams());
+				actions.add(action);
+			}
+			tx.commit();
 		} catch (HibernateException e) {
 			if (tx != null)
 				tx.rollback();

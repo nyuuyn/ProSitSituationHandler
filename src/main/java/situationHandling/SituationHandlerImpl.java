@@ -10,6 +10,7 @@ import situationHandler.plugin.PluginParams;
 import situationHandling.storage.RuleStorageAccess;
 import situationHandling.storage.StorageAccessFactory;
 import situationHandling.storage.datatypes.Action;
+import situationHandling.storage.datatypes.Action.ExecutionTime;
 import situationHandling.storage.datatypes.Situation;
 
 class SituationHandlerImpl implements SituationHandler {
@@ -23,8 +24,11 @@ class SituationHandlerImpl implements SituationHandler {
 		RuleStorageAccess rsa = StorageAccessFactory.getRuleStorageAccess();
 		PluginManager pm = PluginManagerFactory.getPluginManager();
 
-		List<Action> actions = rsa.getActionsBySituation(situation);
-		//TODO: Hier muss noch auf true und false überprüft werden! (Das eher als Query machen)
+		ExecutionTime time = state ? ExecutionTime.onSituationAppear
+				: ExecutionTime.onSituationDisappear;
+		List<Action> actions = rsa.getActionsBySituationAndExecutionTime(
+				situation, time);
+
 		actions.forEach(action -> threadExecutor.submit(pm.getPluginSender(
 				action.getPluginID(), action.getAddress(), action.getPayload(),
 				new PluginParams(action.getParams()))));

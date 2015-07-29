@@ -207,6 +207,26 @@ public interface RuleStorageAccess {
 	public List<Action> getActionsBySituation(Situation situation);
 
 	/**
+	 * Gets the actions that are associated with the specified situation and
+	 * that are executed when the situation has a specific state.
+	 *
+	 * @param situation
+	 *            the situation
+	 * @param executionTime
+	 *            the time when the action is executed (situation appears,
+	 *            disappears, changes)
+	 * 
+	 * @return a list of all actions that are executed when the specified
+	 *         situation occurs (or not) and the actions that are executed every
+	 *         time the situation changes. An empty list if no actions are
+	 *         available.
+	 * 
+	 * @see ExecutionTime
+	 */
+	public List<Action> getActionsBySituationAndExecutionTime(
+			Situation situation, ExecutionTime executionTime);
+
+	/**
 	 * Gets the actions that are associated with the specified rule.
 	 *
 	 * @param ruleID

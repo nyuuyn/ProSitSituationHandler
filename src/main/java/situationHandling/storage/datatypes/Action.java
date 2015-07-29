@@ -264,8 +264,9 @@ public class Action {
 	 */
 	@Override
 	public String toString() {
-		return "Action [id=" + id + ", pluginID=" + pluginID + ", address="
-				+ address + ", payload=" + payload + ", params=" + params + "]";
+		return "Action [id=" + id + ", pluginID=" + pluginID
+				+ ", executionTime=" + executionTime + ", address=" + address
+				+ ", payload=" + payload + ", params=" + params + "]";
 	}
 
 }
