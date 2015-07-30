@@ -109,6 +109,7 @@ class SRSCommunicator {
 		} catch (IOException e) {
 			logger.debug("Situation " + situation + " does not exist");
 		}
+		//TODO: Update Cache!
 		return situationResult;
 
 	}

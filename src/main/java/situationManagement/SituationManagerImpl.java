@@ -1,8 +1,14 @@
 package situationManagement;
 
+import org.apache.log4j.Logger;
+
 import situationHandling.storage.datatypes.Situation;
 
 class SituationManagerImpl implements SituationManager {
+
+	/** The logger for this class. */
+	private final static Logger logger = Logger
+			.getLogger(SituationManagerImpl.class);
 
 	private SubscriptionHandler subscriptionHandler;
 	private SRSCommunicator srsCommunicator;
@@ -15,11 +21,17 @@ class SituationManagerImpl implements SituationManager {
 
 	@Override
 	public boolean situationOccured(Situation situation) {
+		// check cache
+		// query SRS if situation not cached
 		SituationResult situationResult = srsCommunicator
 				.getSituation(situation);
+
 		if (situationResult != null) {
+			logger.debug("Got situation state from SRS. Result " + situation
+					+ " State: " + situationResult.isOccured());
 			return situationResult.isOccured();
 		} else {
+			logger.warn("Failed getting situation from SRS: " + situation);
 			return false;
 		}
 	}
@@ -40,5 +52,4 @@ class SituationManagerImpl implements SituationManager {
 		subscriptionHandler.reloadSubscriptions();
 	}
 
-	
 }

@@ -94,7 +94,6 @@
 			<groupId>org.apache.camel</groupId>
 			<artifactId>camel-netty4-http</artifactId>
 			<version>${camel.version}</version>
-			<!-- use the same version as your Camel core version -->
 		</dependency>
 
 		<dependency>

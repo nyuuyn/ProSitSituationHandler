@@ -2,6 +2,8 @@ package situationManagement;
 
 import java.util.List;
 
+import situationHandling.storage.datatypes.Situation;
+
 class SituationResult {
 
 	//TODO: Wrapper Klasse für dsa was vom SRS kommt
@@ -139,6 +141,10 @@ class SituationResult {
 	 */
 	public void setSensorvalues(List<String> sensorvalues) {
 		this.sensorvalues = sensorvalues;
+	}
+	
+	public Situation getSituation(){
+		return new Situation(situationtemplate, thing);
 	}
 
 	/* (non-Javadoc)
