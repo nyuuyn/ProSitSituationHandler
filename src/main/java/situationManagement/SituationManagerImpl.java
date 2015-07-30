@@ -51,5 +51,10 @@ class SituationManagerImpl implements SituationManager {
 	public void init() {
 		subscriptionHandler.reloadSubscriptions();
 	}
+	
+	@Override
+	public void cleanup(){
+		subscriptionHandler.deleteAllSubscriptions();
+	}
 
 }

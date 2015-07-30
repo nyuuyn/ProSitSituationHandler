@@ -12,5 +12,7 @@ public interface SituationManager {
 	
 	public void init ();
 	
+	public void cleanup();
+	
 
 }

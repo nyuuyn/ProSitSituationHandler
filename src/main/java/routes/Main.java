@@ -32,8 +32,8 @@ public class Main {
 		shutdownHandling();
 
 		context = new DefaultCamelContext();
-		
-		//Uncomment this to debug http requests (using fiddler)
+
+		// Uncomment this to debug http requests (using fiddler)
 		context.getProperties().put("http.proxyHost", "localhost");
 		context.getProperties().put("http.proxyPort", "8888");
 
@@ -43,7 +43,8 @@ public class Main {
 		registry.bind("ruleApi", RuleAPI.class);
 		registry.bind("endpointApi", EndpointAPI.class);
 		registry.bind("pluginApi", PluginAPI.class);
-		registry.bind("operationHandlerEndpoint", OperationHandlerEndpoint.class);
+		registry.bind("operationHandlerEndpoint",
+				OperationHandlerEndpoint.class);
 		registry.bind("situationEndpoint", SituationEndpoint.class);
 
 		// resource handler for serving the web app
@@ -63,9 +64,11 @@ public class Main {
 
 		try {
 			// add routes
-			context.addRoutes(new SituationHandlerRouteBuilder("0.0.0.0", 8081));
-			context.addRoutes(new RestApiRoutes("0.0.0.0", 8081, 15000000,
-					"jetty"));
+			context.addRoutes(new SituationHandlerRouteBuilder("0.0.0.0",
+					GlobalProperties.NETWORK_PORT));
+			context.addRoutes(new RestApiRoutes("0.0.0.0",
+					GlobalProperties.NETWORK_PORT,
+					GlobalProperties.MAXIMUM_FILE_SIZE, "jetty"));
 			CamelUtil.initProducerTemplate(context.createProducerTemplate());
 			CamelUtil.initConsumerTemplate(context.createConsumerTemplate());
 
@@ -75,9 +78,8 @@ public class Main {
 		}
 
 		logger.info("Camel context initialized");
-		
-		
-		//situation handler initialization
+
+		// situation handler initialization
 		SituationManagerFactory.getSituationManager().init();
 	}
 
@@ -112,9 +114,11 @@ public class Main {
 						}
 					}
 					logger.info("Shutting Down..");
+					logger.info("Deleting Subscriptions");
+					SituationManagerFactory.getSituationManager().cleanup();
+					logger.info("Stopping Camel");
 					CamelUtil.getProducerTemplate().stop();
 					CamelUtil.getConsumerTemplate().stop();
-					logger.info("Stopping Camel");
 					context.stop();
 					logger.info("Shuting down storage access");
 					StorageAccessFactory.closeStorageAccess();

@@ -47,7 +47,7 @@ public class SituationManagerWithCache extends SituationManagerImpl {
 					+ situation.toString());
 			return situationCache.get(situation);
 		} else {
-			// query SRS if situation not cached
+			// query SRS if situation not cached (and insert in cache)
 			boolean situationState = super.situationOccured(situation);
 			updateSituationCache(situation, situationState);
 			return situationState;

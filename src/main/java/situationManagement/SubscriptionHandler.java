@@ -46,14 +46,18 @@ class SubscriptionHandler {
 			Subscription subscription = subscriptions.get(situation);
 			subscription.removeSubsription();
 			if (!subscription.subsriptionsAvailable()) {
-				logger.debug("Deleting subscription on " + situation.toString());
-				srsCommunicator.unsubscribe(situation, ownAddress);
-				subscriptions.remove(situation);
+				deleteSubscription(situation);
 			}else{
 				logger.trace("Removed one subscription on " + situation);
 				logger.trace(subscriptions.get(situation).toString());
 			}
 		}
+	}
+	
+	private void deleteSubscription(Situation situation){
+		logger.debug("Deleting subscription on " + situation.toString());
+		srsCommunicator.unsubscribe(situation, ownAddress);
+		subscriptions.remove(situation);
 	}
 
 	void reloadSubscriptions() {
@@ -75,6 +79,13 @@ class SubscriptionHandler {
 		}
 
 		logger.debug("Subscriptions reloaded:\n" + getSubscriptionsAsString());
+	}
+	
+	void deleteAllSubscriptions(){
+		logger.debug("Deleting all subscriptions.");
+		for (Situation situation:subscriptions.keySet()){
+			deleteSubscription(situation);
+		}
 	}
 
 	String getSubscriptionsAsString() {

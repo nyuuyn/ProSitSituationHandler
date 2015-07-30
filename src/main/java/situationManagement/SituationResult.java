@@ -6,24 +6,24 @@ import situationHandling.storage.datatypes.Situation;
 
 class SituationResult {
 
-	//TODO: Wrapper Klasse für dsa was vom SRS kommt
-	
-	
+	// TODO: Wrapper Klasse für dsa was vom SRS kommt
+
 	private String _id;
 	private String _rev;
 	private String thing;
 	private String timestamp;
 	private String situationtemplate;
 	private boolean occured;
-	private List <String> sensorvalues;
-	
+	private String name;
+	private List<String> sensorvalues;
+
 	/**
 	 * 
 	 */
 	public SituationResult() {
 
 	}
-	
+
 	/**
 	 * @param _id
 	 * @param _rev
@@ -34,16 +34,17 @@ class SituationResult {
 	 * @param sensorvalues
 	 */
 	SituationResult(String _id, String _rev, String thing, String timestamp,
-			String situationtemplate, boolean occured, List<String> sensorvalues) {
+			String situationtemplate, boolean occured, String name,
+			List<String> sensorvalues) {
 		this._id = _id;
 		this._rev = _rev;
 		this.thing = thing;
 		this.timestamp = timestamp;
 		this.situationtemplate = situationtemplate;
 		this.occured = occured;
+		this.name = name;
 		this.sensorvalues = sensorvalues;
 	}
-	
 
 	/**
 	 * @return the _id
@@ -53,7 +54,8 @@ class SituationResult {
 	}
 
 	/**
-	 * @param _id the _id to set
+	 * @param _id
+	 *            the _id to set
 	 */
 	public void set_id(String _id) {
 		this._id = _id;
@@ -67,7 +69,8 @@ class SituationResult {
 	}
 
 	/**
-	 * @param _rev the _rev to set
+	 * @param _rev
+	 *            the _rev to set
 	 */
 	public void set_rev(String _rev) {
 		this._rev = _rev;
@@ -81,7 +84,8 @@ class SituationResult {
 	}
 
 	/**
-	 * @param thing the thing to set
+	 * @param thing
+	 *            the thing to set
 	 */
 	public void setThing(String thing) {
 		this.thing = thing;
@@ -95,7 +99,8 @@ class SituationResult {
 	}
 
 	/**
-	 * @param timestamp the timestamp to set
+	 * @param timestamp
+	 *            the timestamp to set
 	 */
 	public void setTimestamp(String timestamp) {
 		this.timestamp = timestamp;
@@ -109,7 +114,8 @@ class SituationResult {
 	}
 
 	/**
-	 * @param situationtemplate the situationtemplate to set
+	 * @param situationtemplate
+	 *            the situationtemplate to set
 	 */
 	public void setSituationtemplate(String situationtemplate) {
 		this.situationtemplate = situationtemplate;
@@ -123,10 +129,26 @@ class SituationResult {
 	}
 
 	/**
-	 * @param occured the occured to set
+	 * @param occured
+	 *            the occured to set
 	 */
 	public void setOccured(boolean occured) {
 		this.occured = occured;
+	}
+
+	/**
+	 * @return the name
+	 */
+	public String getName() {
+		return name;
+	}
+
+	/**
+	 * @param name
+	 *            the name to set
+	 */
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	/**
@@ -137,17 +159,20 @@ class SituationResult {
 	}
 
 	/**
-	 * @param sensorvalues the sensorvalues to set
+	 * @param sensorvalues
+	 *            the sensorvalues to set
 	 */
 	public void setSensorvalues(List<String> sensorvalues) {
 		this.sensorvalues = sensorvalues;
 	}
-	
-	public Situation getSituation(){
+
+	public Situation getSituation() {
 		return new Situation(situationtemplate, thing);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
@@ -157,8 +182,5 @@ class SituationResult {
 				+ situationtemplate + ", occured=" + occured
 				+ ", sensorvalues=" + sensorvalues + "]";
 	}
-	
-	
-
 
 }

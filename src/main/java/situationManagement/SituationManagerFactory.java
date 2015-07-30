@@ -1,19 +1,22 @@
 package situationManagement;
 
+import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.Map;
 
 import org.apache.commons.collections4.map.LRUMap;
 
+import routes.GlobalProperties;
 import situationHandling.storage.datatypes.Situation;
 
 public class SituationManagerFactory {
 
 	private static SubscriptionHandler subscriptionHandler;
 	private static URL srsUrl;
-	private static Map<Situation, Boolean> situationCache =  Collections
+	private static Map<Situation, Boolean> situationCache = Collections
 			.synchronizedMap(new LRUMap<Situation, Boolean>(50));
 
 	private static boolean cacheEnabled = true;
@@ -22,10 +25,13 @@ public class SituationManagerFactory {
 		try {
 			srsUrl = new URL("http://192.168.209.200:10010");
 
-			URL ownAdress = new URL("http://localhost:8081/SituationEndpoint");
+			String ownIPAdress = InetAddress.getLocalHost().getHostAddress();
+
+			URL ownAdress = new URL("http://" + ownIPAdress + ":"
+					+ GlobalProperties.NETWORK_PORT + "/SituationEndpoint");
 			subscriptionHandler = new SubscriptionHandler(ownAdress,
 					new SRSCommunicator(srsUrl));
-		} catch (MalformedURLException e) {
+		} catch (MalformedURLException | UnknownHostException e) {
 			e.printStackTrace();
 		}
 	}

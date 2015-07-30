@@ -19,7 +19,11 @@ public class SituationEndpoint {
 
 	public void situationReceived(Exchange exchange) {
 		String changedSituation = exchange.getIn().getBody(String.class);
+		System.out.println(changedSituation);
+		System.out.println();
 
+		logger.debug("Received notification about situation change:\n " + changedSituation);
+		
 		SituationResult situationResult;
 		try {
 			// transform situation

@@ -5,8 +5,10 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.camel.CamelExecutionException;
 import org.apache.camel.Exchange;
 import org.apache.camel.ProducerTemplate;
+import org.apache.camel.component.http.HttpOperationFailedException;
 import org.apache.log4j.Logger;
 
 import routes.CamelUtil;
@@ -27,63 +29,76 @@ class SRSCommunicator {
 	}
 
 	void subscribe(Situation situation, URL address) {
-		// http://192.168.209.200:10010/situations/changes?ID=test&CallbackURL=test&once=false
-		// TODO: Momentan ist das noch quatsch --> die richtige Methode
-		// existiert noch nicht
 		ProducerTemplate pt = CamelUtil.getProducerTemplate();
 
-		String query = "situationTemplate=" + situation.getSituationName()
-				+ "thing=" + situation.getObjectName() + "&CallbackURL="
-				+ situation.getSituationName() + "&once=false";
+		String query = "SitTempID=" + situation.getSituationName()
+				+ "&ThingID=" + situation.getObjectName() + "&CallbackURL="
+				+ address + "&once=false";
 
 		Map<String, Object> headers = new HashMap<>();
 
 		headers.put(Exchange.HTTP_METHOD, "POST");
 		headers.put(Exchange.HTTP_QUERY, query);
-		headers.put(Exchange.HTTP_PATH, "/changes");
+		headers.put(Exchange.HTTP_PATH, "/situations/changes");
+		headers.put("Content-Type", "application/json");
+		headers.put("Accept", "application/json");
+		headers.put("Accept-Encoding", "gzip, deflate");
 
-		// String answer = pt.requestBodyAndHeaders(srsUrl.toString(), null,
-		// headers, String.class);
-		// SituationResult situationResult = null;
-		// try {
-		// situationResult = new ObjectMapper().readValue(answer,
-		// SituationResult.class);
-		// logger.debug("Situation Result: " + situationResult.toString());
-		//
-		// } catch (IOException e) {
-		// logger.debug("Situation " + situation + " does not exist");
-		// }
+		try {
+			pt.requestBodyAndHeaders(srsUrl.toString(), "",
+					headers, String.class);
+			logger.debug("Successfully registrated on " + situation);
+		} catch (CamelExecutionException e) {
+			if (e.getCause() instanceof HttpOperationFailedException) {
+				HttpOperationFailedException httpOperationFailedException = (HttpOperationFailedException) e
+						.getCause();
+				if (httpOperationFailedException.getStatusCode() == 400
+						&& httpOperationFailedException.getResponseBody()
+								.equals("\"Already registrated\"")) {
+					logger.debug("Already registrated on: " + situation);
+				} else {
+					logger.error("Error when registrating on " + situation, e);
+				}
+			} else {
+				logger.error("Error when registrating on " + situation, e);
+			}
+
+		}
 	}
 
 	void unsubscribe(Situation situation, URL address) {
-		// curl -X DELETE --header "Accept: application/json"
-		// "http://192.168.209.200:10010/situations/changes?ID=test&CallbackURL=test"
-
-		// TODO: Momentan ist das noch quatsch --> die richtige Methode
-		// existiert noch nicht
 		ProducerTemplate pt = CamelUtil.getProducerTemplate();
 
-		String query = "situationTemplate=" + situation.getSituationName()
-				+ "thing=" + situation.getObjectName() + "&CallbackURL="
-				+ situation.getSituationName();
+		String query = "SitTempID=" + situation.getSituationName()
+				+ "&ThingID=" + situation.getObjectName() + "&CallbackURL="
+				+ address;
 
 		Map<String, Object> headers = new HashMap<>();
 
 		headers.put(Exchange.HTTP_METHOD, "DELETE");
 		headers.put(Exchange.HTTP_QUERY, query);
-		headers.put(Exchange.HTTP_PATH, "/changes");
+		headers.put(Exchange.HTTP_PATH, "/situations/changes");
+		headers.put("Accept", "application/json");
+		headers.put("Accept-Encoding", "gzip, deflate");
 
-		// String answer = pt.requestBodyAndHeaders(srsUrl.toString(), null,
-		// headers, String.class);
-		// SituationResult situationResult = null;
-		// try {
-		// situationResult = new ObjectMapper().readValue(answer,
-		// SituationResult.class);
-		// logger.debug("Situation Result: " + situationResult.toString());
-		//
-		// } catch (IOException e) {
-		// logger.debug("Situation " + situation + " does not exist");
-		// }
+		try {
+			pt.requestBodyAndHeaders(srsUrl.toString(), "",
+					headers, String.class);
+			logger.debug("Successfully unsubscribed from " + situation);
+		} catch (CamelExecutionException e) {
+			if (e.getCause() instanceof HttpOperationFailedException) {
+				HttpOperationFailedException httpOperationFailedException = (HttpOperationFailedException) e
+						.getCause();
+				if (httpOperationFailedException.getStatusCode() == 404) {
+					logger.debug("Unsubscribe failed. No registration found for: " + situation);
+				} else {
+					logger.error("Error when registrating on " + situation, e);
+				}
+			} else {
+				logger.error("Error when registrating on " + situation, e);
+			}
+
+		}
 	}
 
 	SituationResult getSituation(Situation situation) {
@@ -109,7 +124,7 @@ class SRSCommunicator {
 		} catch (IOException e) {
 			logger.debug("Situation " + situation + " does not exist");
 		}
-		//TODO: Update Cache!
+
 		return situationResult;
 
 	}

@@ -22,6 +22,8 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 		// webapp geserved wird)
 
 		// TODO: den gleichen server für alles benutzen
+		
+		
 		// forward each message posted on .../SoapEndpoint to the operation
 		// Handler
 		from(
