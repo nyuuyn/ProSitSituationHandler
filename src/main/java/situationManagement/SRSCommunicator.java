@@ -55,12 +55,12 @@ class SRSCommunicator {
 				if (httpOperationFailedException.getStatusCode() == 400
 						&& httpOperationFailedException.getResponseBody()
 								.equals("\"Already registrated\"")) {
-					logger.debug("Already registrated on: " + situation);
+					logger.debug("Already registered on: " + situation);
 				} else {
-					logger.error("Error when registrating on " + situation, e);
+					logger.error("Error when registering on " + situation, e);
 				}
 			} else {
-				logger.error("Error when registrating on " + situation, e);
+				logger.error("Error when registering on " + situation, e);
 			}
 
 		}
@@ -92,10 +92,10 @@ class SRSCommunicator {
 				if (httpOperationFailedException.getStatusCode() == 404) {
 					logger.debug("Unsubscribe failed. No registration found for: " + situation);
 				} else {
-					logger.error("Error when registrating on " + situation, e);
+					logger.error("Error when deleting registration on " + situation, e);
 				}
 			} else {
-				logger.error("Error when registrating on " + situation, e);
+				logger.error("Error when deleting registration on " + situation, e);
 			}
 
 		}

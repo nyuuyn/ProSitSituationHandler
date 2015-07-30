@@ -34,8 +34,8 @@ public class Main {
 		context = new DefaultCamelContext();
 
 		// Uncomment this to debug http requests (using fiddler)
-		context.getProperties().put("http.proxyHost", "localhost");
-		context.getProperties().put("http.proxyPort", "8888");
+		// context.getProperties().put("http.proxyHost", "localhost");
+		// context.getProperties().put("http.proxyPort", "8888");
 
 		JndiRegistry registry = context.getRegistry(JndiRegistry.class);
 
