@@ -56,8 +56,8 @@ public class RuleStorageTest {
 			System.out.println(rsa.getRuleByID(ruleIds.get(0)));
 
 			// add rule 2
-			situation.setSituationName("situation2");
-			ruleIds.add(rsa.addRule(situation, buildActionList()));
+//			situation.setSituationName("situation2");
+//			ruleIds.add(rsa.addRule(situation, buildActionList()));
 
 			// add action to rule 1
 			int actionID = rsa.addAction(ruleIds.get(0), buildAction());
@@ -94,7 +94,7 @@ public class RuleStorageTest {
 					.toString());
 
 			// update rule 1 by id
-			situation.setSituationName("situation3");
+//			situation.setSituationName("situation3");
 			rsa.updateRuleSituation(ruleIds.get(0), situation);
 			// print all rules
 			rsa.getAllRules().forEach(
