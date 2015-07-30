@@ -12,18 +12,11 @@ package situationHandling.storage.datatypes;
 public class Situation {
 
 	/** The situation name. */
-	private String situationName;
+	private final String situationName;
 
 	/** The object name. */
-	private String objectName;
+	private final String objectName;
 
-	/**
-	 * Instantiates a new situation. Default constructor. Specify situation name
-	 * and object name using the setters.
-	 */
-	public Situation() {
-		super();
-	}
 
 	/**
 	 * Instantiates a new situation by specifying the situation and the object
@@ -50,16 +43,6 @@ public class Situation {
 		return situationName;
 	}
 
-	/**
-	 * Sets the situation name.The situation name is the description of a
-	 * situation.
-	 *
-	 * @param situationName
-	 *            the new situation name
-	 */
-	public void setSituationName(String situationName) {
-		this.situationName = situationName;
-	}
 
 	/**
 	 * Gets the object name. The object name specifies the object this situation
@@ -71,15 +54,53 @@ public class Situation {
 		return objectName;
 	}
 
-	/**
-	 * Sets the object name.The object name specifies the object this situation
-	 * refers to.
-	 *
-	 * @param objectName
-	 *            the new object name
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
 	 */
-	public void setObjectName(String objectName) {
-		this.objectName = objectName;
+	@Override
+	public int hashCode() {
+		//auto generated
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((objectName == null) ? 0 : objectName.hashCode());
+		result = prime * result
+				+ ((situationName == null) ? 0 : situationName.hashCode());
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		//auto generated
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof Situation)) {
+			return false;
+		}
+		Situation other = (Situation) obj;
+		if (objectName == null) {
+			if (other.objectName != null) {
+				return false;
+			}
+		} else if (!objectName.equals(other.objectName)) {
+			return false;
+		}
+		if (situationName == null) {
+			if (other.situationName != null) {
+				return false;
+			}
+		} else if (!situationName.equals(other.situationName)) {
+			return false;
+		}
+		return true;
 	}
 
 	/*
@@ -93,4 +114,6 @@ public class Situation {
 				+ objectName + "]";
 	}
 
+	
+	
 }

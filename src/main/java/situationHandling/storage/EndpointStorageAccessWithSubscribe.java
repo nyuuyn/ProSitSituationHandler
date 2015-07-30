@@ -16,8 +16,9 @@ import situationManagement.SituationManagerFactory;
 /**
  * The Class EndpointStorageAccessWithSubscribe implements the
  * {@link EndpointStorageAccess} Interface. It uses another implementation of
- * the Interface to handle the Database access. Additionally, it takes care of the
- * subscriptions on situations when endpoints/situations are added/deleted/updated.
+ * the Interface to handle the Database access. Additionally, it takes care of
+ * the subscriptions on situations when endpoints/situations are
+ * added/deleted/updated.
  * 
  * @see EndpointStorageAccessDefaultImpl
  * @see EndpointStorageAccessAdvancedChecks
@@ -243,28 +244,33 @@ class EndpointStorageAccessWithSubscribe implements EndpointStorageAccess {
 	 */
 	private void compareSituationAndUpdateSubscription(Situation oldSituation,
 			Situation newSituation) {
-		Situation newSubscription = new Situation(
-				oldSituation.getSituationName(), oldSituation.getObjectName());
 
+		String subscriptionSituationName = oldSituation.getSituationName();
+		String subscriptionObjectName = oldSituation.getObjectName();
+
+		//check if situation name changed
 		boolean changed = false;
 		if (newSituation.getSituationName() != null
 				&& !newSituation.getSituationName().equals(
 						oldSituation.getSituationName())) {
-			newSubscription.setSituationName(newSituation.getSituationName());
+			subscriptionSituationName = newSituation.getSituationName();
 			changed = true;
 		}
+		//check if object name changed
 		if (newSituation.getObjectName() != null
 				&& newSituation.getObjectName().equals(
 						oldSituation.getObjectName())) {
 			changed = true;
-			newSubscription.setObjectName(newSituation.getObjectName());
+			subscriptionObjectName = newSituation.getObjectName();
 
 		}
+		//update subscription
 		if (changed) {
 			SituationManager situationManager = SituationManagerFactory
 					.getSituationManager();
 			situationManager.removeSubscription(oldSituation);
-			situationManager.subscribeOnSituation(newSubscription);
+			situationManager.subscribeOnSituation(new Situation(
+					subscriptionSituationName, subscriptionObjectName));
 		}
 	}
 
