@@ -41,7 +41,7 @@ class EndpointStorageAccessAdvancedChecks extends
 	@Override
 	public int addEndpoint(Operation operation, List<HandledSituation> situations,
 			String endpointURL) throws InvalidEndpointException {
-		//TODO: Check ob mind eine Aktion angegeben (bei Update auch)
+
 		new EndpointValidityChecker(endpointURL, situations).checkBeforeAdd();
 
 		return super.addEndpoint(operation, situations, endpointURL);

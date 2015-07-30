@@ -51,7 +51,6 @@ class RuleStorageAccessWithSubscribe implements RuleStorageAccess {
 		} catch (InvalidRuleException | InvalidActionException e) {
 			throw e;
 		}
-		// subscribe only if adding was successful
 		SituationManagerFactory.getSituationManager().subscribeOnSituation(
 				situation);
 

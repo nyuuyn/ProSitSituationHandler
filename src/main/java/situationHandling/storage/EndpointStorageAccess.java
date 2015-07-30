@@ -61,9 +61,12 @@ public interface EndpointStorageAccess {
 	 * Adds a new endpoint to the endpoint storage/directory. The endpoint will
 	 * be stored persistently. Furthermore, an unique id is assigned to the
 	 * endpoint. The id can be used to refer to the endpoint after it was added.
+	 * <p>
+	 * Note that if one of the submitted situations is invalid, the endpoint
+	 * will NOT be added.
 	 *
 	 * @param operation
-	 *            the operation that is implemented by this endpoint TODO
+	 *            the operation that is implemented by this endpoint
 	 * @param endpointURL
 	 *            the endpoint url
 	 * @param situations
@@ -106,7 +109,7 @@ public interface EndpointStorageAccess {
 	 *
 	 * @param endpointID
 	 *            the endpoint id that is used to uniquely identify an endpoint.
-	 *            TODO
+	 * 
 	 * @param operation
 	 *            the new operation for this endpoint. If {@code operation} is
 	 *            {@code null}, the operation will not be updated

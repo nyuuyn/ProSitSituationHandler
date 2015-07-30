@@ -31,6 +31,8 @@ class SubscriptionHandler {
 	void subscribe(Situation situation) {
 		if (subscriptions.containsKey(situation)) {
 			subscriptions.get(situation).addSubscription();
+			logger.trace("Added additional subscription on " + situation);
+			logger.trace(subscriptions.get(situation).toString());
 		} else {
 			logger.debug("Creating subscription on " + situation.toString());
 			subscriptions.put(situation, new Subscription());
@@ -44,9 +46,12 @@ class SubscriptionHandler {
 			Subscription subscription = subscriptions.get(situation);
 			subscription.removeSubsription();
 			if (!subscription.subsriptionsAvailable()) {
-				logger.debug("Removing subscription on " + situation.toString());
+				logger.debug("Deleting subscription on " + situation.toString());
 				srsCommunicator.unsubscribe(situation, ownAddress);
 				subscriptions.remove(situation);
+			}else{
+				logger.trace("Removed one subscription on " + situation);
+				logger.trace(subscriptions.get(situation).toString());
 			}
 		}
 	}
@@ -75,6 +80,8 @@ class SubscriptionHandler {
 	String getSubscriptionsAsString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("-----------Subscriptions:-----------");
+		sb.append(System.getProperty("line.separator"));
+		sb.append("Total Number of Subscriptions: " + subscriptions.size());
 		sb.append(System.getProperty("line.separator"));
 		for (Situation situation : subscriptions.keySet()) {
 			sb.append(situation.toString() + " --> "
