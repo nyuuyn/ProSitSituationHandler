@@ -63,6 +63,16 @@ public interface RuleStorageAccess {
 			throws InvalidRuleException, InvalidActionException;
 
 	/**
+	 * 
+	 * Checks if a rule for a situation is already specified.
+	 * 
+	 * @param situation
+	 *            the situation
+	 * @return true, if a rule already exists, false else.
+	 */
+	public boolean ruleExists(Situation situation);
+
+	/**
 	 * Adds the action to the rule with the specified id. Nothing happens, if
 	 * the rule does not exist. To add more than one action to a rule or to add
 	 * an action to a rule by specifying the situation, it is recommended to use
@@ -202,7 +212,8 @@ public interface RuleStorageAccess {
 	 * @param situation
 	 *            the situation
 	 * @return a list of all actions that are executed when the specified
-	 *         situation occurs. An empty list if no actions are available.
+	 *         situation occurs. An empty list if no actions are available. Null
+	 *         if the rule does not exist.
 	 */
 	public List<Action> getActionsBySituation(Situation situation);
 

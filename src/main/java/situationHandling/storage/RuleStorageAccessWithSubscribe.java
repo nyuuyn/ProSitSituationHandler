@@ -14,8 +14,8 @@ import situationManagement.SituationManagerFactory;
 
 /**
  * The Class RuleStorageAccessWithSubscribe implements the
- * {@link RuleStorageAccess} Interface. It uses another implementation of
- * the Interface to handle the Database access. Additionally, it takes care of the
+ * {@link RuleStorageAccess} Interface. It uses another implementation of the
+ * Interface to handle the Database access. Additionally, it takes care of the
  * subscriptions on situations when rules are added/deleted/updated.
  * 
  * @see RuleStorageAccessDefaultImpl
@@ -44,16 +44,17 @@ class RuleStorageAccessWithSubscribe implements RuleStorageAccess {
 			throws InvalidRuleException, InvalidActionException {
 
 		int id = 0;
+		boolean ruleAlreadyThere = rsa.ruleExists(situation);
 
-		// TODO: Check auf invalide Actions nötig? Wird da ganz abgebrochen?
 		try {
 			id = rsa.addRule(situation, actions);
 		} catch (InvalidRuleException | InvalidActionException e) {
 			throw e;
 		}
-		SituationManagerFactory.getSituationManager().subscribeOnSituation(
-				situation);
-
+		if (!ruleAlreadyThere) {// subscribe only for new rules
+			SituationManagerFactory.getSituationManager().subscribeOnSituation(
+					situation);
+		}
 		return id;
 	}
 
@@ -87,13 +88,14 @@ class RuleStorageAccessWithSubscribe implements RuleStorageAccess {
 	@Override
 	public boolean deleteRule(int ruleID) {
 
-		// check if rule exists and delete subscription of this situation
+		// store old rule and delete subscription if deletion was successful.
 		Rule rule = rsa.getRuleByID(ruleID);
-		if (rule != null) {
+		boolean success = rsa.deleteRule(ruleID);
+		if (success) {
 			SituationManagerFactory.getSituationManager().removeSubscription(
 					rule.getSituation());
 		}
-		return rsa.deleteRule(ruleID);
+		return success;
 	}
 
 	/*
@@ -121,22 +123,24 @@ class RuleStorageAccessWithSubscribe implements RuleStorageAccess {
 	@Override
 	public boolean updateRuleSituation(int ruleID, Situation situation)
 			throws InvalidRuleException {
-		boolean success = false;
-		Situation oldSituation = rsa.getRuleByID(ruleID).getSituation();
+
+		// to check if the subscription changed, we need to keep the old rule
+		// before updating
+		Rule oldRule = rsa.getRuleByID(ruleID);
+
 		try {
-			success = updateRuleSituation(ruleID, situation);
+			boolean success = rsa.updateRuleSituation(ruleID, situation);
+			Situation oldSituation = oldRule.getSituation();
+			if (success && !oldSituation.equals(situation)) {//check subscriptions if successful update
+				SituationManager situationManager = SituationManagerFactory
+						.getSituationManager();
+				situationManager.removeSubscription(oldSituation);
+				situationManager.subscribeOnSituation(situation);
+			}
+			return success;
 		} catch (InvalidRuleException e) {
 			throw e;
 		}
-		if (success) {
-			SituationManager situationManager = SituationManagerFactory
-					.getSituationManager();
-			// TODO: Mal prüfen, ob nach dem Update die oldSituation nicht
-			// automatisch durch Hibernate mit geupdated wird
-			situationManager.removeSubscription(oldSituation);
-			situationManager.subscribeOnSituation(situation);
-		}
-		return success;
 	}
 
 	/*
@@ -151,20 +155,19 @@ class RuleStorageAccessWithSubscribe implements RuleStorageAccess {
 			Situation newSituation) throws InvalidRuleException {
 		// update subscriptions only if successful, so check for errors and
 		// success return value
-		boolean success = false;
 		try {
-			success = updateRuleSituation(oldSituation, newSituation);
+			boolean success = rsa.updateRuleSituation(oldSituation, newSituation);
+			if (success && !oldSituation.equals(newSituation)) {
+				SituationManager situationManager = SituationManagerFactory
+						.getSituationManager();
+				situationManager.removeSubscription(oldSituation);
+				situationManager.subscribeOnSituation(newSituation);
+			}
+			return success;
 		} catch (InvalidRuleException e) {
 			throw e;
 		}
-		if (success) {
-			SituationManager situationManager = SituationManagerFactory
-					.getSituationManager();
-			situationManager.removeSubscription(oldSituation);
-			situationManager.subscribeOnSituation(newSituation);
-		}
 
-		return success;
 	}
 
 	/*
@@ -231,6 +234,11 @@ class RuleStorageAccessWithSubscribe implements RuleStorageAccess {
 	@Override
 	public Action getActionByID(int actionID) {
 		return rsa.getActionByID(actionID);
+	}
+
+	@Override
+	public boolean ruleExists(Situation situation) {
+		return rsa.ruleExists(situation);
 	}
 
 }

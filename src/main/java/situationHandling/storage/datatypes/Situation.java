@@ -12,11 +12,20 @@ package situationHandling.storage.datatypes;
 public class Situation {
 
 	/** The situation name. */
-	private final String situationName;
+	private String situationName;
 
 	/** The object name. */
-	private final String objectName;
+	private String objectName;
+	
+	
 
+
+	/**
+	 * Instantiates a new situation. Default constructor. Specify situation name
+	 * and object name using the setters.
+	 */
+	public Situation() {
+	}
 
 	/**
 	 * Instantiates a new situation by specifying the situation and the object
@@ -43,6 +52,21 @@ public class Situation {
 		return situationName;
 	}
 
+	
+
+
+	/**
+	 * Sets the situation name.The situation name is the description of a
+	 * situation.
+	 *
+	 * @param situationName
+	 *            the new situation name
+	 */
+	public void setSituationName(String situationName) {
+		this.situationName = situationName;
+	}
+
+
 
 	/**
 	 * Gets the object name. The object name specifies the object this situation
@@ -52,6 +76,17 @@ public class Situation {
 	 */
 	public String getObjectName() {
 		return objectName;
+	}
+	
+	/**
+	 * Sets the object name.The object name specifies the object this situation
+	 * refers to.
+	 *
+	 * @param objectName
+	 *            the new object name
+	 */
+	public void setObjectName(String objectName) {
+		this.objectName = objectName;
 	}
 
 

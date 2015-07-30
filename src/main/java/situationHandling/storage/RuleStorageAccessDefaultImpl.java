@@ -117,6 +117,42 @@ class RuleStorageAccessDefaultImpl implements RuleStorageAccess {
 
 		return ruleID;
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see situationHandling.storage.RuleStorageAccess#ruleExists(situationHandling.storage.datatypes.Situation)
+	 */
+	@Override
+	public boolean ruleExists(Situation situation) {
+		logger.debug("Checking rule existence for: " + situation.toString());
+		Session session = sessionFactory.openSession();
+		Transaction tx = null;
+		boolean exists = false;
+		try {
+			tx = session.beginTransaction();
+			@SuppressWarnings("rawtypes")
+			List rules = session
+					.createCriteria(Rule.class)
+					.add(Restrictions.eq("situationName",
+							situation.getSituationName()))
+					.add(Restrictions.eq("objectName",
+							situation.getObjectName())).list();
+			if (rules.size() == 1){
+				exists = true;
+			}
+			
+			tx.commit();
+		} catch (HibernateException e) {
+			if (tx != null)
+				tx.rollback();
+			logger.error("Hibernate error", e);
+	
+		} finally {
+			session.close();
+		}
+		return exists;
+	}
+	
 
 	/*
 	 * (non-Javadoc)
@@ -667,4 +703,6 @@ class RuleStorageAccessDefaultImpl implements RuleStorageAccess {
 		logger.debug(errorMessage);
 		return errorMessage;
 	}
+
+
 }

@@ -111,7 +111,7 @@ class EndpointStorageAccessWithSubscribe implements EndpointStorageAccess {
 		// situations have to be unsubscribed)
 		List<HandledSituation> situations = esa
 				.getSituationsByEndpoint(endpointID);
-		boolean success = deleteEndpoint(endpointID);
+		boolean success = esa.deleteEndpoint(endpointID);
 		if (success) {
 			// delete the subscriptions on situations associated with the
 			// endpoint when deletion was successful
@@ -143,7 +143,7 @@ class EndpointStorageAccessWithSubscribe implements EndpointStorageAccess {
 				.getSituationsByEndpoint(endpointID);
 
 		try {
-			boolean success = updateEndpoint(endpointID, situations, operation,
+			boolean success = esa.updateEndpoint(endpointID, situations, operation,
 					endpointURL);
 			if (success) {
 				// check for each updated handled situation, if the situation
@@ -188,7 +188,7 @@ class EndpointStorageAccessWithSubscribe implements EndpointStorageAccess {
 		// get old situation
 		HandledSituation oldHandledSituation = esa.getHandledSituationById(id);
 		try {
-			boolean success = updateHandledSituation(id, newSituation);
+			boolean success = esa.updateHandledSituation(id, newSituation);
 			// only update subscription if update was successful
 			if (success) {
 				Situation oldSituation = new Situation(
@@ -216,13 +216,12 @@ class EndpointStorageAccessWithSubscribe implements EndpointStorageAccess {
 	 */
 	@Override
 	public boolean deleteHandledSituation(int id) {
-
-		boolean success = deleteHandledSituation(id);
+		HandledSituation handledSituation = esa.getHandledSituationById(id);
+		boolean success = esa.deleteHandledSituation(id);
 		if (success) {
 			// delete subscription
 			SituationManager situationManager = SituationManagerFactory
 					.getSituationManager();
-			HandledSituation handledSituation = getHandledSituationById(id);
 			situationManager.removeSubscription(new Situation(handledSituation
 					.getSituationName(), handledSituation.getObjectName()));
 		}
@@ -240,7 +239,7 @@ class EndpointStorageAccessWithSubscribe implements EndpointStorageAccess {
 	 */
 	@Override
 	public HandledSituation getHandledSituationById(int id) {
-		return getHandledSituationById(id);
+		return esa.getHandledSituationById(id);
 	}
 
 	/*
@@ -255,7 +254,7 @@ class EndpointStorageAccessWithSubscribe implements EndpointStorageAccess {
 			HandledSituation handledSituation) throws InvalidEndpointException {
 
 		try {
-			int id = addHandledSituation(endpointId, handledSituation);
+			int id = esa.addHandledSituation(endpointId, handledSituation);
 			// subscribe on new situation
 			SituationManager situationManager = SituationManagerFactory
 					.getSituationManager();
@@ -278,7 +277,7 @@ class EndpointStorageAccessWithSubscribe implements EndpointStorageAccess {
 	 */
 	@Override
 	public List<HandledSituation> getSituationsByEndpoint(int endpointId) {
-		return getSituationsByEndpoint(endpointId);
+		return esa.getSituationsByEndpoint(endpointId);
 	}
 
 	/**
@@ -310,7 +309,7 @@ class EndpointStorageAccessWithSubscribe implements EndpointStorageAccess {
 		}
 		// check if object name changed
 		if (newSituation.getObjectName() != null
-				&& newSituation.getObjectName().equals(
+				&& !newSituation.getObjectName().equals(
 						oldSituation.getObjectName())) {
 			changed = true;
 			subscriptionObjectName = newSituation.getObjectName();
