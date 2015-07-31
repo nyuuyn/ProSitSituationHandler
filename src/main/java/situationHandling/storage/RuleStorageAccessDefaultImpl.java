@@ -34,8 +34,7 @@ import situationHandling.storage.datatypes.Situation;
 class RuleStorageAccessDefaultImpl implements RuleStorageAccess {
 
 	/** The logger for this class. */
-	private final static Logger logger = Logger
-			.getLogger(RuleStorageAccessDefaultImpl.class);
+	private final static Logger logger = Logger.getLogger(RuleStorageAccessDefaultImpl.class);
 
 	/**
 	 * The session factory used to create database sessions.
@@ -60,8 +59,7 @@ class RuleStorageAccessDefaultImpl implements RuleStorageAccess {
 	 * .storage.datatypes.Situation, java.util.List)
 	 */
 	@Override
-	public int addRule(Situation situation, List<Action> actions)
-			throws InvalidRuleException, InvalidActionException {
+	public int addRule(Situation situation, List<Action> actions) throws InvalidRuleException, InvalidActionException {
 		logger.debug("Adding rule and actions.");
 
 		Session session = sessionFactory.openSession();
@@ -74,12 +72,9 @@ class RuleStorageAccessDefaultImpl implements RuleStorageAccess {
 			Rule rule = null;
 
 			@SuppressWarnings("rawtypes")
-			List rules = session
-					.createCriteria(Rule.class)
-					.add(Restrictions.eq("situationName",
-							situation.getSituationName()))
-					.add(Restrictions.eq("objectName",
-							situation.getObjectName())).list();
+			List rules = session.createCriteria(Rule.class)
+					.add(Restrictions.eq("situationName", situation.getSituationName()))
+					.add(Restrictions.eq("objectName", situation.getObjectName())).list();
 
 			// there is a maximum of one result for this query, since the
 			// combination of situationName and objectName is unique in this
@@ -112,15 +107,17 @@ class RuleStorageAccessDefaultImpl implements RuleStorageAccess {
 			session.close();
 		}
 		logger.debug("Rule ID = " + ruleID);
-		actions.forEach(action -> logger.debug("Action added. ID = "
-				+ action.getId()));
+		actions.forEach(action -> logger.debug("Action added. ID = " + action.getId()));
 
 		return ruleID;
 	}
-	
+
 	/*
 	 * (non-Javadoc)
-	 * @see situationHandling.storage.RuleStorageAccess#ruleExists(situationHandling.storage.datatypes.Situation)
+	 * 
+	 * @see
+	 * situationHandling.storage.RuleStorageAccess#ruleExists(situationHandling.
+	 * storage.datatypes.Situation)
 	 */
 	@Override
 	public boolean ruleExists(Situation situation) {
@@ -131,28 +128,24 @@ class RuleStorageAccessDefaultImpl implements RuleStorageAccess {
 		try {
 			tx = session.beginTransaction();
 			@SuppressWarnings("rawtypes")
-			List rules = session
-					.createCriteria(Rule.class)
-					.add(Restrictions.eq("situationName",
-							situation.getSituationName()))
-					.add(Restrictions.eq("objectName",
-							situation.getObjectName())).list();
-			if (rules.size() == 1){
+			List rules = session.createCriteria(Rule.class)
+					.add(Restrictions.eq("situationName", situation.getSituationName()))
+					.add(Restrictions.eq("objectName", situation.getObjectName())).list();
+			if (rules.size() == 1) {
 				exists = true;
 			}
-			
+
 			tx.commit();
 		} catch (HibernateException e) {
 			if (tx != null)
 				tx.rollback();
 			logger.error("Hibernate error", e);
-	
+
 		} finally {
 			session.close();
 		}
 		return exists;
 	}
-	
 
 	/*
 	 * (non-Javadoc)
@@ -161,8 +154,7 @@ class RuleStorageAccessDefaultImpl implements RuleStorageAccess {
 	 * situationHandling.storage.datatypes.Action)
 	 */
 	@Override
-	public int addAction(int ruleID, Action action)
-			throws InvalidActionException, InvalidRuleException {
+	public int addAction(int ruleID, Action action) throws InvalidActionException, InvalidRuleException {
 		logger.debug("Adding actions.");
 
 		Session session = sessionFactory.openSession();
@@ -182,10 +174,8 @@ class RuleStorageAccessDefaultImpl implements RuleStorageAccess {
 				tx.rollback();
 			throw new InvalidActionException(createErrorMessage(e, "Action"), e);
 		} catch (NullPointerException e) {
-			logger.info("Rule with id " + ruleID
-					+ " not found. No action added.");
-			throw new InvalidRuleException("Rule with id " + ruleID
-					+ " not found. No action added.", e);
+			logger.info("Rule with id " + ruleID + " not found. No action added.");
+			throw new InvalidRuleException("Rule with id " + ruleID + " not found. No action added.", e);
 		} finally {
 			session.close();
 		}
@@ -209,8 +199,7 @@ class RuleStorageAccessDefaultImpl implements RuleStorageAccess {
 			tx = session.beginTransaction();
 			Action action = (Action) session.get(Action.class, actionID);
 			if (action == null) {
-				logger.info("No action with ID " + actionID
-						+ " found. No action deleted.");
+				logger.info("No action with ID " + actionID + " found. No action deleted.");
 				return false;
 			} else {
 				session.delete(action);
@@ -241,8 +230,7 @@ class RuleStorageAccessDefaultImpl implements RuleStorageAccess {
 			tx = session.beginTransaction();
 			Rule rule = (Rule) session.get(Rule.class, ruleID);
 			if (rule == null) {
-				logger.info("No rule with ID " + ruleID
-						+ " found. No rule deleted.");
+				logger.info("No rule with ID " + ruleID + " found. No rule deleted.");
 				return false;
 			} else {
 				session.delete(rule);
@@ -266,9 +254,8 @@ class RuleStorageAccessDefaultImpl implements RuleStorageAccess {
 	 * java.lang.String, java.lang.String, java.lang.String, java.util.HashMap)
 	 */
 	@Override
-	public boolean updateAction(int actionID, String pluginID, String address,
-			String payload, ExecutionTime executionTime,
-			Map<String, String> params) throws InvalidActionException {
+	public boolean updateAction(int actionID, String pluginID, String address, String payload,
+			ExecutionTime executionTime, Map<String, String> params) throws InvalidActionException {
 		logger.debug("Updating action: " + actionID);
 		Session session = sessionFactory.openSession();
 		Transaction tx = null;
@@ -277,8 +264,7 @@ class RuleStorageAccessDefaultImpl implements RuleStorageAccess {
 			Action action = (Action) session.get(Action.class, actionID);
 
 			if (action == null) {
-				logger.info("No action with ID " + actionID
-						+ " found. No action updated.");
+				logger.info("No action with ID " + actionID + " found. No action updated.");
 				return false;
 			} else {
 
@@ -319,12 +305,10 @@ class RuleStorageAccessDefaultImpl implements RuleStorageAccess {
 	 * situationHandling.storage.datatypes.Situation)
 	 */
 	@Override
-	public boolean updateRuleSituation(int ruleID, Situation situation)
-			throws InvalidRuleException {
+	public boolean updateRuleSituation(int ruleID, Situation situation) throws InvalidRuleException {
 		// TODO: Bin mir nicht sicher ob das hier so passt --> was wenn einer
 		// der Situation params null ist -->BÖSE (bzw. gibt exception)
-		logger.debug("Updating rule: " + ruleID + " to new Situation "
-				+ situation);
+		logger.debug("Updating rule: " + ruleID + " to new Situation " + situation);
 		Session session = sessionFactory.openSession();
 		Transaction tx = null;
 		try {
@@ -333,8 +317,7 @@ class RuleStorageAccessDefaultImpl implements RuleStorageAccess {
 			Rule rule = (Rule) session.get(Rule.class, ruleID);
 
 			if (rule == null) {
-				logger.info("No rule with ID " + ruleID
-						+ " found. No rule updated.");
+				logger.info("No rule with ID " + ruleID + " found. No rule updated.");
 				return false;
 			} else {
 				rule.setSituation(situation);
@@ -359,10 +342,8 @@ class RuleStorageAccessDefaultImpl implements RuleStorageAccess {
 	 * situationHandling.storage.datatypes.Situation)
 	 */
 	@Override
-	public boolean updateRuleSituation(Situation oldSituation,
-			Situation newSituation) throws InvalidRuleException {
-		logger.debug("Updating rule from situation: " + oldSituation
-				+ " to new Situation " + newSituation);
+	public boolean updateRuleSituation(Situation oldSituation, Situation newSituation) throws InvalidRuleException {
+		logger.debug("Updating rule from situation: " + oldSituation + " to new Situation " + newSituation);
 		Session session = sessionFactory.openSession();
 		Transaction tx = null;
 		try {
@@ -370,20 +351,16 @@ class RuleStorageAccessDefaultImpl implements RuleStorageAccess {
 
 			// query for rule with old situation
 			@SuppressWarnings("rawtypes")
-			List rules = session
-					.createCriteria(Rule.class)
-					.add(Restrictions.eq("situationName",
-							oldSituation.getSituationName()))
-					.add(Restrictions.eq("objectName",
-							oldSituation.getObjectName())).list();
+			List rules = session.createCriteria(Rule.class)
+					.add(Restrictions.eq("situationName", oldSituation.getSituationName()))
+					.add(Restrictions.eq("objectName", oldSituation.getObjectName())).list();
 			// there is one rule rule with this situation or none
 			if (rules.size() == 1) {
 				Rule rule = (Rule) rules.get(0);
 				rule.setSituation(newSituation);
 				session.update(rule);
 			} else {
-				logger.info("No rule for situation " + oldSituation.toString()
-						+ " found. No rule updated.");
+				logger.info("No rule for situation " + oldSituation.toString() + " found. No rule updated.");
 				return false;
 			}
 
@@ -423,8 +400,7 @@ class RuleStorageAccessDefaultImpl implements RuleStorageAccess {
 			while (it.hasNext()) {
 				Rule rule = (Rule) it.next();
 				Hibernate.initialize(rule.getActions());
-				rule.getActions().forEach(
-						action -> Hibernate.initialize(action.getParams()));
+				rule.getActions().forEach(action -> Hibernate.initialize(action.getParams()));
 				rules.add(rule);
 			}
 
@@ -459,8 +435,7 @@ class RuleStorageAccessDefaultImpl implements RuleStorageAccess {
 			if (rule != null) {
 				// also load actions and params from database
 				Hibernate.initialize(rule.getActions());
-				rule.getActions().forEach(
-						action -> Hibernate.initialize(action.getParams()));
+				rule.getActions().forEach(action -> Hibernate.initialize(action.getParams()));
 			} else {
 				logger.info("No rule found with id = " + ruleID);
 			}
@@ -493,19 +468,15 @@ class RuleStorageAccessDefaultImpl implements RuleStorageAccess {
 			tx = session.beginTransaction();
 
 			@SuppressWarnings("rawtypes")
-			List rules = session
-					.createCriteria(Rule.class)
-					.add(Restrictions.eq("situationName",
-							situation.getSituationName()))
-					.add(Restrictions.eq("objectName",
-							situation.getObjectName())).list();
+			List rules = session.createCriteria(Rule.class)
+					.add(Restrictions.eq("situationName", situation.getSituationName()))
+					.add(Restrictions.eq("objectName", situation.getObjectName())).list();
 
 			tx.commit();
 			// there is max one rule for this situation (or there isn't a rule
 			// for this situation)
 			if (rules.size() == 1) {
-				actions = getInitializedRuleActions((Rule) rules.get(0),
-						session);
+				actions = getInitializedRuleActions((Rule) rules.get(0), session);
 			}
 		} catch (HibernateException e) {
 			if (tx != null)
@@ -525,11 +496,10 @@ class RuleStorageAccessDefaultImpl implements RuleStorageAccess {
 	 * (situationHandling.storage.datatypes.Situation, boolean)
 	 */
 	@Override
-	public List<Action> getActionsBySituationAndExecutionTime(
-			Situation situation, ExecutionTime executionTime) {
+	public List<Action> getActionsBySituationAndExecutionTime(Situation situation, ExecutionTime executionTime) {
 
-		logger.debug("Getting all actions for situation: " + situation
-				+ " with execution time " + executionTime.toString());
+		logger.debug(
+				"Getting all actions for situation: " + situation + " with execution time " + executionTime.toString());
 
 		Session session = sessionFactory.openSession();
 		Transaction tx = null;
@@ -537,9 +507,10 @@ class RuleStorageAccessDefaultImpl implements RuleStorageAccess {
 		try {
 			tx = session.beginTransaction();
 
-			SQLQuery query = session
-					.createSQLQuery("SELECT actions.* FROM rules, actions WHERE rules.id = actions.rule_id AND rules.situation_name = 'A0' AND rules.object_name = '1' AND (actions.execution_time = '"
-							+ executionTime
+			SQLQuery query = session.createSQLQuery(
+					"SELECT actions.* FROM rules, actions WHERE rules.id = actions.rule_id AND rules.situation_name = '"
+							+ situation.getSituationName() + "' AND rules.object_name = '" + situation.getObjectName()
+							+ "' AND (actions.execution_time = '" + executionTime
 							+ "' OR actions.execution_time = 'onSituationChange')");
 			query.addEntity(Action.class);
 			@SuppressWarnings("rawtypes")
@@ -692,17 +663,14 @@ class RuleStorageAccessDefaultImpl implements RuleStorageAccess {
 	private String createErrorMessage(JDBCException e, String subject) {
 		String errorMessage;
 		if (e.getErrorCode() == 1048) {// column not set
-			errorMessage = subject
-					+ " property not set. Please set all properties.";
+			errorMessage = subject + " property not set. Please set all properties.";
 		} else if (e.getErrorCode() == 1062) {// duplicate
-			errorMessage = "Duplicate " + subject
-					+ ". There exists already an identical " + subject + ".";
+			errorMessage = "Duplicate " + subject + ". There exists already an identical " + subject + ".";
 		} else {// unknown
 			errorMessage = "Unknown error when creating " + subject + ".";
 		}
 		logger.debug(errorMessage);
 		return errorMessage;
 	}
-
 
 }
