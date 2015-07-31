@@ -18,15 +18,13 @@ public class SituationManagerWithCache extends SituationManagerImpl {
 	private Map<Situation, Boolean> situationCache;
 
 	/** The logger for this class. */
-	private final static Logger logger = Logger
-			.getLogger(SituationManagerWithCache.class);
+	private final static Logger logger = Logger.getLogger(SituationManagerWithCache.class);
 
 	/**
 	 * @param subscriptionHandler
 	 * @param srsCommunicator
 	 */
-	public SituationManagerWithCache(SubscriptionHandler subscriptionHandler,
-			SRSCommunicator srsCommunicator,
+	public SituationManagerWithCache(SubscriptionHandler subscriptionHandler, SRSCommunicator srsCommunicator,
 			Map<Situation, Boolean> situationCache) {
 		super(subscriptionHandler, srsCommunicator);
 		this.situationCache = situationCache;
@@ -35,16 +33,14 @@ public class SituationManagerWithCache extends SituationManagerImpl {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * situationManagement.SituationManagerImpl#situationOccured(situationHandling
-	 * .storage.datatypes.Situation)
+	 * @see situationManagement.SituationManagerImpl#situationOccured(
+	 * situationHandling .storage.datatypes.Situation)
 	 */
 	@Override
 	public boolean situationOccured(Situation situation) {
 		// check cache
 		if (situationCache.containsKey(situation)) {
-			logger.debug("Getting entry from situation cache: "
-					+ situation.toString());
+			logger.debug("Getting entry from situation cache: " + situation.toString());
 			return situationCache.get(situation);
 		} else {
 			// query SRS if situation not cached (and insert in cache)
@@ -55,8 +51,7 @@ public class SituationManagerWithCache extends SituationManagerImpl {
 	}
 
 	void updateSituationCache(Situation situation, Boolean situationState) {
-		logger.debug("Updating Cache: " + situation.toString() + " State: "
-				+ situationState);
+		logger.debug("Updating Cache: " + situation.toString() + " State: " + situationState);
 		situationCache.put(situation, situationState);
 	}
 
