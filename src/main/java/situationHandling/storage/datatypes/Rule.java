@@ -12,6 +12,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * The Class Rule is used as wrapper class for rules that describe the action
  * when for example a new situation is reported to the situation handler. A rule
@@ -198,6 +200,7 @@ public class Rule {
 	 *
 	 * @return the situation
 	 */
+	@JsonIgnore
 	public Situation getSituation() {
 		return new Situation(situationName, objectName);
 	}
@@ -210,6 +213,7 @@ public class Rule {
 	 * @param situation
 	 *            the new situation
 	 */
+	@JsonIgnore
 	public void setSituation(Situation situation) {
 		this.situationName = situation.getSituationName();
 		this.objectName = situation.getObjectName();

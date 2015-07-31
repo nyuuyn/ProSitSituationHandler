@@ -11,6 +11,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * A wrapper class that contains all information about an endpoint for a soap
  * message. Stores the information that is required to forward a soap message
@@ -155,6 +157,7 @@ public class Endpoint {
 	 *
 	 * @return the operation
 	 */
+	@JsonIgnore
 	public Operation getOperation() {
 		return new Operation(operationName, qualifier);
 	}
@@ -165,6 +168,7 @@ public class Endpoint {
 	 * @param operation
 	 *            the new operation
 	 */
+	@JsonIgnore
 	public void setOperation(Operation operation) {
 		this.operationName = operation.getOperationName();
 		this.qualifier = operation.getQualifier();

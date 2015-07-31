@@ -8,6 +8,8 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.Type;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * 
  * A HandledSituation is a situation that is handled by an endpoint. <br>
@@ -94,8 +96,8 @@ public class HandledSituation {
 	 *            States whether a rollback action has to be done, if the
 	 *            situation changes.
 	 */
-	public HandledSituation(int id, String situationName, String objectName,
-			boolean situationHolds, boolean optional, boolean rollbackOnChange) {
+	public HandledSituation(int id, String situationName, String objectName, boolean situationHolds, boolean optional,
+			boolean rollbackOnChange) {
 		this.id = id;
 		this.situationName = situationName;
 		this.objectName = objectName;
@@ -212,6 +214,28 @@ public class HandledSituation {
 		this.rollbackOnChange = rollbackOnChange;
 	}
 
+	/**
+	 * Get the situation.
+	 * 
+	 * @return the situation
+	 */
+	@JsonIgnore
+	public Situation getSituation() {
+		return new Situation(situationName, objectName);
+	}
+
+	/**
+	 * Set the situation
+	 * 
+	 * @param situation
+	 *            the new situation
+	 */
+	@JsonIgnore
+	public void setSituation(Situation situation) {
+		this.situationName = situation.getSituationName();
+		this.objectName = situation.getObjectName();
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -219,11 +243,10 @@ public class HandledSituation {
 	 */
 	@Override
 	public String toString() {
-		String holds = situationHolds ? "situation holds"
-				: "situation does not hold";
+		String holds = situationHolds ? "situation holds" : "situation does not hold";
 		String optionalString = optional ? "optional" : "required";
 		String rollback = rollbackOnChange ? "rollback" : "no rollback";
-		return "[" + situationName + " | " + objectName + " | " + holds + " | "
-				+ optionalString + " | " + rollback + "]";
+		return "[" + situationName + " | " + objectName + " | " + holds + " | " + optionalString + " | " + rollback
+				+ "]";
 	}
 }
