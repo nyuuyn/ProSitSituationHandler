@@ -38,6 +38,11 @@ public class StorageAccessFactory {
 				RuleStorageAccessAdvancedChecks(hibernateSession
 						.getSessionFactory()));
 	}
+	
+	//TODO
+	public static HistoryAccess getHistoryAccess(){
+		return new HistoryAccess(hibernateSession.getSessionFactory());
+	}
 
 	/**
 	 * Closes the access to the storage and releases all occupied ressources.

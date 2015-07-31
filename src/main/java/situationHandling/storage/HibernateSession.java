@@ -9,6 +9,7 @@ import org.hibernate.service.ServiceRegistry;
 import situationHandling.storage.datatypes.Action;
 import situationHandling.storage.datatypes.Endpoint;
 import situationHandling.storage.datatypes.HandledSituation;
+import situationHandling.storage.datatypes.HistoryEntry;
 import situationHandling.storage.datatypes.Rule;
 
 /**
@@ -55,6 +56,7 @@ public class HibernateSession {
 		configuration.addAnnotatedClass(Rule.class);
 		configuration.addAnnotatedClass(Action.class);
 		configuration.addAnnotatedClass(HandledSituation.class);
+		configuration.addAnnotatedClass(HistoryEntry.class);
 
 		serviceRegistry = new StandardServiceRegistryBuilder().applySettings(
 				configuration.getProperties()).build();

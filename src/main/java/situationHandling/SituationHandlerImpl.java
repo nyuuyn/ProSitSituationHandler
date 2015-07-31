@@ -16,7 +16,7 @@ import situationHandling.storage.datatypes.Action.ExecutionTime;
 import situationHandling.storage.datatypes.Situation;
 
 class SituationHandlerImpl implements SituationHandler {
-	
+
 	private static Logger logger = Logger.getLogger(SituationHandlerImpl.class);
 
 	private static ExecutorService threadExecutor = Executors
@@ -28,16 +28,17 @@ class SituationHandlerImpl implements SituationHandler {
 		RuleStorageAccess rsa = StorageAccessFactory.getRuleStorageAccess();
 		PluginManager pm = PluginManagerFactory.getPluginManager();
 
-		ExecutionTime time = state ? ExecutionTime.onSituationAppear
-				: ExecutionTime.onSituationDisappear;
-		List<Action> actions = rsa.getActionsBySituationAndExecutionTime(
-				situation, time);
+		ExecutionTime time = state ? ExecutionTime.onSituationAppear : ExecutionTime.onSituationDisappear;
+		List<Action> actions = rsa.getActionsBySituationAndExecutionTime(situation, time);
 		logger.debug("Executing actions:\n" + actions.toString());
-		
 
-		actions.forEach(action -> threadExecutor.submit(pm.getPluginSender(
-				action.getPluginID(), action.getAddress(), action.getPayload(),
-				new PluginParams(action.getParams()))));
+		//TODO: Das vllt anders machen (keine doppelte schleife usw.
+		for (Action action : actions) {
+			StorageAccessFactory.getHistoryAccess().appendAction(action, situation, state);
+		}
+
+		actions.forEach(action -> threadExecutor.submit(pm.getPluginSender(action.getPluginID(), action.getAddress(),
+				action.getPayload(), new PluginParams(action.getParams()))));
 
 	}
 
