@@ -26,7 +26,7 @@ import situationHandling.storage.datatypes.Operation;
  * The DefaultImpl does only minimal checks on the semantic validity of the
  * inputs and handles errors on database level.
  */
-class EndpointStorageAccessDefaultImpl implements EndpointStorageAccess {
+class EndpointStorageAccessDefaultImpl implements EndpointStorageDatabase {
 
 	/** The logger for this class. */
 	private final static Logger logger = Logger

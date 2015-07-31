@@ -26,9 +26,9 @@ import situationManagement.SituationManagerFactory;
  */
 class RuleStorageAccessWithSubscribe implements RuleStorageAccess {
 
-	private RuleStorageAccess rsa;
+	private RuleStorageDatabase rsa;
 
-	RuleStorageAccessWithSubscribe(RuleStorageAccess rsa) {
+	RuleStorageAccessWithSubscribe(RuleStorageDatabase rsa) {
 		this.rsa = rsa;
 	}
 

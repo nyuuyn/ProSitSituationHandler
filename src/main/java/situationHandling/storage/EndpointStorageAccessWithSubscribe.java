@@ -27,16 +27,16 @@ import situationManagement.SituationManagerFactory;
  */
 class EndpointStorageAccessWithSubscribe implements EndpointStorageAccess {
 
-	/** The esa. */
-	private EndpointStorageAccess esa;
+	/** The database accesss. */
+	private EndpointStorageDatabase esa;
 
 	/**
 	 * Instantiates a new endpoint storage access with subscribe.
 	 *
 	 * @param esa
-	 *            the esa
+	 *            the database access
 	 */
-	EndpointStorageAccessWithSubscribe(EndpointStorageAccess esa) {
+	EndpointStorageAccessWithSubscribe(EndpointStorageDatabase esa) {
 		this.esa = esa;
 	}
 

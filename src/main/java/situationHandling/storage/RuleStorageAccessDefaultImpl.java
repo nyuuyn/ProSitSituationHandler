@@ -31,7 +31,7 @@ import situationHandling.storage.datatypes.Situation;
  * The DefaultImpl does only minimal checks on the semantic validity of the
  * inputs and handles errors on database level.
  */
-class RuleStorageAccessDefaultImpl implements RuleStorageAccess {
+class RuleStorageAccessDefaultImpl implements RuleStorageDatabase {
 
 	/** The logger for this class. */
 	private final static Logger logger = Logger.getLogger(RuleStorageAccessDefaultImpl.class);
