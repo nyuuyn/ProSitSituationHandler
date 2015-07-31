@@ -74,6 +74,8 @@ class SRSCommunicator {
 				if (httpOperationFailedException.getStatusCode() == 400
 						&& httpOperationFailedException.getResponseBody().equals("\"Already registrated\"")) {
 					logger.debug("Already registered on: " + situation);
+				} else if (httpOperationFailedException.getStatusCode() == 404) {
+					logger.info("Could not register on: " + situation + ". Situation does not exist!.");
 				} else {
 					logger.error("Error when registering on " + situation, e);
 				}
@@ -148,14 +150,25 @@ class SRSCommunicator {
 		headers.put(Exchange.HTTP_PATH, "/situations/ByThingAndTemplate");
 
 		// send request and handle results
-		String answer = pt.requestBodyAndHeaders(srsUrl.toString(), null, headers, String.class);
 		SituationResult situationResult = null;
 		try {
+			String answer = pt.requestBodyAndHeaders(srsUrl.toString(), null, headers, String.class);
+
 			situationResult = new ObjectMapper().readValue(answer, SituationResult.class);
 			logger.debug("Situation Result: " + situationResult.toString());
 
 		} catch (IOException e) {
 			logger.debug("Situation " + situation + " does not exist");
+		} catch (CamelExecutionException e) {
+			//handle error that situation was not found by srs
+			if (e.getCause() instanceof HttpOperationFailedException
+					&& ((HttpOperationFailedException) e.getCause()).getStatusCode() == 404) {
+					logger.debug("Situation: " + situation  + " could not be found. Status could not be fetched.");
+	
+			} else {
+				logger.error("Error when getting situation state: " + situation, e);
+			}
+
 		}
 
 		return situationResult;
