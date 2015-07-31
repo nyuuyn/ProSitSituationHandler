@@ -1,7 +1,11 @@
 package situationManagement;
 
+import java.io.IOException;
+
 import org.apache.camel.Exchange;
 import org.apache.log4j.Logger;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import situationHandling.OperationHandlerFactory;
 import situationHandling.SituationHandlerFactory;
@@ -31,52 +35,51 @@ public class SituationEndpoint {
 	 *            the exchange that contains the message. Populated by camel
 	 */
 	public void situationReceived(Exchange exchange) {
-		// String changedSituation = exchange.getIn().getBody(String.class);
-		// System.out.println(changedSituation);
-
-		// logger.debug("Received notification about situation change:\n " +
-		// changedSituation);
+		String changedSituation = exchange.getIn().getBody(String.class);
 
 		// parse CONTENT from headers...wtf srs api
-		String situationTemplate = exchange.getIn().getHeader("doc[situationtemplate]", String.class);
-		String thing = exchange.getIn().getHeader("doc[thing]", String.class);
-		boolean occured = Boolean.parseBoolean(exchange.getIn().getHeader("doc[occured]", String.class));
-
-		logger.debug("Received notification about situation change: Template: " + situationTemplate + " | thing: "
-				+ thing + " | occured: " + occured);
+		// String situationTemplate =
+		// exchange.getIn().getHeader("doc[situationtemplate]", String.class);
+		// String thing = exchange.getIn().getHeader("doc[thing]",
+		// String.class);
+		// boolean occured =
+		// Boolean.parseBoolean(exchange.getIn().getHeader("doc[occured]",
+		// String.class));
 
 		SituationResult situationResult;
 
-		// try {
-		// transform situation
-		/*
-		 * for JSON --> does not work at the moment situationResult = new
-		 * ObjectMapper().readValue(changedSituation, SituationResult.class);
-		 * Situation situation = new Situation(
-		 * situationResult.getSituationtemplate(), situationResult.getThing());
-		 */
+		try {
+			// transform situation
+			
+			//fix broken Json...
+			changedSituation = changedSituation.replace("{\"doc\":", "");
+			changedSituation = changedSituation.substring(0, changedSituation.length() - 1);
 
-		Situation situation = new Situation(situationTemplate, thing);
-		situationResult = new SituationResult();
-		situationResult.setOccured(occured);
+			situationResult = new ObjectMapper().readValue(changedSituation, SituationResult.class);
+			Situation situation = new Situation(situationResult.getSituationtemplate(), situationResult.getThing());
 
-		// notify notification and workflow handling
-		SituationHandlerFactory.getSituationHandler().situationChanged(situation, situationResult.isOccured());
-		OperationHandlerFactory.getOperationHandler().situationChanged(situation, situationResult.isOccured());
+			logger.debug("Received notification about situation change: Template: " + situation.getSituationName()
+					+ " | thing: " + situation.getObjectName() + " | occured: " + situationResult.isOccured());
 
-		// updates the cache, if the cache is enabled
-		SituationManager situationManager = SituationManagerFactory.getSituationManager();
-		if (situationManager instanceof SituationManagerWithCache) {
-			SituationManagerWithCache cache = (SituationManagerWithCache) situationManager;
-			cache.updateSituationCache(new Situation(situation.getSituationName(), situation.getObjectName()),
-					situationResult.isOccured());
+			// Situation situation = new Situation(situationTemplate, thing);
+			// situationResult = new SituationResult();
+			// situationResult.setOccured(occured);
+
+			// notify notification and workflow handling
+			SituationHandlerFactory.getSituationHandler().situationChanged(situation, situationResult.isOccured());
+			OperationHandlerFactory.getOperationHandler().situationChanged(situation, situationResult.isOccured());
+
+			// updates the cache, if the cache is enabled
+			SituationManager situationManager = SituationManagerFactory.getSituationManager();
+			if (situationManager instanceof SituationManagerWithCache) {
+				SituationManagerWithCache cache = (SituationManagerWithCache) situationManager;
+				cache.updateSituationCache(new Situation(situation.getSituationName(), situation.getObjectName()),
+						situationResult.isOccured());
+			}
+
+		} catch (IOException e) {
+			logger.warn("Received invalid message from Situation Recognition System." + e.getMessage());
 		}
-
-		// } catch (IOException e) {
-		// logger.warn("Received invalid message from Situation Recognition
-		// System."
-		// + e.getMessage());
-		// }
 
 	}
 
