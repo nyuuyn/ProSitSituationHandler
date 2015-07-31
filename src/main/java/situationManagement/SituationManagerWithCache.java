@@ -1,6 +1,3 @@
-/**
- * 
- */
 package situationManagement;
 
 import java.util.Map;
@@ -10,19 +7,33 @@ import org.apache.log4j.Logger;
 import situationHandling.storage.datatypes.Situation;
 
 /**
- * @author Stefan
+ * The Class SituationManagerWithCache is an implementation
+ * {@code SituationManager} Interface. It uses the cache for lookups (and also
+ * updates the cache).
  *
+ *
+ * @author Stefan
  */
 public class SituationManagerWithCache extends SituationManagerImpl {
 
+	/** The situation cache. */
 	private Map<Situation, Boolean> situationCache;
 
 	/** The logger for this class. */
 	private final static Logger logger = Logger.getLogger(SituationManagerWithCache.class);
 
 	/**
+	 * Instantiates a new situation manager with cache. Requires an instance of
+	 * {@code SubscriptionHandler} to manage subscriptions and an instance of
+	 * {@code SRSCommunicator} to query the SRS. Furthermore the cache to use is
+	 * required.
+	 *
 	 * @param subscriptionHandler
+	 *            the subscription handler to use.
 	 * @param srsCommunicator
+	 *            the srs communicator to use.
+	 * @param situationCache
+	 *            the situation cache to use.
 	 */
 	public SituationManagerWithCache(SubscriptionHandler subscriptionHandler, SRSCommunicator srsCommunicator,
 			Map<Situation, Boolean> situationCache) {
@@ -50,6 +61,16 @@ public class SituationManagerWithCache extends SituationManagerImpl {
 		}
 	}
 
+	/**
+	 * Updates the situation cache.
+	 *
+	 * @param situation
+	 *            the situation that is updated
+	 * @param situationState
+	 *            the new situation state. Use true to express that the
+	 *            situation appeared and false to express that the situation
+	 *            disappeared.
+	 */
 	void updateSituationCache(Situation situation, Boolean situationState) {
 		logger.debug("Updating Cache: " + situation.toString() + " State: " + situationState);
 		situationCache.put(situation, situationState);

@@ -16,45 +16,63 @@ import situationHandling.storage.datatypes.Situation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+/**
+ * The Class SRSCommunicator does the communication with the situation
+ * recognition system. It can be used to send requests and get the answers by
+ * the SRS.
+ */
 class SRSCommunicator {
 
 	/** The logger for this class. */
-	private final static Logger logger = Logger
-			.getLogger(SRSCommunicator.class);
+	private final static Logger logger = Logger.getLogger(SRSCommunicator.class);
 
+	/** The srs url. */
 	private URL srsUrl;
 
+	/**
+	 * Instantiates a new SRS communicator.
+	 *
+	 * @param srsUrl
+	 *            the url of the srs. All requests will be sent to this url.
+	 */
 	SRSCommunicator(URL srsUrl) {
 		this.srsUrl = srsUrl;
 	}
 
+	/**
+	 * Subscribe to a situation.
+	 *
+	 * @param situation
+	 *            the situation to subscribe to
+	 * @param address
+	 *            the address to which the SRS should send the situation changes
+	 *            (should be the URL of the situation handler).
+	 */
 	void subscribe(Situation situation, URL address) {
 		ProducerTemplate pt = CamelUtil.getProducerTemplate();
 
-		String query = "SitTempID=" + situation.getSituationName()
-				+ "&ThingID=" + situation.getObjectName() + "&CallbackURL="
-				+ address + "&once=false";
+		// query string
+		String query = "SitTempID=" + situation.getSituationName() + "&ThingID=" + situation.getObjectName()
+				+ "&CallbackURL=" + address + "&once=false";
 
+		// set headers
 		Map<String, Object> headers = new HashMap<>();
-
 		headers.put(Exchange.HTTP_METHOD, "POST");
 		headers.put(Exchange.HTTP_QUERY, query);
-		headers.put(Exchange.HTTP_PATH, "/situations/changes");
+		headers.put(Exchange.HTTP_PATH, "/situations/changes"); // path
 		headers.put("Content-Type", "application/json");
 		headers.put("Accept", "application/json");
 		headers.put("Accept-Encoding", "gzip, deflate");
 
+		// send request and handle errors
 		try {
-			pt.requestBodyAndHeaders(srsUrl.toString(), "",
-					headers, String.class);
+			pt.requestBodyAndHeaders(srsUrl.toString(), "", headers, String.class);
 			logger.debug("Successfully registrated on " + situation);
 		} catch (CamelExecutionException e) {
 			if (e.getCause() instanceof HttpOperationFailedException) {
-				HttpOperationFailedException httpOperationFailedException = (HttpOperationFailedException) e
-						.getCause();
+				HttpOperationFailedException httpOperationFailedException = (HttpOperationFailedException) e.getCause();
 				if (httpOperationFailedException.getStatusCode() == 400
-						&& httpOperationFailedException.getResponseBody()
-								.equals("\"Already registrated\"")) {
+						&& httpOperationFailedException.getResponseBody().equals("\"Already registrated\"")) {
 					logger.debug("Already registered on: " + situation);
 				} else {
 					logger.error("Error when registering on " + situation, e);
@@ -66,29 +84,38 @@ class SRSCommunicator {
 		}
 	}
 
+	/**
+	 * Unsubscribe from a situation.
+	 *
+	 * @param situation
+	 *            the situation to unsubscribe from
+	 * @param address
+	 *            the address the situation changes were sent too. Must be the
+	 *            same that was used for subscription, see
+	 *            {@code SRSCommunicator#subscribe(Situation, URL)}
+	 */
 	void unsubscribe(Situation situation, URL address) {
 		ProducerTemplate pt = CamelUtil.getProducerTemplate();
 
-		String query = "SitTempID=" + situation.getSituationName()
-				+ "&ThingID=" + situation.getObjectName() + "&CallbackURL="
-				+ address;
+		// query string
+		String query = "SitTempID=" + situation.getSituationName() + "&ThingID=" + situation.getObjectName()
+				+ "&CallbackURL=" + address;
 
+		// set headers
 		Map<String, Object> headers = new HashMap<>();
-
 		headers.put(Exchange.HTTP_METHOD, "DELETE");
 		headers.put(Exchange.HTTP_QUERY, query);
-		headers.put(Exchange.HTTP_PATH, "/situations/changes");
+		headers.put(Exchange.HTTP_PATH, "/situations/changes"); // path
 		headers.put("Accept", "application/json");
 		headers.put("Accept-Encoding", "gzip, deflate");
 
+		// send request and handle errors
 		try {
-			pt.requestBodyAndHeaders(srsUrl.toString(), "",
-					headers, String.class);
+			pt.requestBodyAndHeaders(srsUrl.toString(), "", headers, String.class);
 			logger.debug("Successfully unsubscribed from " + situation);
 		} catch (CamelExecutionException e) {
 			if (e.getCause() instanceof HttpOperationFailedException) {
-				HttpOperationFailedException httpOperationFailedException = (HttpOperationFailedException) e
-						.getCause();
+				HttpOperationFailedException httpOperationFailedException = (HttpOperationFailedException) e.getCause();
 				if (httpOperationFailedException.getStatusCode() == 404) {
 					logger.debug("Unsubscribe failed. No registration found for: " + situation);
 				} else {
@@ -101,24 +128,30 @@ class SRSCommunicator {
 		}
 	}
 
+	/**
+	 * Query the state of a situation from the SRS.
+	 *
+	 * @param situation
+	 *            the situation to query
+	 * @return the result delivered by the SRS
+	 */
 	SituationResult getSituation(Situation situation) {
 		ProducerTemplate pt = CamelUtil.getProducerTemplate();
 
-		String query = "thing=" + situation.getObjectName()
-				+ "&situationtemplate=" + situation.getSituationName();
+		// query
+		String query = "thing=" + situation.getObjectName() + "&situationtemplate=" + situation.getSituationName();
 
+		// set headers
 		Map<String, Object> headers = new HashMap<>();
-
 		headers.put(Exchange.HTTP_METHOD, "GET");
 		headers.put(Exchange.HTTP_QUERY, query);
 		headers.put(Exchange.HTTP_PATH, "/situations/ByThingAndTemplate");
 
-		String answer = pt.requestBodyAndHeaders(srsUrl.toString(), null,
-				headers, String.class);
+		// send request and handle results
+		String answer = pt.requestBodyAndHeaders(srsUrl.toString(), null, headers, String.class);
 		SituationResult situationResult = null;
 		try {
-			situationResult = new ObjectMapper().readValue(answer,
-					SituationResult.class);
+			situationResult = new ObjectMapper().readValue(answer, SituationResult.class);
 			logger.debug("Situation Result: " + situationResult.toString());
 
 		} catch (IOException e) {
