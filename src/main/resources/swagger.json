@@ -3,7 +3,7 @@
     "info": {
         "version": "0.0.1",
         "title": "Situation Handler",
-        "description": "This is the Rest Api to configure the Situation Handler. It allows to\n  - View, edit and create endpoints\n  - View, edit and create notification rules and actions\n  - View, add and remove plugins at runtime\n"
+        "description": "This is the Rest Api to configure the Situation Handler. It allows to\n  - View, edit and create endpoints\n  - View, edit and create notification rules and actions\n  - View, add and remove plugins at runtime\n  - View the history of executed actions/operations\n"
     },
     "host": "localhost:8081",
     "basePath": "/config",
@@ -929,6 +929,12 @@
                             "type": "array",
                             "items": {
                                 "$ref": "#/definitions/HistoryEntry"
+                            }
+                        },
+                        "headers": {
+                            "history_size": {
+                                "type": "integer",
+                                "description": "The total number of available entries."
                             }
                         }
                     },
