@@ -9,6 +9,7 @@ import pluginManagement.PluginInfo;
 import situationHandling.storage.datatypes.Action;
 import situationHandling.storage.datatypes.Endpoint;
 import situationHandling.storage.datatypes.HandledSituation;
+import situationHandling.storage.datatypes.HistoryEntry;
 import situationHandling.storage.datatypes.Rule;
 import situationHandling.storage.datatypes.Situation;
 
@@ -90,6 +91,7 @@ class RestApiRoutes extends RouteBuilder {
 		createEndpointApi();
 		createRuleApi();
 		createPluginApi();
+		createHistoryApi();
 
 		provideDocumentation();
 	}
@@ -184,7 +186,8 @@ class RestApiRoutes extends RouteBuilder {
 		// ../endpoints/<id>/handledSituations/<id> -->PUT: update handled
 		// situation
 		rest("/config/endpoints/{endpointId}/handledSituations/{situationId}")
-				.put().type(HandledSituation.class)
+				.put()
+				.type(HandledSituation.class)
 				.to("bean:endpointApi?method=updateHandledSituation(${header.situationId})");
 
 	}
@@ -255,6 +258,12 @@ class RestApiRoutes extends RouteBuilder {
 		// ../plugins/<id> --> DELETE: deletes the plugin with <id>
 		rest("/config/plugins/{pluginID}").delete().to(
 				"bean:pluginApi?method=deletePlugin(${header.pluginID})");
+
+	}
+
+	private void createHistoryApi() {
+		rest("/information/history").get().outTypeList(HistoryEntry.class)
+				.to("bean:historyApi?method=getHistory");
 
 	}
 

@@ -34,13 +34,17 @@ public class StorageAccessFactory {
 	 * @return an instance of {@link RuleStorageAccess}
 	 */
 	public static RuleStorageAccess getRuleStorageAccess() {
-		return new RuleStorageAccessWithSubscribe(new
-				RuleStorageAccessAdvancedChecks(hibernateSession
-						.getSessionFactory()));
+		return new RuleStorageAccessWithSubscribe(
+				new RuleStorageAccessAdvancedChecks(
+						hibernateSession.getSessionFactory()));
 	}
-	
-	//TODO
-	public static HistoryAccess getHistoryAccess(){
+
+	/**
+	 * Gets an instance of {@link HistoryAccess} to access the history.
+	 *
+	 * @return an instance of {@link HistoryAccess}
+	 */
+	public static HistoryAccess getHistoryAccess() {
 		return new HistoryAccess(hibernateSession.getSessionFactory());
 	}
 

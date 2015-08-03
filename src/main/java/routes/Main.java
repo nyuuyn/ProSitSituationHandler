@@ -20,6 +20,7 @@ import situationManagement.SituationManagerFactory;
 import api.configuration.EndpointAPI;
 import api.configuration.PluginAPI;
 import api.configuration.RuleAPI;
+import api.information.HistoryAPI;
 
 public class Main {
 
@@ -43,6 +44,8 @@ public class Main {
 		registry.bind("ruleApi", RuleAPI.class);
 		registry.bind("endpointApi", EndpointAPI.class);
 		registry.bind("pluginApi", PluginAPI.class);
+		registry.bind("historyApi", HistoryAPI.class);
+
 		registry.bind("operationHandlerEndpoint",
 				OperationHandlerEndpoint.class);
 		registry.bind("situationEndpoint", SituationEndpoint.class);
