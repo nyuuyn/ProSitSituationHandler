@@ -895,6 +895,52 @@
                     }
                 }
             }
+        },
+        "/history": {
+            "get": {
+                "summary": "Get the history.",
+                "description": "The history stores information about executed actions and the endpoints chosen for workflow operations. You can use the operation to get the whole history or a part of it. To get only an part of the history use the query parameters. The offset is applied backwards. So if there are n entries in the history, the offset is 10 and numberOfEntries is 50, the entries n - 10 to n - 60 will be returned, with n -10 as first element in the list. Entry n represents the newest entry in the history. If both params are 0, the whole history will be returned (not recommended).",
+                "tags": [
+                    "history"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "offset",
+                        "type": "integer",
+                        "description": "the offset applied from the end of the history, i.e. the newest entry. Must be a number >= 0.",
+                        "required": true
+                    },
+                    {
+                        "in": "query",
+                        "name": "entries",
+                        "type": "integer",
+                        "description": "The maximum number of entries to return. Must be a number >= 0.",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Operation successful",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/HistoryEntry"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid params used.",
+                        "schema": {
+                            "type": "string",
+                            "description": "error message"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1036,6 +1082,39 @@
                 "answerCode": {
                     "type": "string",
                     "description": "Further specifies the result. Often contains the id of the object the operation refered to."
+                }
+            }
+        },
+        "HistoryEntry": {
+            "description": "An entry in the history.",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "description": "the id of the entry"
+                },
+                "timestamp": {
+                    "type": "string",
+                    "description": "date of the entry"
+                },
+                "situation": {
+                    "type": "string",
+                    "description": "one or more situations that applied"
+                },
+                "typeOfAction": {
+                    "type": "string",
+                    "description": "A description of the thing that happened"
+                },
+                "recipient": {
+                    "type": "string",
+                    "description": "The recipient when a message was sent."
+                },
+                "payload": {
+                    "type": "string",
+                    "description": "The payload that was sent to the recipient"
+                },
+                "misc": {
+                    "type": "string",
+                    "description": "Miscellaneous text to describe the thing that happened"
                 }
             }
         }
