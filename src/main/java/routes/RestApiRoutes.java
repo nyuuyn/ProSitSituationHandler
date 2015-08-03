@@ -262,7 +262,7 @@ class RestApiRoutes extends RouteBuilder {
 	}
 
 	private void createHistoryApi() {
-		rest("/information/history").get().outTypeList(HistoryEntry.class)
+		rest("/config/history").get().outTypeList(HistoryEntry.class)
 				.to("bean:historyApi?method=getHistory");
 
 	}

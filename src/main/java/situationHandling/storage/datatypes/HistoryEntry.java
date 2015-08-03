@@ -43,7 +43,7 @@ public class HistoryEntry {
 	@Column(name = "recipient")
 	private String recipient;
 
-	/** The payload that was sent to the recipent. */
+	/** The payload that was sent to the recipient. */
 	@Column(name = "payload")
 	private String payload;
 
@@ -82,7 +82,7 @@ public class HistoryEntry {
 	}
 
 	/**
-	 * Gets the id.
+	 * Gets the id of the entry.
 	 *
 	 * @return the id
 	 */
@@ -91,7 +91,7 @@ public class HistoryEntry {
 	}
 
 	/**
-	 * Sets the id.
+	 * Sets the id of the entry..
 	 *
 	 * @param id
 	 *            the new id
@@ -101,7 +101,7 @@ public class HistoryEntry {
 	}
 
 	/**
-	 * Gets the timestamp.
+	 * Gets the timestamp. Date of creation.
 	 *
 	 * @return the timestamp
 	 */
@@ -110,7 +110,7 @@ public class HistoryEntry {
 	}
 
 	/**
-	 * Sets the timestamp.
+	 * Sets the timestamp. Date of creation.
 	 *
 	 * @param timestamp
 	 *            the new timestamp

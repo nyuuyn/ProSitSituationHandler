@@ -6,6 +6,8 @@ import org.apache.camel.TypeConversionException;
 import situationHandling.storage.HistoryAccess;
 import situationHandling.storage.StorageAccessFactory;
 
+
+//TODO: Anderes Package? Anderer Pfad?
 /**
  * The Class HistoryAPI implements the Api that provides history information.
  *
