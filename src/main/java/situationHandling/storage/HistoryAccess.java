@@ -8,6 +8,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
 
 import situationHandling.storage.datatypes.Action;
 import situationHandling.storage.datatypes.Endpoint;
@@ -63,6 +64,8 @@ public class HistoryAccess {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
+				logger.debug("Creating action history entry:" + situation
+						+ action);
 
 				String situationString = "Situation defined by SituationTemplate: "
 						+ situation.getSituationName()
@@ -115,6 +118,7 @@ public class HistoryAccess {
 
 			@Override
 			public void run() {
+				logger.debug("Creating workflow history entry: " + endpoint);
 				StringBuilder situationString = new StringBuilder();
 				for (HandledSituation handledSituation : endpoint
 						.getSituations()) {
@@ -174,9 +178,13 @@ public class HistoryAccess {
 	 */
 	public List<HistoryEntry> getHistory(int offset, int numberOfEntries) {
 		if (offset < 0 || numberOfEntries < 0) {
+			logger.debug("Illegal usage of get history: Offset: " + offset
+					+ " Entries: " + numberOfEntries);
 			throw new IllegalArgumentException(
 					"Offset and number of entries must be equal or greater than null.");
 		}
+		logger.debug("Getting " + numberOfEntries
+				+ " history entries with offset: " + 0);
 
 		Session session = sessionFactory.openSession();
 
@@ -199,6 +207,32 @@ public class HistoryAccess {
 			logger.error("Error getting " + numberOfEntries
 					+ " history entries from  entry n - " + offset, e);
 			return null;
+		} finally {
+			session.close();
+		}
+	}
+
+	/**
+	 * Gets the total number of entries in the history.
+	 * 
+	 * @return the history size as long.
+	 */
+	public long getHistorySize() {
+		logger.debug("Getting history size.");
+
+		Session session = sessionFactory.openSession();
+		Transaction tx = null;
+
+		try {
+			tx = session.beginTransaction();
+			Number size = (Number) session.createCriteria(HistoryEntry.class)
+					.setProjection(Projections.rowCount()).uniqueResult();
+			tx.commit();
+			return size.longValue();
+		} catch (JDBCException e) {
+			if (tx != null)
+				tx.rollback();
+			return -1;
 		} finally {
 			session.close();
 		}

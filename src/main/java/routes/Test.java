@@ -10,7 +10,7 @@ public class Test {
 	public static void main(String[] args) {
 
 		
-		System.out.println(StorageAccessFactory.getHistoryAccess().getHistory(20, 100).toString());
+		System.out.println(StorageAccessFactory.getHistoryAccess().getHistorySize());
 		
 		try {
 			System.out.println(InetAddress.getLocalHost().getHostAddress());

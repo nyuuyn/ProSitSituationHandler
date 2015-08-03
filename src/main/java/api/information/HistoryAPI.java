@@ -43,6 +43,7 @@ public class HistoryAPI {
 
 			exchange.getIn().setBody(
 					historyAccess.getHistory(offset, numberOfEntries));
+			exchange.getIn().setHeader("history_size", historyAccess.getHistorySize());
 		} catch (TypeConversionException | IllegalArgumentException e) {
 			exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 400);
 			exchange.getIn().setBody(e.getMessage(), String.class);
