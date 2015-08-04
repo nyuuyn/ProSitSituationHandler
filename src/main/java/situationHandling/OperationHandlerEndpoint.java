@@ -3,6 +3,9 @@
  */
 package situationHandling;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import org.apache.camel.Exchange;
 import org.apache.log4j.Logger;
 
@@ -47,7 +50,12 @@ public class OperationHandlerEndpoint {
 		SoapProcessor sp = new SoapProcessor(exchange.getIn().getBody(
 				String.class));
 		System.out.println("\n" + sp.toString());
-
+		try {
+			sp.setWsaReplyTo(new URL("http://aenderung"));
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
+		System.out.println("\n" + sp.toString());
 	}
 
 }

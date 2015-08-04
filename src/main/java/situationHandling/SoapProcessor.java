@@ -4,11 +4,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.Iterator;
 
-import javax.xml.namespace.QName;
 import javax.xml.soap.MessageFactory;
-import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPHeader;
 import javax.xml.soap.SOAPHeaderElement;
@@ -29,9 +28,10 @@ class SoapProcessor {
 	private String wsaAction = null;
 
 	SoapProcessor(String soapString) {
+		// TODO: Streams schlieﬂen?
+
 		InputStream inputStream = new ByteArrayInputStream(
 				soapString.getBytes());
-
 		try {
 			this.soapMessage = MessageFactory.newInstance().createMessage(null,
 					inputStream);
@@ -55,7 +55,7 @@ class SoapProcessor {
 			String[] temp = qualifiedOperation.split(":");
 			this.operationName = temp[1];
 		} catch (SOAPException e) {
-			e.printStackTrace();
+			logger.error("Error parsing operation name", e);
 		}
 	}
 
@@ -84,17 +84,50 @@ class SoapProcessor {
 				}
 			}
 		} catch (SOAPException e) {
-			e.printStackTrace();
+			logger.error("Error parsing WSA headers", e);
 		}
 	}
 
 	private void parseReplyToHeader(NodeList replyToElements) {
 		for (int i = 0; i < replyToElements.getLength(); i++) {
 			Node current = replyToElements.item(i);
-			//other wsa:replyTo headers are not parsed
+			// other wsa:replyTo headers are not parsed
 			if (current.getNodeName().equalsIgnoreCase("wsa:Address")) {
 				wsaReplyTo = current.getChildNodes().item(0).getNodeValue();
 			}
+		}
+
+	}
+
+	@SuppressWarnings("rawtypes")
+	void setWsaReplyTo(URL replyAddress) {
+		try {
+			SOAPHeader sh = soapMessage.getSOAPHeader();
+
+			Iterator it = sh.examineAllHeaderElements();
+			boolean updated = false;
+			while (it.hasNext() && !updated) {
+				SOAPHeaderElement she = (SOAPHeaderElement) it.next();
+				String headerName = she.getTagName();
+				if (headerName.equals("wsa:ReplyTo")) {
+					NodeList childs = she.getChildNodes();
+					for (int i = 0; i < childs.getLength(); i++) {
+						Node current = childs.item(i);
+						// other wsa:replyTo headers are ignored
+						if (current.getNodeName().equalsIgnoreCase(
+								"wsa:Address")) {
+							//set value of only child
+							wsaReplyTo = replyAddress.toString();
+							current.getChildNodes().item(0)
+									.setNodeValue(replyAddress.toString());
+							updated = true;
+							break;
+						}
+					}
+				}
+			}
+		} catch (SOAPException e) {
+			logger.error("Error setting reply address", e);
 		}
 
 	}
@@ -103,10 +136,8 @@ class SoapProcessor {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		try {
 			soapMessage.writeTo(out);
-		} catch (SOAPException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (SOAPException | IOException e) {
+			logger.error("Error converting soap message.", e);
 		}
 		return out.toString();
 	}
