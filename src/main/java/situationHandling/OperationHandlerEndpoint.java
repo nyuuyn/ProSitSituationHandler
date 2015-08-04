@@ -3,8 +3,10 @@
  */
 package situationHandling;
 
-import java.net.MalformedURLException;
+import java.io.IOException;
 import java.net.URL;
+
+import javax.xml.soap.SOAPException;
 
 import org.apache.camel.Exchange;
 import org.apache.log4j.Logger;
@@ -20,15 +22,19 @@ public class OperationHandlerEndpoint {
 			.getLogger(OperationHandlerEndpoint.class);
 
 	public void receiveRequest(Exchange exchange) {
-		String body = exchange.getIn().getBody(String.class);
+		SoapMessage soapMessage = exchange.getIn().getBody(SoapMessage.class);
 
-		logger.debug("Received request:/n" + body);
+		logger.debug("Received request:\n" + soapMessage.toString());
 
 		String qualifier = exchange.getIn()
 				.getHeader("CamelHttpPath", String.class).replace("/", "")
 				.trim();
-		OperationHandlingResult result = OperationHandlerFactory
-				.getOperationHandler().handleOperation(body, qualifier);
+
+		OperationHandlerFactory.getOperationHandler().handleOperation(
+				soapMessage, qualifier);
+
+		// TODO:useless
+		OperationHandlingResult result = OperationHandlingResult.success;
 
 		// TODO: Hier muss eine Request an einen anderen Endpunkt gesendet
 		// werden! (Das Return hier ist momentan fürn Arsch! (bzw. eigentlich
@@ -47,15 +53,16 @@ public class OperationHandlerEndpoint {
 	}
 
 	public void receiveAnswer(Exchange exchange) {
-		SoapProcessor sp = new SoapProcessor(exchange.getIn().getBody(
-				String.class));
-		System.out.println("\n" + sp.toString());
+		SoapMessage sp = null;
 		try {
+			sp = new SoapMessage(exchange.getIn().getBody(String.class));
 			sp.setWsaReplyTo(new URL("http://aenderung"));
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
+			System.out.println("\n" + sp.toString());
+			System.out.println("\n" + sp.toString());
+		} catch (IOException | SOAPException e1) {
+			e1.printStackTrace();
 		}
-		System.out.println("\n" + sp.toString());
+
 	}
 
 }

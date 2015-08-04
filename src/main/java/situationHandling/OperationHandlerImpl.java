@@ -27,9 +27,9 @@ class OperationHandlerImpl implements OperationHandler {
 	}
 
 	@Override
-	public OperationHandlingResult handleOperation(String payload,
+	public OperationHandlingResult handleOperation(SoapMessage soapMessage,
 			String qualifier) {
-		String operationName = new SoapProcessor(payload).getOperationName();
+		String operationName = soapMessage.getOperationName();
 
 		logger.debug("Handling Operation: " + operationName + ":" + qualifier);
 		Endpoint chosenEndpoint = chooseEndpoint(new Operation(operationName,
@@ -40,7 +40,7 @@ class OperationHandlerImpl implements OperationHandler {
 			return OperationHandlingResult.noMatchFound;
 		}
 
-		boolean success = invokeEndpoint(chosenEndpoint, payload);
+		boolean success = invokeEndpoint(chosenEndpoint, soapMessage.getSoapMessage());
 		StorageAccessFactory.getHistoryAccess().appendWorkflowOperation(
 				chosenEndpoint, success);
 		if (!success) {

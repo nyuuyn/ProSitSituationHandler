@@ -1,6 +1,10 @@
 package routes;
 
+import javax.xml.soap.SOAPException;
+
 import org.apache.camel.builder.RouteBuilder;
+
+import situationHandling.SoapProcessor;
 
 class SituationHandlerRouteBuilder extends RouteBuilder {
 	private String hostname;
@@ -22,9 +26,9 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 		// webapp geserved wird)
 
 		// TODO: Jetty Componente so gut?
-		
-		//TODO: bei Workflow Requests auf Validität prüfen?
-		
+
+		// TODO: bei Workflow Requests auf Validität prüfen?
+
 		createRequestEndpoint();
 		createRequestAnswerEndpoint();
 		createSubscriptionEndpoint();
@@ -38,12 +42,15 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 		// Handler. Requests are answered immediately and sent
 		// to a queue for asynchronous processing. Several threads are used to
 		// consume from the queue.
+
+		
 		from(
 				"jetty:http://" + hostname + ":" + port
 						+ "/RequestEndpoint?matchOnUriPrefix=true")
-				.to("stream:out")
+				.to("stream:out").process(new SoapProcessor())
 				.to("seda:workflowRequests?waitForTaskToComplete=Never")
 				.transform(constant("Ok"));
+		
 		from(
 				"seda:workflowRequests?concurrentConsumers="
 						+ GlobalProperties.DEFAULT_THREAD_POOL_SIZE).to(
