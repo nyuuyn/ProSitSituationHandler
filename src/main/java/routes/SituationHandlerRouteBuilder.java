@@ -21,28 +21,68 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 		// Es muss wieder auf netty4-http gewechselt werden (außer da, wo die
 		// webapp geserved wird)
 
-		// TODO: den gleichen server für alles benutzen
+		// TODO: Jetty Componente so gut?
 		
+		//TODO: bei Workflow Requests auf Validität prüfen?
 		
-		// forward each message posted on .../SoapEndpoint to the operation
-		// Handler
+		createRequestEndpoint();
+		createRequestAnswerEndpoint();
+		createSubscriptionEndpoint();
+		setCorsHeaders();
+		serveWebapp();
+
+	}
+
+	private void createRequestEndpoint() {
+		// forward each message posted on .../RequestEndpoint to the operation
+		// Handler. Requests are answered immediately and sent
+		// to a queue for asynchronous processing. Several threads are used to
+		// consume from the queue.
 		from(
 				"jetty:http://" + hostname + ":" + port
-						+ "/RequestEndpoint?matchOnUriPrefix=true").to(
-				"stream:out").to(
+						+ "/RequestEndpoint?matchOnUriPrefix=true")
+				.to("stream:out")
+				.to("seda:workflowRequests?waitForTaskToComplete=Never")
+				.transform(constant("Ok"));
+		from(
+				"seda:workflowRequests?concurrentConsumers="
+						+ GlobalProperties.DEFAULT_THREAD_POOL_SIZE).to(
 				"bean:operationHandlerEndpoint?method=receiveRequest");
+	}
 
+	private void createRequestAnswerEndpoint() {
+		// forward each message posted on .../AnswerEndpoint to the appropriate
+		// Handler. Requests are answered immediately and sent
+		// to a queue for asynchronous processing. Several threads are used to
+		// consume from the queue.
 		from(
 				"jetty:http://" + hostname + ":" + port
-						+ "/AnswerEndpoint?matchOnUriPrefix=true").to(
-				"stream:out").to(
+						+ "/AnswerEndpoint?matchOnUriPrefix=true")
+				.to("stream:out")
+				.to("seda:answeredRequests?waitForTaskToComplete=Never")
+				.transform(constant("Ok"));
+
+		from(
+				"seda:answeredRequests?concurrentConsumers="
+						+ GlobalProperties.DEFAULT_THREAD_POOL_SIZE).to(
 				"bean:operationHandlerEndpoint?method=receiveAnswer");
+	}
 
-		// to receive Subscriptions
+	private void createSubscriptionEndpoint() {
+		// to receive Subscriptions. Requests are answered immediately and sent
+		// to a queue for asynchronous processing. Several threads are used to
+		// consume from the queue.
 		from("jetty:http://" + hostname + ":" + port + "/SituationEndpoint")
-				.to("bean:situationEndpoint?method=situationReceived");
+				.to("seda:situationChange?waitForTaskToComplete=Never")
+				.transform(constant("Ok"));
+		from(
+				"seda:situationChange?concurrentConsumers="
+						+ GlobalProperties.DEFAULT_THREAD_POOL_SIZE).to(
+				"bean:situationEndpoint?method=situationReceived");
+	}
 
-		// set CORS Headers for option requests and max file size
+	private void setCorsHeaders() {
+		// set CORS Headers for option requests and set max file size
 		from(
 				"jetty:http://" + hostname + ":" + port
 						+ "/api-docs?httpMethodRestrict=OPTIONS")
@@ -55,8 +95,10 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 				.constant(
 						"Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers, x-file-last-modified,x-file-name,x-file-size");
 
+	}
+
+	private void serveWebapp() {
 		// used for serving the wep app
 		from("jetty:http://0.0.0.0:8081?handlers=#webApp").to("stream:out");
 	}
-
 }
