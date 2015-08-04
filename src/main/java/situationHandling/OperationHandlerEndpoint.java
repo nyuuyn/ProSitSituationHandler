@@ -44,6 +44,9 @@ public class OperationHandlerEndpoint {
 	}
 
 	public void receiveAnswer(Exchange exchange) {
+		SoapProcessor sp = new SoapProcessor(exchange.getIn().getBody(
+				String.class));
+		System.out.println("\n" + sp.toString());
 
 	}
 
