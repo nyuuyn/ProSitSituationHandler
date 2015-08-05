@@ -4,6 +4,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.rest.RestBindingMode;
+import org.apache.commons.io.IOUtils;
 
 import pluginManagement.PluginInfo;
 import situationHandling.storage.datatypes.Action;
@@ -276,11 +277,9 @@ class RestApiRoutes extends RouteBuilder {
 					@Override
 					public void process(Exchange exchange) throws Exception {
 						if (swaggerDoc == null) {
-							swaggerDoc = CamelUtil
-									.getConsumerTemplate()
-									.receiveBody(
-											"file:src/main/resources?fileName=swagger.json&noop=true&idempotent=false");
-							System.out.println("Loading Swagger Definition");
+							swaggerDoc = IOUtils.toString(this.getClass()
+									.getClassLoader()
+									.getResourceAsStream("swagger.json"));
 						}
 						exchange.getIn().setBody(swaggerDoc);
 						exchange.getIn().setHeader("Content-Type",
