@@ -9,6 +9,7 @@ package situationHandling;
  */
 public class OperationHandlerFactory {
 	
+	
 	public static OperationHandler getOperationHandler(){
 		return new OperationHandlerImpl();
 	}

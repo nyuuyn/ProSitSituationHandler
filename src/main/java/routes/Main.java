@@ -62,20 +62,27 @@ public class Main {
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
+		
+		System.out.println("test1");
 
 		registry.bind("webApp", webapp);
 
 		try {
 			// add routes
+
+
 			context.addRoutes(new SituationHandlerRouteBuilder("0.0.0.0",
 					GlobalProperties.NETWORK_PORT));
+
+
 			context.addRoutes(new RestApiRoutes("0.0.0.0",
 					GlobalProperties.NETWORK_PORT,
 					GlobalProperties.MAXIMUM_FILE_SIZE, "jetty"));
 			CamelUtil.initProducerTemplate(context.createProducerTemplate());
 			CamelUtil.initConsumerTemplate(context.createConsumerTemplate());
-
+			System.out.println("test2");
 			context.start();
+			System.out.println("test3");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

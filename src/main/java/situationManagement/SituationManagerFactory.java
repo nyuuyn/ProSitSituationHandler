@@ -24,7 +24,8 @@ import situationHandling.storage.datatypes.Situation;
 public class SituationManagerFactory {
 
 	/** The logger. */
-	private static Logger logger = Logger.getLogger(SituationManagerFactory.class);
+	private static Logger logger = Logger
+			.getLogger(SituationManagerFactory.class);
 
 	/**
 	 * The subscription handler to be used by the situation management. Stores
@@ -61,10 +62,12 @@ public class SituationManagerFactory {
 
 			String ownIPAdress = InetAddress.getLocalHost().getHostAddress();
 
-			URL ownAdress = new URL(
-					"http://" + ownIPAdress + ":" + GlobalProperties.NETWORK_PORT + "/SituationEndpoint");
+			URL ownAdress = new URL("http://" + ownIPAdress + ":"
+					+ GlobalProperties.NETWORK_PORT + "/"
+					+ GlobalProperties.SITUATION_ENDPOINT_PATH);
 
-			subscriptionHandler = new SubscriptionHandler(ownAdress, new SRSCommunicator(srsUrl));
+			subscriptionHandler = new SubscriptionHandler(ownAdress,
+					new SRSCommunicator(srsUrl));
 		} catch (MalformedURLException | UnknownHostException e) {
 			e.printStackTrace();
 		}
@@ -79,9 +82,11 @@ public class SituationManagerFactory {
 	 */
 	public static SituationManager getSituationManager() {
 		if (cacheEnabled) {
-			return new SituationManagerWithCache(subscriptionHandler, new SRSCommunicator(srsUrl), situationCache);
+			return new SituationManagerWithCache(subscriptionHandler,
+					new SRSCommunicator(srsUrl), situationCache);
 		} else {
-			return new SituationManagerImpl(subscriptionHandler, new SRSCommunicator(srsUrl));
+			return new SituationManagerImpl(subscriptionHandler,
+					new SRSCommunicator(srsUrl));
 		}
 	}
 
@@ -95,7 +100,8 @@ public class SituationManagerFactory {
 	 */
 	public static SituationManager getSituationManagerWithoutCache() {
 
-		return new SituationManagerImpl(subscriptionHandler, new SRSCommunicator(srsUrl));
+		return new SituationManagerImpl(subscriptionHandler,
+				new SRSCommunicator(srsUrl));
 
 	}
 
@@ -124,7 +130,8 @@ public class SituationManagerFactory {
 	 *            the new cache size
 	 */
 	public static void setCacheSize(int size) {
-		situationCache = Collections.synchronizedMap(new LRUMap<Situation, Boolean>(size));
+		situationCache = Collections
+				.synchronizedMap(new LRUMap<Situation, Boolean>(size));
 	}
 
 	/**

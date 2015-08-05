@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
 
@@ -24,8 +25,10 @@ class SoapMessage {
 	private SOAPMessage soapMessage;
 	private String operationName = null;
 	private String wsaMessageID = null;
-	private String wsaReplyTo = null;
+	private URL wsaReplyTo = null;
+	private URL wsaTo = null;
 	private String wsaAction = null;
+	private String wsaRelatesTo = null;
 
 	SoapMessage(String soapString) throws SOAPException {
 
@@ -60,8 +63,7 @@ class SoapMessage {
 	}
 
 	@SuppressWarnings("rawtypes")
-	private void parseWsaHeaders() throws SOAPException {
-		// try {
+	private void parseWsaHeaders() throws SOAPException, MalformedURLException {
 		SOAPHeader sh = soapMessage.getSOAPHeader();
 		Iterator it = sh.examineAllHeaderElements();
 		while (it.hasNext()) {
@@ -75,25 +77,27 @@ class SoapMessage {
 				this.wsaMessageID = she.getValue();
 				break;
 			case "wsa:to":
-				this.wsaReplyTo = she.getValue();
+				this.wsaTo = new URL(she.getValue());
 			case "wsa:ReplyTo":
 				parseReplyToHeader(she.getChildNodes());
+				break;
+			case "wsa:RelatesTo":
+				this.wsaRelatesTo = she.getValue();
 				break;
 			default:
 				break;
 			}
 		}
-		// } catch (SOAPException e) {
-		// logger.error("Error parsing WSA headers", e);
-		// }
 	}
 
-	private void parseReplyToHeader(NodeList replyToElements) {
+	private void parseReplyToHeader(NodeList replyToElements)
+			throws MalformedURLException {
 		for (int i = 0; i < replyToElements.getLength(); i++) {
 			Node current = replyToElements.item(i);
 			// other wsa:replyTo headers are not parsed
 			if (current.getNodeName().equalsIgnoreCase("wsa:Address")) {
-				wsaReplyTo = current.getChildNodes().item(0).getNodeValue();
+				wsaReplyTo = new URL(current.getChildNodes().item(0)
+						.getNodeValue());
 			}
 		}
 
@@ -117,7 +121,7 @@ class SoapMessage {
 						if (current.getNodeName().equalsIgnoreCase(
 								"wsa:Address")) {
 							// set value of only child
-							wsaReplyTo = replyAddress.toString();
+							wsaReplyTo = replyAddress;
 							current.getChildNodes().item(0)
 									.setNodeValue(replyAddress.toString());
 							updated = true;
@@ -130,6 +134,26 @@ class SoapMessage {
 			logger.error("Error setting reply address", e);
 		}
 
+	}
+
+	@SuppressWarnings("rawtypes")
+	void setWsaTo(URL receiverAddress) {
+		try {
+			SOAPHeader sh = soapMessage.getSOAPHeader();
+
+			Iterator it = sh.examineAllHeaderElements();
+			boolean updated = false;
+			while (it.hasNext() && !updated) {
+				SOAPHeaderElement she = (SOAPHeaderElement) it.next();
+				String headerName = she.getTagName();
+				if (headerName.equals("wsa:ReplyTo")) {
+					she.setValue(receiverAddress.toString());
+					updated = true;
+				}
+			}
+		} catch (SOAPException e) {
+			logger.error("Error setting reply address", e);
+		}
 	}
 
 	String getSoapMessage() {
@@ -160,7 +184,7 @@ class SoapMessage {
 	/**
 	 * @return the wsaReplyTo
 	 */
-	String getWsaReplyTo() {
+	URL getWsaReplyTo() {
 		return wsaReplyTo;
 	}
 
@@ -171,6 +195,22 @@ class SoapMessage {
 		return wsaAction;
 	}
 
+	/**
+	 * @return the wsaTo
+	 */
+	URL getWsaTo() {
+		return wsaTo;
+	}
+	
+	
+
+	/**
+	 * @return the wsaRelatesTo
+	 */
+	String getWsaRelatesTo() {
+		return wsaRelatesTo;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -178,9 +218,10 @@ class SoapMessage {
 	 */
 	@Override
 	public String toString() {
-		return "SoapProcessor [operationName=" + operationName
+		return "SoapMessage [operationName=" + operationName
 				+ ", wsaMessageID=" + wsaMessageID + ", wsaReplyTo="
-				+ wsaReplyTo + ", wsaAction=" + wsaAction + "]";
+				+ wsaReplyTo + ", wsaTo=" + wsaTo + ", wsaAction=" + wsaAction
+				+ ", wsaRelatesTo=" + wsaRelatesTo + "]";
 	}
 
 }

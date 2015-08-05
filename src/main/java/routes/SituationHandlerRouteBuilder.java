@@ -1,7 +1,5 @@
 package routes;
 
-import javax.xml.soap.SOAPException;
-
 import org.apache.camel.builder.RouteBuilder;
 
 import situationHandling.SoapProcessor;
@@ -43,14 +41,13 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 		// to a queue for asynchronous processing. Several threads are used to
 		// consume from the queue.
 
-		
 		from(
 				"jetty:http://" + hostname + ":" + port
 						+ "/RequestEndpoint?matchOnUriPrefix=true")
 				.to("stream:out").process(new SoapProcessor())
 				.to("seda:workflowRequests?waitForTaskToComplete=Never")
 				.transform(constant("Ok"));
-		
+
 		from(
 				"seda:workflowRequests?concurrentConsumers="
 						+ GlobalProperties.DEFAULT_THREAD_POOL_SIZE).to(
@@ -63,9 +60,10 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 		// to a queue for asynchronous processing. Several threads are used to
 		// consume from the queue.
 		from(
-				"jetty:http://" + hostname + ":" + port
-						+ "/AnswerEndpoint?matchOnUriPrefix=true")
-				.to("stream:out")
+				"jetty:http://" + hostname + ":" + port + "/"
+						+ GlobalProperties.ANSWER_ENDPOINT_PATH
+						+ "?matchOnUriPrefix=true").to("stream:out")
+				.process(new SoapProcessor())
 				.to("seda:answeredRequests?waitForTaskToComplete=Never")
 				.transform(constant("Ok"));
 
@@ -79,9 +77,11 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 		// to receive Subscriptions. Requests are answered immediately and sent
 		// to a queue for asynchronous processing. Several threads are used to
 		// consume from the queue.
-		from("jetty:http://" + hostname + ":" + port + "/SituationEndpoint")
-				.to("seda:situationChange?waitForTaskToComplete=Never")
-				.transform(constant("Ok"));
+		from(
+				"jetty:http://" + hostname + ":" + port + "/"
+						+ GlobalProperties.SITUATION_ENDPOINT_PATH).to(
+				"seda:situationChange?waitForTaskToComplete=Never").transform(
+				constant("Ok"));
 		from(
 				"seda:situationChange?concurrentConsumers="
 						+ GlobalProperties.DEFAULT_THREAD_POOL_SIZE).to(

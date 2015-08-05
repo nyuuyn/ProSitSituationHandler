@@ -4,6 +4,7 @@
 package situationHandling;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 import javax.xml.soap.SOAPException;
@@ -33,35 +34,38 @@ public class OperationHandlerEndpoint {
 		OperationHandlerFactory.getOperationHandler().handleOperation(
 				soapMessage, qualifier);
 
-		// TODO:useless
-		OperationHandlingResult result = OperationHandlingResult.success;
-
-		// TODO: Hier muss eine Request an einen anderen Endpunkt gesendet
-		// werden! (Das Return hier ist momentan fürn Arsch! (bzw. eigentlich
-		// muss das Unten beim Receive Anser gemacht werden! Hier wäre dann vllt
-		// vorgeschaltet noch ein Validity check schön!
-		if (result == OperationHandlingResult.success) {
-			exchange.getOut().setBody("");
-		} else if (result == OperationHandlingResult.noMatchFound) {
-			exchange.getOut().setBody("No matching endpoint found.");
-			exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, 404);
-		} else if (result == OperationHandlingResult.error) {
-			exchange.getOut().setBody("Arbitrary error.");
-			exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, 500);
-		}
+		// // TODO:useless
+		// OperationHandlingResult result = OperationHandlingResult.success;
+		//
+		// // TODO: Hier muss eine Request an einen anderen Endpunkt gesendet
+		// // werden! (Das Return hier ist momentan fürn Arsch! (bzw. eigentlich
+		// // muss das Unten beim Receive Anser gemacht werden! Hier wäre dann
+		// vllt
+		// // vorgeschaltet noch ein Validity check schön!
+		// if (result == OperationHandlingResult.success) {
+		// exchange.getOut().setBody("");
+		// } else if (result == OperationHandlingResult.noMatchFound) {
+		// exchange.getOut().setBody("No matching endpoint found.");
+		// exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, 404);
+		// } else if (result == OperationHandlingResult.error) {
+		// exchange.getOut().setBody("Arbitrary error.");
+		// exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, 500);
+		// }
 
 	}
 
 	public void receiveAnswer(Exchange exchange) {
-		SoapMessage sp = null;
+		SoapMessage sp = exchange.getIn().getBody(SoapMessage.class);
+
+		System.out.println("\n" + sp.toString());
 		try {
-			sp = new SoapMessage(exchange.getIn().getBody(String.class));
 			sp.setWsaReplyTo(new URL("http://aenderung"));
-			System.out.println("\n" + sp.toString());
-			System.out.println("\n" + sp.toString());
-		} catch (IOException | SOAPException e1) {
-			e1.printStackTrace();
+			sp.setWsaTo(new URL("http://aenderung"));
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
 		}
+
+		System.out.println("\n" + sp.toString());
 
 	}
 

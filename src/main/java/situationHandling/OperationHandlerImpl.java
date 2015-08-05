@@ -1,13 +1,11 @@
 package situationHandling;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import pluginManagement.PluginManager;
-import pluginManagement.PluginManagerFactory;
-import situationHandler.plugin.PluginParams;
 import situationHandling.storage.StorageAccessFactory;
 import situationHandling.storage.datatypes.Endpoint;
 import situationHandling.storage.datatypes.HandledSituation;
@@ -21,10 +19,6 @@ class OperationHandlerImpl implements OperationHandler {
 	/** The logger for this class. */
 	private final static Logger logger = Logger
 			.getLogger(OperationHandlerImpl.class);
-
-	OperationHandlerImpl() {
-
-	}
 
 	@Override
 	public OperationHandlingResult handleOperation(SoapMessage soapMessage,
@@ -40,16 +34,23 @@ class OperationHandlerImpl implements OperationHandler {
 			return OperationHandlingResult.noMatchFound;
 		}
 
-		boolean success = invokeEndpoint(chosenEndpoint, soapMessage.getSoapMessage());
-		StorageAccessFactory.getHistoryAccess().appendWorkflowOperation(
-				chosenEndpoint, success);
-		if (!success) {
+		try {
+			URL endpointURL = new URL(chosenEndpoint.getEndpointURL());
+			boolean success = new MessageRouter(soapMessage)
+					.forwardRequest(endpointURL);
+			StorageAccessFactory.getHistoryAccess().appendWorkflowOperation(
+					chosenEndpoint, success);
+			// TODO: Hier wird gleich ein Fehler Nachricht gesendet!
+			if (!success) {
+				return OperationHandlingResult.error;
+			}
+
+			registerRollbackHandler();
+
+			return OperationHandlingResult.success;
+		} catch (MalformedURLException e) {
 			return OperationHandlingResult.error;
 		}
-
-		registerRollbackHandler();
-
-		return OperationHandlingResult.success;
 
 	}
 
@@ -141,33 +142,33 @@ class OperationHandlerImpl implements OperationHandler {
 		return bestCandidate;
 	}
 
-	/**
-	 * 
-	 * @param endpoint
-	 * @param payload
-	 * @return true when successful, false else
-	 */
-	private boolean invokeEndpoint(Endpoint endpoint, String payload) {
-		PluginManager pm = PluginManagerFactory.getPluginManager();
-		PluginParams params = new PluginParams();
-
-		params.setParam("Http method", "POST");
-		Map<String, String> results = null;
-		try {
-			// TODO: Das Exception Handling hier bringt nix --> die exception
-			// muss schon gescheit vom plugin behandelt werden!
-			results = pm.getPluginSender("situationHandler.http",
-					endpoint.getEndpointURL(), payload, params).call();
-		} catch (Exception e) {
-			logger.error("Error when invoking Endpoint.", e);
-			return false;
-		}
-
-		logger.debug("Success invoking Endpoint. Result: "
-				+ results.get("body"));
-
-		return true;
-	}
+	// /**
+	// *
+	// * @param endpoint
+	// * @param payload
+	// * @return true when successful, false else
+	// */
+	// private boolean invokeEndpoint(Endpoint endpoint, String payload) {
+	// PluginManager pm = PluginManagerFactory.getPluginManager();
+	// PluginParams params = new PluginParams();
+	//
+	// params.setParam("Http method", "POST");
+	// Map<String, String> results = null;
+	// try {
+	// // TODO: Das Exception Handling hier bringt nix --> die exception
+	// // muss schon gescheit vom plugin behandelt werden!
+	// results = pm.getPluginSender("situationHandler.http",
+	// endpoint.getEndpointURL(), payload, params).call();
+	// } catch (Exception e) {
+	// logger.error("Error when invoking Endpoint.", e);
+	// return false;
+	// }
+	//
+	// logger.debug("Success invoking Endpoint. Result: "
+	// + results.get("body"));
+	//
+	// return true;
+	// }
 
 	private void registerRollbackHandler() {
 
