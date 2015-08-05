@@ -81,7 +81,6 @@ class SoapMessage {
 				this.wsaMessageID = she.getValue();
 				break;
 			case "wsa:To":
-				System.out.println(she.getValue());
 				this.wsaTo = new URL(she.getValue());
 				break;
 			case "wsa:ReplyTo":

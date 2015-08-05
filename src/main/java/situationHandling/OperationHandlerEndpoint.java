@@ -3,12 +3,6 @@
  */
 package situationHandling;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-
-import javax.xml.soap.SOAPException;
-
 import org.apache.camel.Exchange;
 import org.apache.log4j.Logger;
 
