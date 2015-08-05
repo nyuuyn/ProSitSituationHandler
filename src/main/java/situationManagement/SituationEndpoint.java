@@ -24,7 +24,8 @@ import situationHandling.storage.datatypes.Situation;
 public class SituationEndpoint {
 
 	/** The logger for this class. */
-	private final static Logger logger = Logger.getLogger(SituationEndpoint.class);
+	private final static Logger logger = Logger
+			.getLogger(SituationEndpoint.class);
 
 	/**
 	 * The situation received method is to be used by camel when a message
@@ -37,48 +38,43 @@ public class SituationEndpoint {
 	public void situationReceived(Exchange exchange) {
 		String changedSituation = exchange.getIn().getBody(String.class);
 
-		// parse CONTENT from headers...wtf srs api
-		// String situationTemplate =
-		// exchange.getIn().getHeader("doc[situationtemplate]", String.class);
-		// String thing = exchange.getIn().getHeader("doc[thing]",
-		// String.class);
-		// boolean occured =
-		// Boolean.parseBoolean(exchange.getIn().getHeader("doc[occured]",
-		// String.class));
-
 		SituationResult situationResult;
 
 		try {
 			// transform situation
-			
-			//fix broken Json...
-			changedSituation = changedSituation.replace("{\"doc\":", "");
-			changedSituation = changedSituation.substring(0, changedSituation.length() - 1);
+			situationResult = new ObjectMapper().readValue(changedSituation,
+					SituationResult.class);
+			Situation situation = new Situation(
+					situationResult.getSituationtemplate(),
+					situationResult.getThing());
 
-			situationResult = new ObjectMapper().readValue(changedSituation, SituationResult.class);
-			Situation situation = new Situation(situationResult.getSituationtemplate(), situationResult.getThing());
+			logger.debug("Received notification about situation change: Template: "
+					+ situation.getSituationName()
+					+ " | thing: "
+					+ situation.getObjectName()
+					+ " | occured: "
+					+ situationResult.isOccured());
 
-			logger.debug("Received notification about situation change: Template: " + situation.getSituationName()
-					+ " | thing: " + situation.getObjectName() + " | occured: " + situationResult.isOccured());
-
-			// Situation situation = new Situation(situationTemplate, thing);
-			// situationResult = new SituationResult();
-			// situationResult.setOccured(occured);
 
 			// notify notification and workflow handling
-			SituationHandlerFactory.getSituationHandler().situationChanged(situation, situationResult.isOccured());
-			OperationHandlerFactory.getOperationHandler().situationChanged(situation, situationResult.isOccured());
+			SituationHandlerFactory.getSituationHandler().situationChanged(
+					situation, situationResult.isOccured());
+			OperationHandlerFactory.getOperationHandler().situationChanged(
+					situation, situationResult.isOccured());
 
 			// updates the cache, if the cache is enabled
-			SituationManager situationManager = SituationManagerFactory.getSituationManager();
+			SituationManager situationManager = SituationManagerFactory
+					.getSituationManager();
 			if (situationManager instanceof SituationManagerWithCache) {
 				SituationManagerWithCache cache = (SituationManagerWithCache) situationManager;
-				cache.updateSituationCache(new Situation(situation.getSituationName(), situation.getObjectName()),
-						situationResult.isOccured());
+				cache.updateSituationCache(
+						new Situation(situation.getSituationName(), situation
+								.getObjectName()), situationResult.isOccured());
 			}
 
 		} catch (IOException e) {
-			logger.warn("Received invalid message from Situation Recognition System." + e.getMessage());
+			logger.warn("Received invalid message from Situation Recognition System."
+					+ e.getMessage());
 		}
 
 	}
