@@ -1,5 +1,6 @@
 package routes;
 
+import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 
 import situationHandling.SoapProcessor;
@@ -49,7 +50,7 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 				// .to("stream:out")
 				.process(new SoapProcessor())
 				.to("seda:workflowRequests?waitForTaskToComplete=Never")
-				.transform(constant("Ok"));
+				.transform(constant("")).setHeader(Exchange.HTTP_RESPONSE_CODE, constant("202"));
 
 		from(
 				"seda:workflowRequests?concurrentConsumers="
