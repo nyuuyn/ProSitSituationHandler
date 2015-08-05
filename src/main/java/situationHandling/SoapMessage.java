@@ -8,6 +8,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
 
+import javax.xml.namespace.QName;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPHeader;
@@ -22,10 +23,13 @@ class SoapMessage {
 
 	private static final Logger logger = Logger.getLogger(SoapMessage.class);
 
+	// TODO: Die ganzen WSA Header könnte man auch in einer Map oder so
+	// zurückgeben, falls es noch mehr werden
 	private SOAPMessage soapMessage;
 	private String operationName = null;
 	private String wsaMessageID = null;
 	private URL wsaReplyTo = null;
+	private String wsaRelationshipType = null;
 	private URL wsaTo = null;
 	private String wsaAction = null;
 	private String wsaRelatesTo = null;
@@ -76,13 +80,17 @@ class SoapMessage {
 			case "wsa:MessageID":
 				this.wsaMessageID = she.getValue();
 				break;
-			case "wsa:to":
+			case "wsa:To":
+				System.out.println(she.getValue());
 				this.wsaTo = new URL(she.getValue());
+				break;
 			case "wsa:ReplyTo":
 				parseReplyToHeader(she.getChildNodes());
 				break;
 			case "wsa:RelatesTo":
 				this.wsaRelatesTo = she.getValue();
+				this.wsaRelationshipType = she.getAttributeValue(new QName(
+						"RelationshipType"));
 				break;
 			default:
 				break;
@@ -146,9 +154,11 @@ class SoapMessage {
 			while (it.hasNext() && !updated) {
 				SOAPHeaderElement she = (SOAPHeaderElement) it.next();
 				String headerName = she.getTagName();
-				if (headerName.equals("wsa:ReplyTo")) {
-					she.setValue(receiverAddress.toString());
+				if (headerName.equals("wsa:To")) {
+					wsaTo = receiverAddress;
+					she.setValue(wsaTo.toString());
 					updated = true;
+
 				}
 			}
 		} catch (SOAPException e) {
@@ -201,14 +211,19 @@ class SoapMessage {
 	URL getWsaTo() {
 		return wsaTo;
 	}
-	
-	
 
 	/**
 	 * @return the wsaRelatesTo
 	 */
 	String getWsaRelatesTo() {
 		return wsaRelatesTo;
+	}
+
+	/**
+	 * @return the wsaRelationshipType
+	 */
+	String getWsaRelationshipType() {
+		return wsaRelationshipType;
 	}
 
 	/*
@@ -221,7 +236,8 @@ class SoapMessage {
 		return "SoapMessage [operationName=" + operationName
 				+ ", wsaMessageID=" + wsaMessageID + ", wsaReplyTo="
 				+ wsaReplyTo + ", wsaTo=" + wsaTo + ", wsaAction=" + wsaAction
-				+ ", wsaRelatesTo=" + wsaRelatesTo + "]";
+				+ ", wsaRelatesTo=" + wsaRelatesTo + ", wsaRelationshipType="
+				+ wsaRelationshipType + "]";
 	}
 
 }

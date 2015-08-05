@@ -63,7 +63,6 @@ public class Main {
 			e1.printStackTrace();
 		}
 		
-		System.out.println("test1");
 
 		registry.bind("webApp", webapp);
 
@@ -80,9 +79,7 @@ public class Main {
 					GlobalProperties.MAXIMUM_FILE_SIZE, "jetty"));
 			CamelUtil.initProducerTemplate(context.createProducerTemplate());
 			CamelUtil.initConsumerTemplate(context.createConsumerTemplate());
-			System.out.println("test2");
 			context.start();
-			System.out.println("test3");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

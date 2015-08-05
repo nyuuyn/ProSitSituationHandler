@@ -44,7 +44,8 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 		from(
 				"jetty:http://" + hostname + ":" + port
 						+ "/RequestEndpoint?matchOnUriPrefix=true")
-				.to("stream:out").process(new SoapProcessor())
+				// .to("stream:out")
+				.process(new SoapProcessor())
 				.to("seda:workflowRequests?waitForTaskToComplete=Never")
 				.transform(constant("Ok"));
 
@@ -62,7 +63,8 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 		from(
 				"jetty:http://" + hostname + ":" + port + "/"
 						+ GlobalProperties.ANSWER_ENDPOINT_PATH
-						+ "?matchOnUriPrefix=true").to("stream:out")
+						+ "?matchOnUriPrefix=true")
+				// .to("stream:out")
 				.process(new SoapProcessor())
 				.to("seda:answeredRequests?waitForTaskToComplete=Never")
 				.transform(constant("Ok"));

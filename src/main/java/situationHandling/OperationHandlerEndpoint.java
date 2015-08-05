@@ -56,16 +56,9 @@ public class OperationHandlerEndpoint {
 
 	public void receiveAnswer(Exchange exchange) {
 		SoapMessage sp = exchange.getIn().getBody(SoapMessage.class);
+		logger.debug("Received Answer Message: " + sp.toString());
+		new MessageRouter(sp).forwardAnswer();
 
-		System.out.println("\n" + sp.toString());
-		try {
-			sp.setWsaReplyTo(new URL("http://aenderung"));
-			sp.setWsaTo(new URL("http://aenderung"));
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
-
-		System.out.println("\n" + sp.toString());
 
 	}
 
