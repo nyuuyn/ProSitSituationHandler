@@ -41,6 +41,8 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 		// to a queue for asynchronous processing. Several threads are used to
 		// consume from the queue.
 
+		// TODO: Standard Antwort ist hier Status Code 202:
+		// http://victor-ichim.blogspot.de/2011/09/asynchronous-web-services-with-ws.html
 		from(
 				"jetty:http://" + hostname + ":" + port
 						+ "/RequestEndpoint?matchOnUriPrefix=true")

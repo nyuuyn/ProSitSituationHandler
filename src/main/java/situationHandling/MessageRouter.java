@@ -25,9 +25,8 @@ class MessageRouter {
 	private static OperationRoutingTable routingTable = new OperationRoutingTable();
 
 	private static final Logger logger = Logger.getLogger(MessageRouter.class);
-	
-	private SoapMessage soapMessage;
 
+	private SoapMessage soapMessage;
 
 	/**
 	 * @param soapMessage
@@ -37,6 +36,7 @@ class MessageRouter {
 	}
 
 	boolean forwardRequest(URL receiverUrl) {
+		URL answerRecipent = soapMessage.getWsaReplyTo();
 		// set new answer address
 		try {
 			String ownIPAdress = InetAddress.getLocalHost().getHostAddress();
@@ -54,7 +54,8 @@ class MessageRouter {
 		// send message
 		if (sendMessage(receiverUrl, soapMessage.getSoapMessage())) {
 			routingTable.addReplyAddress(soapMessage.getWsaMessageID(),
-					soapMessage.getWsaReplyTo());
+					answerRecipent);
+			System.out.println("Reply to: " + soapMessage.getWsaReplyTo());
 			return true;
 		}
 		return false;
@@ -65,8 +66,11 @@ class MessageRouter {
 		URL receiver = routingTable.getReplyAddress(soapMessage
 				.getWsaRelatesTo());
 		if (receiver == null) {
+			System.out.println("No receiver");
 			return false;
 		}
+
+		System.out.println("Receiver:" + receiver.toString());
 
 		// set receiver
 		soapMessage.setWsaTo(receiver);
@@ -109,7 +113,5 @@ class MessageRouter {
 	static OperationRoutingTable getRoutingTable() {
 		return routingTable;
 	}
-	
-	
 
 }
