@@ -32,6 +32,7 @@ public class Main {
 		startShutdownListener();
 		shutdownHandling();
 
+
 		context = new DefaultCamelContext();
 
 		// Uncomment this to debug http requests (using fiddler)

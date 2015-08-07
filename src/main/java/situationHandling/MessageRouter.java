@@ -88,6 +88,7 @@ class MessageRouter {
 		params.setParam("Http method", "POST");
 		Map<String, String> results = null;
 		try {
+			//TODO: Das sollte man eigentlich in einem Pool machen!
 			results = pm.getPluginSender("situationHandler.http",
 					url.toString(), payload, params).call();
 		} catch (Exception e) {

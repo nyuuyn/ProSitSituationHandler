@@ -1,6 +1,7 @@
 package situationHandling.storage;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 import org.apache.log4j.Logger;
 import org.hibernate.JDBCException;
@@ -35,13 +36,21 @@ public class HistoryAccess {
 	private final SessionFactory sessionFactory;
 
 	/**
+	 * Used to run asynchronous tasks
+	 */
+	private ExecutorService threadExectutor;
+
+	/**
 	 * Instantiates a new history access.
 	 *
 	 * @param sessionFactory
 	 *            the session factory to access the database
+	 * @param threadExecutor
+	 *            used to run asynchronous tasks
 	 */
-	HistoryAccess(SessionFactory sessionFactory) {
+	HistoryAccess(SessionFactory sessionFactory, ExecutorService threadExecutor) {
 		this.sessionFactory = sessionFactory;
+		this.threadExectutor = threadExecutor;
 	}
 
 	/**
@@ -59,9 +68,9 @@ public class HistoryAccess {
 	 *            (false).
 	 */
 	public void appendAction(Action action, Situation situation, boolean state) {
-		// TODO: gut das so zu machen?
+
 		// write history asynchronously in thread
-		new Thread(new Runnable() {
+		threadExectutor.submit(new Thread(new Runnable() {
 			@Override
 			public void run() {
 				logger.debug("Creating action history entry:" + situation
@@ -76,27 +85,13 @@ public class HistoryAccess {
 				String typeOfAction = "Notification with: "
 						+ action.getPluginID();
 
-				Session session = sessionFactory.openSession();
+				HistoryEntry entry = new HistoryEntry(situationString,
+						typeOfAction, action.getAddress(), action.getPayload(),
+						"Used Parameters: " + action.getParams().toString());
 
-				Transaction tx = null;
-
-				try {
-					tx = session.beginTransaction();
-					HistoryEntry entry = new HistoryEntry(situationString,
-							typeOfAction, action.getAddress(),
-							action.getPayload(), "Used Parameters: "
-									+ action.getParams().toString());
-					session.save(entry);
-					tx.commit();
-				} catch (JDBCException e) {
-					if (tx != null)
-						tx.rollback();
-					e.printStackTrace();
-				} finally {
-					session.close();
-				}
+				storeEntry(entry);
 			}
-		}).start();
+		}));
 	}
 
 	/**
@@ -112,9 +107,8 @@ public class HistoryAccess {
 	 *            true if the operation was executed successfully, false else
 	 */
 	public void appendWorkflowOperation(Endpoint endpoint, boolean success) {
-		// TODO: gut das so zu machen?
 		// write history asynchronously in thread
-		new Thread(new Runnable() {
+		threadExectutor.submit(new Thread(new Runnable() {
 
 			@Override
 			public void run() {
@@ -139,25 +133,12 @@ public class HistoryAccess {
 				String misc = "Invocation "
 						+ (success ? "successful" : "failed");
 
-				Session session = sessionFactory.openSession();
+				HistoryEntry entry = new HistoryEntry(situationString
+						.toString(), typeOfAction, recipent, payload, misc);
 
-				Transaction tx = null;
-				// TODO: Das hier in Methode und dann von beiden benutzen...
-				try {
-					tx = session.beginTransaction();
-					HistoryEntry entry = new HistoryEntry(situationString
-							.toString(), typeOfAction, recipent, payload, misc);
-					session.save(entry);
-					tx.commit();
-				} catch (JDBCException e) {
-					if (tx != null)
-						tx.rollback();
-					e.printStackTrace();
-				} finally {
-					session.close();
-				}
+				storeEntry(entry);
 			}
-		}).start();
+		}));
 	}
 
 	/**
@@ -233,6 +214,28 @@ public class HistoryAccess {
 			if (tx != null)
 				tx.rollback();
 			return -1;
+		} finally {
+			session.close();
+		}
+	}
+
+	/**
+	 * Helper method to store a history entry in the database.
+	 * 
+	 * @param entry
+	 *            the entry to store.
+	 */
+	private void storeEntry(HistoryEntry entry) {
+		Session session = sessionFactory.openSession();
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
+			session.save(entry);
+			tx.commit();
+		} catch (JDBCException e) {
+			if (tx != null)
+				tx.rollback();
+			e.printStackTrace();
 		} finally {
 			session.close();
 		}
