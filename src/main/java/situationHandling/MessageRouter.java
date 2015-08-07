@@ -55,7 +55,6 @@ class MessageRouter {
 		if (sendMessage(receiverUrl, soapMessage.getSoapMessage())) {
 			routingTable.addReplyAddress(soapMessage.getWsaMessageID(),
 					answerRecipent);
-			System.out.println("Reply to: " + soapMessage.getWsaReplyTo());
 			return true;
 		}
 		return false;
@@ -69,8 +68,6 @@ class MessageRouter {
 			System.out.println("No receiver");
 			return false;
 		}
-
-		System.out.println("Receiver:" + receiver.toString());
 
 		// set receiver
 		soapMessage.setWsaTo(receiver);
@@ -91,20 +88,23 @@ class MessageRouter {
 		params.setParam("Http method", "POST");
 		Map<String, String> results = null;
 		try {
-			// TODO: Das Exception Handling hier bringt nix --> die exception
-			// muss schon gescheit vom plugin behandelt werden!
 			results = pm.getPluginSender("situationHandler.http",
 					url.toString(), payload, params).call();
-			System.out.println("Results:" + results);
 		} catch (Exception e) {
 			logger.error("Error when invoking Endpoint.", e);
 			return false;
 		}
 
-		logger.debug("Success invoking Endpoint. Result: "
-				+ results.get("body"));
+		if (Boolean.parseBoolean(results.get("success"))) {
+			logger.debug("Success invoking Endpoint. Result: "
+					+ results.get("message"));
+			return true;
+		}else{
+			logger.debug("Invoking Endpoint failed. Result: "
+					+ results.get("message"));
+			return false;
+		}
 
-		return true;
 	}
 
 	/**
