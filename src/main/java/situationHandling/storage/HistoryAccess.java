@@ -22,6 +22,11 @@ import situationHandling.storage.datatypes.Situation;
  * chosen workflow endpoints. The history is stored in a persistent way. The
  * class provides means to create new entries in the history and to query the
  * history.
+ * <p>
+ * The entries are added to the history in an asynchronous way, i.e. adding an
+ * entry does not immediately add the entry to the history. If the situation
+ * handler fails after calling adding, there is no guarantee that the entries is
+ * added to the history.
  *
  * @author Stefan
  */
@@ -54,10 +59,7 @@ public class HistoryAccess {
 	}
 
 	/**
-	 * Append an action to the history. The action is added to the history in an
-	 * asynchronous way, i.e. calling this method does not immediately add the
-	 * action to the history. If the situation handler fails after calling this
-	 * method, there is no guarantee that the action is added to the history.
+	 * Append an action to the history.
 	 *
 	 * @param action
 	 *            the action to append
@@ -95,47 +97,84 @@ public class HistoryAccess {
 	}
 
 	/**
-	 * Append an workflow operation to the history. The workflow operation is
-	 * added to the history in an asynchronous way, i.e. calling this method
-	 * does not immediately add the workflow operation to the history. If the
-	 * situation handler fails after calling this method, there is no guarantee
-	 * that the workflow operation is added to the history.
+	 * Append an workflow operation to the history. This method will create an
+	 * entry that states that the operation was invoked.
 	 *
 	 * @param endpoint
 	 *            the endpoint that was used to execute the operation
 	 * @param success
 	 *            true if the operation was executed successfully, false else
 	 */
-	public void appendWorkflowOperation(Endpoint endpoint, boolean success) {
+	public void appendWorkflowOperationInvocation(Endpoint endpoint,
+			boolean success) {
 		// write history asynchronously in thread
 		threadExectutor.submit(new Thread(new Runnable() {
 
 			@Override
 			public void run() {
 				logger.debug("Creating workflow history entry: " + endpoint);
-				StringBuilder situationString = new StringBuilder();
-				for (HandledSituation handledSituation : endpoint
-						.getSituations()) {
-					situationString
-							.append("Situation defined by SituationTemplate: "
-									+ handledSituation.getSituationName()
-									+ " and Thing: "
-									+ handledSituation.getObjectName() + " is "
-									+ handledSituation.isSituationHolds());
-				}
 
-				String typeOfAction = "Workflow operation : "
-						+ endpoint.getQualifier() + " : "
-						+ endpoint.getOperationName();
-				String payload = "";
-				String recipent = "Endpoint: " + endpoint.getEndpointID()
-						+ " with address " + endpoint.getEndpointURL();
 				String misc = "Invocation "
 						+ (success ? "successful" : "failed");
 
-				HistoryEntry entry = new HistoryEntry(situationString
-						.toString(), typeOfAction, recipent, payload, misc);
+				HistoryEntry entry = createWorkflowEntry(endpoint);
 
+				entry.setMisc(misc);
+
+				storeEntry(entry);
+			}
+		}));
+	}
+
+	/**
+	 * Append an workflow operation to the history. This method will create an
+	 * entry that states that the result of an workflow operation was received.
+	 *
+	 * @param endpoint
+	 *            the endpoint that was used to execute the operation
+	 * @param success
+	 *            true if the operation was executed successfully, false else
+	 */
+	public void appendWorkflowOperationAnswer(Endpoint endpoint) {
+		// write history asynchronously in thread
+		threadExectutor.submit(new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				logger.debug("Creating workflow history entry for answer: "
+						+ endpoint);
+
+				String misc = "Answer received. Operation successfully handled";
+
+				HistoryEntry entry = createWorkflowEntry(endpoint);
+				entry.setMisc(misc);
+				storeEntry(entry);
+			}
+		}));
+	}
+
+	/**
+	 * Append an workflow operation to the history. This method will create an
+	 * entry that states that a situation changed and therefore a rollback was
+	 * required.
+	 *
+	 * @param endpoint
+	 *            the endpoint that was used to execute the operation
+	 * @param success
+	 *            true if the operation was executed successfully, false else
+	 */
+	public void appendWorkflowRollback(Endpoint endpoint, Situation situation,
+			boolean state) {
+		// write history asynchronously in thread
+		threadExectutor.submit(new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				logger.debug("Creating history entry for rollback: " + endpoint);
+				HistoryEntry entry = createWorkflowEntry(endpoint);
+				String misc = situation.toString() + " changed to " + state
+						+ " . Rollback required.";
+				entry.setMisc(misc);
 				storeEntry(entry);
 			}
 		}));
@@ -239,6 +278,33 @@ public class HistoryAccess {
 		} finally {
 			session.close();
 		}
+	}
+
+	/**
+	 * Helper method to create an entry for workflow operations. Sets all fields
+	 * except {@code Misc}
+	 * 
+	 * @param endpoint
+	 *            the endpoint that is/was used
+	 * @return a history entry for this endpoint/operation.
+	 */
+	private HistoryEntry createWorkflowEntry(Endpoint endpoint) {
+		StringBuilder situationString = new StringBuilder();
+		for (HandledSituation handledSituation : endpoint.getSituations()) {
+			situationString.append("Situation defined by SituationTemplate: "
+					+ handledSituation.getSituationName() + " and Thing: "
+					+ handledSituation.getObjectName() + " is "
+					+ handledSituation.isSituationHolds());
+		}
+
+		String typeOfAction = "Workflow operation : " + endpoint.getQualifier()
+				+ " : " + endpoint.getOperationName();
+		String payload = "";
+		String recipent = "Endpoint: " + endpoint.getEndpointID()
+				+ " with address " + endpoint.getEndpointURL();
+
+		return new HistoryEntry(situationString.toString(), typeOfAction,
+				recipent, payload, null);
 	}
 
 }

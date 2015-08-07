@@ -38,7 +38,7 @@ class OperationHandlerImpl implements OperationHandler {
 			URL endpointURL = new URL(chosenEndpoint.getEndpointURL());
 			boolean success = new MessageRouter(soapMessage)
 					.forwardRequest(endpointURL);
-			StorageAccessFactory.getHistoryAccess().appendWorkflowOperation(
+			StorageAccessFactory.getHistoryAccess().appendWorkflowOperationInvocation(
 					chosenEndpoint, success);
 			// TODO: Hier wird gleich ein Fehler Nachricht gesendet!
 			if (!success) {
@@ -58,6 +58,8 @@ class OperationHandlerImpl implements OperationHandler {
 	public void situationChanged(Situation situation, boolean state) {
 		logger.debug(situation.toString() + " changed to " + state
 				+ ". Check Rollback.");
+		//TODO: Hier passt das nicht so ganz, weil ich den Endpunkt nicht kenne!
+//		StorageAccessFactory.getHistoryAccess().appendWorkflowRollback(null, situation, state);
 		// TODO: Rollback
 	}
 
