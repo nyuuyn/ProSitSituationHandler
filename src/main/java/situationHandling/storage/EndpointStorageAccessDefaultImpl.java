@@ -71,8 +71,7 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageDatabase {
 							operation.getOperationName()))
 					.add(Restrictions.eq("qualifier", operation.getQualifier()))
 					.list();
-			
-			
+
 			// initialize endpoints and add to returned list
 			@SuppressWarnings("rawtypes")
 			Iterator it = candidates.iterator();
@@ -176,6 +175,12 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageDatabase {
 	public int addEndpoint(Operation operation,
 			List<HandledSituation> situations, String endpointURL)
 			throws InvalidEndpointException {
+
+		// set ids of handled situations to zero. This avoids errors with
+		// manually set ids.
+		for (HandledSituation sit : situations) {
+			sit.setId(0);
+		}
 
 		Session session = sessionFactory.openSession();
 
@@ -503,7 +508,6 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageDatabase {
 		}
 		return situations;
 	}
-
 
 	/**
 	 * Conience Method to create error messages for JDBC Exceptions
