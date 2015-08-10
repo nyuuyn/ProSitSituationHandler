@@ -80,6 +80,11 @@ class RuleStorageAccessWithSubscribe implements RuleStorageAccess {
 		return rsa.deleteAction(actionID);
 	}
 
+	@Override
+	public boolean deleteActionsByPlugin(String pluginID) {
+		return rsa.deleteActionsByPlugin(pluginID);
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -131,7 +136,10 @@ class RuleStorageAccessWithSubscribe implements RuleStorageAccess {
 		try {
 			boolean success = rsa.updateRuleSituation(ruleID, situation);
 			Situation oldSituation = oldRule.getSituation();
-			if (success && !oldSituation.equals(situation)) {//check subscriptions if successful update
+			if (success && !oldSituation.equals(situation)) {// check
+																// subscriptions
+																// if successful
+																// update
 				SituationManager situationManager = SituationManagerFactory
 						.getSituationManager();
 				situationManager.removeSubscription(oldSituation);
@@ -156,7 +164,8 @@ class RuleStorageAccessWithSubscribe implements RuleStorageAccess {
 		// update subscriptions only if successful, so check for errors and
 		// success return value
 		try {
-			boolean success = rsa.updateRuleSituation(oldSituation, newSituation);
+			boolean success = rsa.updateRuleSituation(oldSituation,
+					newSituation);
 			if (success && !oldSituation.equals(newSituation)) {
 				SituationManager situationManager = SituationManagerFactory
 						.getSituationManager();

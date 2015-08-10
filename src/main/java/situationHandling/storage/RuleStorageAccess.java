@@ -107,6 +107,16 @@ public interface RuleStorageAccess {
 	public boolean deleteAction(int actionID);
 
 	/**
+	 * Deletes all actions that are to be executed by a certain Plugin.
+	 * 
+	 * @param pluginID
+	 *            the id of the plugin
+	 * @return true when the actions where deleted successfully, false else
+	 *         (especially, when the plugin does not exist.
+	 */
+	public boolean deleteActionsByPlugin(String pluginID);
+
+	/**
 	 * Deletes the rule with the specified id from the storage. Furthermore
 	 * deletes all actions that were associated to this rule.
 	 *

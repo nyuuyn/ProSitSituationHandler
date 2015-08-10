@@ -258,7 +258,7 @@ class RestApiRoutes extends RouteBuilder {
 
 		// ../plugins/<id> --> DELETE: deletes the plugin with <id>
 		rest("/config/plugins/{pluginID}").delete().to(
-				"bean:pluginApi?method=deletePlugin(${header.pluginID})");
+				"bean:pluginApi?method=deletePlugin(${header.pluginID}, ${header.delete})");
 
 	}
 

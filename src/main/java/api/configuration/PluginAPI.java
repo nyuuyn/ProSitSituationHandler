@@ -10,6 +10,7 @@ import pluginManagement.PluginManager;
 import pluginManagement.PluginManagerFactory;
 import routes.CamelUtil;
 import situationHandler.plugin.Plugin;
+import situationHandling.storage.StorageAccessFactory;
 
 /**
  * The Class PluginAPI implements the functionality of the rest configuration
@@ -66,7 +67,8 @@ public class PluginAPI {
 	 * @param exchange
 	 *            the exchange that contains the received message. Also serves
 	 *            as container for the answer.
-	 * @return A success message or a 422 http error code, when there already exists a plugin with this id.
+	 * @return A success message or a 422 http error code, when there already
+	 *         exists a plugin with this id.
 	 */
 	public void addPlugin(Exchange exchange) {
 		String pluginID = (String) exchange.getIn().getHeader("x-file-name");
@@ -92,7 +94,8 @@ public class PluginAPI {
 		if (pm.addPlugin(pluginID, directory + "/" + filename, true)) {
 			exchange.getOut().setBody("Upload Complete!");
 		} else {
-			exchange.getOut().setBody("Plugin already exists. Plugin was NOT added.");
+			exchange.getOut().setBody(
+					"Plugin already exists. Plugin was NOT added.");
 			exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, 422);
 		}
 
@@ -136,10 +139,19 @@ public class PluginAPI {
 	 *            as container for the answer.
 	 * @return A 404-error, if there is no plugin with the given id.
 	 */
-	public void deletePlugin(String pluginID, Exchange exchange) {
-	
+	public void deletePlugin(String pluginID, String deletePlugins,
+			Exchange exchange) {
+		//do not delete if invalid argument..
+		boolean delete = Boolean.parseBoolean(deletePlugins);
+
 		if (pm.removePlugin(pluginID)) {
-			exchange.getIn().setBody(new RestAnswer("Plugin successfully deleted.", String.valueOf(pluginID)));
+			if (delete) {
+				StorageAccessFactory.getRuleStorageAccess()
+						.deleteActionsByPlugin(pluginID);
+			}
+			exchange.getIn().setBody(
+					new RestAnswer("Plugin successfully deleted.", String
+							.valueOf(pluginID)));
 		} else {
 			exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
 			exchange.getIn().setBody("Plugin " + pluginID + " not found.");
