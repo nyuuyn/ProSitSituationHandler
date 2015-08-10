@@ -21,9 +21,19 @@ class OperationHandlerImpl implements OperationHandler {
 			.getLogger(OperationHandlerImpl.class);
 
 	@Override
-	public OperationHandlingResult handleOperation(SoapMessage soapMessage,
-			String qualifier) {
-		String operationName = soapMessage.getOperationName();
+	public OperationHandlingResult handleOperation(SoapMessage soapMessage) {
+
+		String operationName;
+		String qualifier;
+		// wsa action is used is specified, else ns + name
+		if (soapMessage.getWsaAction() != null
+				&& !soapMessage.getWsaAction().equals("")) {
+			operationName = soapMessage.getWsaAction();
+			qualifier = "wsa:Action";
+		} else {
+			operationName = soapMessage.getOperationName();
+			qualifier = soapMessage.getNamespace();
+		}
 
 		logger.debug("Handling Operation: " + operationName + ":" + qualifier);
 		Endpoint chosenEndpoint = chooseEndpoint(new Operation(operationName,
@@ -38,8 +48,8 @@ class OperationHandlerImpl implements OperationHandler {
 			URL endpointURL = new URL(chosenEndpoint.getEndpointURL());
 			boolean success = new MessageRouter(soapMessage)
 					.forwardRequest(endpointURL);
-			StorageAccessFactory.getHistoryAccess().appendWorkflowOperationInvocation(
-					chosenEndpoint, success);
+			StorageAccessFactory.getHistoryAccess()
+					.appendWorkflowOperationInvocation(chosenEndpoint, success);
 			// TODO: Hier wird gleich ein Fehler Nachricht gesendet!
 			if (!success) {
 				return OperationHandlingResult.error;
@@ -58,8 +68,10 @@ class OperationHandlerImpl implements OperationHandler {
 	public void situationChanged(Situation situation, boolean state) {
 		logger.debug(situation.toString() + " changed to " + state
 				+ ". Check Rollback.");
-		//TODO: Hier passt das nicht so ganz, weil ich den Endpunkt nicht kenne!
-//		StorageAccessFactory.getHistoryAccess().appendWorkflowRollback(null, situation, state);
+		// TODO: Hier passt das nicht so ganz, weil ich den Endpunkt nicht
+		// kenne!
+		// StorageAccessFactory.getHistoryAccess().appendWorkflowRollback(null,
+		// situation, state);
 		// TODO: Rollback
 	}
 

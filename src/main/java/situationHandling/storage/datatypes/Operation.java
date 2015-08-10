@@ -2,8 +2,14 @@ package situationHandling.storage.datatypes;
 
 /**
  * The Class Operation is a wrapper class for operations from soap webservices.
- * An operation consists of an operation name and a qualifier for the name. The
- * qualifier is for example the namespace or the porttype.
+ * An operation consists of an operation name and a qualifier for the name.
+ * There are two options to specify an operation: either with a combination of
+ * namespace and operation name (as stated in the soap message) or with the
+ * wsa:Action header. In case namespace and operation name are used, the
+ * qualifier is the namespace. In case the wsa:Action header is used, the
+ * qualifier must be "wsa:Action" and the operation name is the url or whatever.
+ * <p>
+ * Note that it is prefered to use the wsa:Action header.
  */
 public class Operation {
 

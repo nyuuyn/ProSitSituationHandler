@@ -26,7 +26,10 @@ class SoapMessage {
 	// TODO: Die ganzen WSA Header könnte man auch in einer Map oder so
 	// zurückgeben, falls es noch mehr werden
 	private SOAPMessage soapMessage;
+
 	private String operationName = null;
+	private String namespace = null;
+
 	private String wsaMessageID = null;
 	private URL wsaReplyTo = null;
 	private String wsaRelationshipType = null;
@@ -52,18 +55,12 @@ class SoapMessage {
 	}
 
 	private void parseOperationName() throws SOAPException {
-
-		// TODO: Hier muss man mal noch final klaren, was genau jetzt
-		// eigentlich als qualifier benutzt wird: namespace oder porttype
-		// (bei namespace kann man den ersten teil vom split nehmen)
 		String qualifiedOperation;
 		qualifiedOperation = soapMessage.getSOAPPart().getEnvelope().getBody()
 				.getChildNodes().item(1).getNodeName();
 		String[] temp = qualifiedOperation.split(":");
 		this.operationName = temp[1];
-
-		// logger.error("Error parsing operation name", e);
-
+		this.namespace = temp[0];
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -184,6 +181,13 @@ class SoapMessage {
 	}
 
 	/**
+	 * @return the namespace
+	 */
+	String getNamespace() {
+		return namespace;
+	}
+
+	/**
 	 * @return the wsaMessageID
 	 */
 	String getWsaMessageID() {
@@ -232,11 +236,11 @@ class SoapMessage {
 	 */
 	@Override
 	public String toString() {
-		return "SoapMessage [operationName=" + operationName
-				+ ", wsaMessageID=" + wsaMessageID + ", wsaReplyTo="
-				+ wsaReplyTo + ", wsaTo=" + wsaTo + ", wsaAction=" + wsaAction
-				+ ", wsaRelatesTo=" + wsaRelatesTo + ", wsaRelationshipType="
-				+ wsaRelationshipType + "]";
+		return "SoapMessage [operationName=" + operationName + ", namespace="
+				+ namespace + ", wsaMessageID=" + wsaMessageID
+				+ ", wsaReplyTo=" + wsaReplyTo + ", wsaTo=" + wsaTo
+				+ ", wsaAction=" + wsaAction + ", wsaRelatesTo=" + wsaRelatesTo
+				+ ", wsaRelationshipType=" + wsaRelationshipType + "]";
 	}
 
 }

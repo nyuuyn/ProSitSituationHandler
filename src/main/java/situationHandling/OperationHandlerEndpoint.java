@@ -6,8 +6,6 @@ package situationHandling;
 import org.apache.camel.Exchange;
 import org.apache.log4j.Logger;
 
-import situationHandling.storage.StorageAccessFactory;
-
 /**
  * @author Stefan
  *
@@ -23,12 +21,8 @@ public class OperationHandlerEndpoint {
 
 		logger.debug("Received request:\n" + soapMessage.toString());
 
-		String qualifier = exchange.getIn()
-				.getHeader("CamelHttpPath", String.class).replace("/", "")
-				.trim();
-
 		OperationHandlerFactory.getOperationHandler().handleOperation(
-				soapMessage, qualifier);
+				soapMessage);
 
 		// // TODO:useless
 		// OperationHandlingResult result = OperationHandlingResult.success;
