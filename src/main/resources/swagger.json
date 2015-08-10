@@ -877,6 +877,13 @@
                 "parameters": [
                     {
                         "$ref": "#/parameters/PluginPath"
+                    },
+                    {
+                        "name": "delete",
+                        "in": "query",
+                        "description": "Specifiy whether the actions associated to this plugin should be deleted or not. When an invalid value is used or the param is omitted, no actions will be deleted.",
+                        "required": false,
+                        "type": "boolean"
                     }
                 ],
                 "responses": {
