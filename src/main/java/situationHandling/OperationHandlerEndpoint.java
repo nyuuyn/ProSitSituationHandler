@@ -22,7 +22,7 @@ public class OperationHandlerEndpoint {
 		logger.debug("Received request:\n" + soapMessage.toString());
 
 		OperationHandlerFactory.getOperationHandler().handleOperation(
-				soapMessage);
+				soapMessage, null);
 
 		// // TODO:useless
 		// OperationHandlingResult result = OperationHandlingResult.success;
@@ -47,11 +47,7 @@ public class OperationHandlerEndpoint {
 	public void receiveAnswer(Exchange exchange) {
 		SoapMessage sp = exchange.getIn().getBody(SoapMessage.class);
 		logger.debug("Received Answer Message: " + sp.toString());
-		new MessageRouter(sp).forwardAnswer();
-		// TODO: Das passt noch nicht ganz mit der History, weil ich den
-		// Endpunkt hier gar nicht kenne
-		// StorageAccessFactory.getHistoryAccess().appendWorkflowOperationAnswer(null);
-
+		OperationHandlerFactory.getOperationHandler().onAnswerReceived(sp);
 	}
 
 }

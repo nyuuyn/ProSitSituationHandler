@@ -1,5 +1,6 @@
 package situationHandling.storage.datatypes;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -201,6 +202,19 @@ public class Endpoint {
 	 */
 	public List<HandledSituation> getSituations() {
 		return situations;
+	}
+
+	/**
+	 * Get all situations of this endpoint that require a rollback when
+	 * changing.
+	 * 
+	 * @return a list of situations
+	 */
+	public List<Situation> getRollbackSituations() {
+		LinkedList<Situation> rollbackSituations = new LinkedList<>();
+		situations.forEach(handledSit -> rollbackSituations.add(handledSit
+				.getSituation()));
+		return rollbackSituations;
 	}
 
 	/**

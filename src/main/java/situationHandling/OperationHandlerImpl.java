@@ -2,6 +2,9 @@ package situationHandling;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -20,12 +23,41 @@ class OperationHandlerImpl implements OperationHandler {
 	private final static Logger logger = Logger
 			.getLogger(OperationHandlerImpl.class);
 
+	public static final int DEFAULT_ROLLBACK_MAXIMUM = 2;
+
+	/**
+	 * Manages rollbacks ready to start
+	 * 
+	 * TODO: Hier muss bei erfolg gelöscht werden!
+	 * 
+	 * <Situation, all handlers that must run when this situation changes>
+	 */
+	private HashMap<Situation, LinkedList<RollbackHandler>> rollbackHandlers;
+
+	/**
+	 * Manages running rollbacks.
+	 * 
+	 * <the id of the newly created rollback message, the running handler>
+	 */
+	private HashMap<String, RollbackHandler> runningRollbacks;
+
+	/**
+	 * @param rollbackHandlers
+	 */
+	OperationHandlerImpl(
+			HashMap<Situation, LinkedList<RollbackHandler>> rollbackHandlers,
+			HashMap<String, RollbackHandler> runningRollbacks) {
+		this.rollbackHandlers = rollbackHandlers;
+		this.runningRollbacks = runningRollbacks;
+	}
+
 	@Override
-	public OperationHandlingResult handleOperation(SoapMessage soapMessage) {
+	public OperationHandlingResult handleOperation(SoapMessage soapMessage,
+			RollbackHandler rollbackHandler) {
 
 		String operationName;
 		String qualifier;
-		// wsa action is used is specified, else ns + name
+		// wsa action is used if specified, else ns + name
 		if (soapMessage.getWsaAction() != null
 				&& !soapMessage.getWsaAction().equals("")) {
 			operationName = soapMessage.getWsaAction();
@@ -55,24 +87,14 @@ class OperationHandlerImpl implements OperationHandler {
 				return OperationHandlingResult.error;
 			}
 
-			registerRollbackHandler();
+			registerRollbackHandler(rollbackHandler, chosenEndpoint,
+					soapMessage);
 
 			return OperationHandlingResult.success;
 		} catch (MalformedURLException e) {
 			return OperationHandlingResult.error;
 		}
 
-	}
-
-	@Override
-	public void situationChanged(Situation situation, boolean state) {
-		logger.debug(situation.toString() + " changed to " + state
-				+ ". Check Rollback.");
-		// TODO: Hier passt das nicht so ganz, weil ich den Endpunkt nicht
-		// kenne!
-		// StorageAccessFactory.getHistoryAccess().appendWorkflowRollback(null,
-		// situation, state);
-		// TODO: Rollback
 	}
 
 	/**
@@ -156,36 +178,86 @@ class OperationHandlerImpl implements OperationHandler {
 		return bestCandidate;
 	}
 
-	// /**
-	// *
-	// * @param endpoint
-	// * @param payload
-	// * @return true when successful, false else
-	// */
-	// private boolean invokeEndpoint(Endpoint endpoint, String payload) {
-	// PluginManager pm = PluginManagerFactory.getPluginManager();
-	// PluginParams params = new PluginParams();
-	//
-	// params.setParam("Http method", "POST");
-	// Map<String, String> results = null;
-	// try {
-	// // TODO: Das Exception Handling hier bringt nix --> die exception
-	// // muss schon gescheit vom plugin behandelt werden!
-	// results = pm.getPluginSender("situationHandler.http",
-	// endpoint.getEndpointURL(), payload, params).call();
-	// } catch (Exception e) {
-	// logger.error("Error when invoking Endpoint.", e);
-	// return false;
-	// }
-	//
-	// logger.debug("Success invoking Endpoint. Result: "
-	// + results.get("body"));
-	//
-	// return true;
-	// }
+	@Override
+	public void situationChanged(Situation situation, boolean state) {
+		logger.debug(situation.toString() + " changed to " + state
+				+ ". Check Rollback.");
 
-	private void registerRollbackHandler() {
+		synchronized (OperationHandler.class) {
+			LinkedList<RollbackHandler> handlers = rollbackHandlers
+					.get(situation);
+			Iterator<RollbackHandler> it = handlers.iterator();
+			while (it.hasNext()) {
+				RollbackHandler handler = it.next();
+				String messageID = handler.initiateRollback();
+				if (messageID == null) {
+					// TODO: send fault (man sollte hier dann auch die ganzen Mappings entfernen!)
+				} else {
+					runningRollbacks.put(messageID, handler);
+				}
 
+				// the handler is also removed from all other situations the
+				// handler is registred on..(to avoid double rollbacks)
+				Iterator<Situation> sitIter = handler.getSituations()
+						.iterator();
+				while (sitIter.hasNext()) {
+					Situation sitToCheck = sitIter.next();
+					rollbackHandlers.get(sitToCheck).removeFirstOccurrence(
+							handler);
+				}
+
+				it.remove();
+			}
+		}
+
+		// TODO: Hier passt das nicht so ganz, weil ich den Endpunkt nicht
+		// kenne!
+		// StorageAccessFactory.getHistoryAccess().appendWorkflowRollback(null,
+		// situation, state);
+		// TODO: Rollback
+	}
+
+	private void registerRollbackHandler(RollbackHandler rollbackHandler,
+			Endpoint chosenEndpoint, SoapMessage soapMessage) {
+		// TODO: Parse Message for Max Rollbacks and use the count
+		if (rollbackHandler == null) {
+			rollbackHandler = new RollbackHandler(chosenEndpoint,
+					DEFAULT_ROLLBACK_MAXIMUM, soapMessage);
+		}
+
+		// add rollback to all situations
+		for (Situation sit : chosenEndpoint.getRollbackSituations()) {
+			LinkedList<RollbackHandler> handlers;
+			synchronized (OperationHandler.class) {
+				// several threads might at the same time register rollbacks and
+				// handle rollbacks for changed situations. Therefore,
+				// synchronization is necessary
+
+				if ((handlers = rollbackHandlers.get(sit)) == null) {
+					handlers = new LinkedList<>();
+				}
+				handlers.add(rollbackHandler);
+				rollbackHandlers.put(sit, handlers);
+			}
+		}
+	}
+
+	@Override
+	public void onAnswerReceived(SoapMessage soapMessage) {
+			
+		// check if there is a message handler for this message
+		RollbackHandler handler = runningRollbacks.remove(soapMessage
+				.getWsaRelatesTo());
+		if (handler == null) {
+			// in case this is a regular answer (no rollback), just forward it
+			new MessageRouter(soapMessage).forwardAnswer();
+			// TODO: Das passt noch nicht ganz mit der History, weil ich den
+			// Endpunkt hier gar nicht kenne
+			// StorageAccessFactory.getHistoryAccess().appendWorkflowOperationAnswer(null);
+		} else {
+			// in case it is a rollback answer, do the appropriate handling
+			handler.onRollbackCompleted(soapMessage);
+		}
 	}
 
 }

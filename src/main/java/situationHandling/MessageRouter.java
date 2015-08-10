@@ -32,7 +32,7 @@ class MessageRouter {
 	/**
 	 * @param soapMessage
 	 */
-	MessageRouter(SoapMessage soapMessage) {
+	MessageRouter(SoapMessage soapMessage) {//TODO: Das ist komisch, wenn man verschiedene Nachrichten forwarden will..
 		this.soapMessage = soapMessage;
 	}
 
@@ -93,6 +93,17 @@ class MessageRouter {
 		return sendMessage(receiver, soapMessage.getSoapMessage());
 	}
 
+	boolean forwardRollbackRequest(){
+		
+		routingTable.removeSurrogateId(soapMessage.getWsaRelatesTo());
+		
+		return false;
+	}
+
+	void rollbackResponseReceived(String messageId) {
+		routingTable.removeSurrogateId(messageId);
+	}
+
 	/**
 	 * 
 	 * @param endpoint
@@ -126,11 +137,11 @@ class MessageRouter {
 
 	}
 
-	/**
-	 * @return the routingTable
-	 */
-	static OperationRoutingTable getRoutingTable() {
-		return routingTable;
-	}
+	// /**
+	// * @return the routingTable
+	// */
+	// static OperationRoutingTable getRoutingTable() {
+	// return routingTable;
+	// }
 
 }
