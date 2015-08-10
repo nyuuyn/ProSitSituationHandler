@@ -140,26 +140,45 @@ class SoapMessage {
 
 	}
 
-	@SuppressWarnings("rawtypes")
+
 	void setWsaTo(URL receiverAddress) {
+		if (setStandardWsaHeader("wsa:To", receiverAddress.toString())) {
+			this.wsaTo = receiverAddress;
+		}
+	}
+	
+	void setWsaMessageId(String messageId) {
+		if (setStandardWsaHeader("wsa:MessageID", messageId)){
+			this.wsaMessageID = messageId;
+		}
+
+	}
+
+	void setWsaRelatesTo(String messageId) {
+		if (setStandardWsaHeader("wsa:RelatesTo", messageId)){
+			this.wsaRelatesTo = messageId;
+		}
+	}
+
+
+	@SuppressWarnings("rawtypes")
+	private boolean setStandardWsaHeader(String headerName, String headerValue) {
 		try {
 			SOAPHeader sh = soapMessage.getSOAPHeader();
 
 			Iterator it = sh.examineAllHeaderElements();
-			boolean updated = false;
-			while (it.hasNext() && !updated) {
+			while (it.hasNext()) {
 				SOAPHeaderElement she = (SOAPHeaderElement) it.next();
-				String headerName = she.getTagName();
-				if (headerName.equals("wsa:To")) {
-					wsaTo = receiverAddress;
-					she.setValue(wsaTo.toString());
-					updated = true;
-
+				String currentHeaderName = she.getTagName();
+				if (currentHeaderName.equals(headerName)) {
+					she.setValue(headerValue);
+					return true;
 				}
 			}
 		} catch (SOAPException e) {
-			logger.error("Error setting reply address", e);
+			logger.error("Error setting header: " + headerName, e);
 		}
+		return false;
 	}
 
 	String getSoapMessage() {
