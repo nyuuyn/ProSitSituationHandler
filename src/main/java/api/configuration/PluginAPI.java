@@ -1,8 +1,10 @@
 package api.configuration;
 
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.camel.CamelExecutionException;
 import org.apache.camel.Exchange;
 
 import pluginManagement.PluginInfo;
@@ -72,21 +74,27 @@ public class PluginAPI {
 	 */
 	public void addPlugin(Exchange exchange) {
 		String pluginID = (String) exchange.getIn().getHeader("x-file-name");
-		System.out.println("pluginID: " + pluginID);
 		String directory = "tempfiles";
 		String filename = pluginID + ".jar";
 
-		// TODO: Das koennte man wohl doch auch noch anders machen --> ..getIn()
-		// zu NettyHttpMessage casten, und dann irgendwie versuchen das mit den
-		// Multipart dingern zu fixen.; Mit Jetty müsste es auch gehen, siehe
-		// Jetty Component Doku; vllt Besserung mit camel 2.16?
-		// http://stackoverflow.com/questions/26848480/accept-multipart-file-upload-as-camel-restlet-or-cxfrs-endpoint/30267835#30267835
-		// <<-- auch interessant
+		
+		// get first attachment, then save at temporarily (jetty version)
+		try {
+			CamelUtil.getProducerTemplate().sendBody(
+					"file:" + directory + "?fileName=" + filename,
+					exchange.getIn()
+							.getAttachment(
+									exchange.getIn().getAttachmentNames()
+											.iterator().next()).getContent());
+		} catch (CamelExecutionException | IOException e) {
+			e.printStackTrace();
+		}
 
-		// save file temporarily
-		CamelUtil.getProducerTemplate().sendBody(
-				"file:" + directory + "?fileName=" + filename,
-				exchange.getIn().getBody());
+		//TODO: finale Komponente festlegen..
+		// save file temporarily (netty version)
+		// CamelUtil.getProducerTemplate().sendBody(
+		// "file:" + directory + "?fileName=" + filename,
+		// exchange.getIn().getBody());
 
 		// add plugin (also deletes temp file)
 		exchange.getOut().setHeader(Exchange.CONTENT_TYPE,
@@ -141,7 +149,7 @@ public class PluginAPI {
 	 */
 	public void deletePlugin(String pluginID, String deletePlugins,
 			Exchange exchange) {
-		//do not delete if invalid argument..
+		// do not delete if invalid argument..
 		boolean delete = Boolean.parseBoolean(deletePlugins);
 
 		if (pm.removePlugin(pluginID)) {
