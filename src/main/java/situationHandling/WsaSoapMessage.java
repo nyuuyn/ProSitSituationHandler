@@ -367,7 +367,7 @@ public class WsaSoapMessage {
 					.createQName("ReplyTo", wsaPrefix));
 			String ownIPAdress = InetAddress.getLocalHost().getHostAddress();
 			replyTo.addChildElement("Address", wsaPrefix).setValue(
-					"http://" + ownIPAdress + "/"
+					"http://" + ownIPAdress + ":" + GlobalProperties.NETWORK_PORT + "/"
 							+ GlobalProperties.ANSWER_ENDPOINT_PATH);
 
 			// id

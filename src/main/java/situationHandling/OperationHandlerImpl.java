@@ -41,6 +41,8 @@ class OperationHandlerImpl implements OperationHandler {
 	 */
 	private HashMap<String, RollbackHandler> runningRollbacks;
 
+	
+
 	/**
 	 * @param rollbackHandlers
 	 */
@@ -190,6 +192,8 @@ class OperationHandlerImpl implements OperationHandler {
 			Iterator<RollbackHandler> it = handlers.iterator();
 			while (it.hasNext()) {
 				RollbackHandler handler = it.next();
+				it.remove();
+				
 				String messageID = handler.initiateRollback();
 				if (messageID == null) {
 					// TODO: send fault (man sollte hier dann auch die ganzen
@@ -208,7 +212,9 @@ class OperationHandlerImpl implements OperationHandler {
 							handler);
 				}
 
-				it.remove();
+				
+				// TODO: Das ganze Zeug mit den Listen und auch mit der Routing
+				// Tabelle muss eigentlich noch ausführlich getestet werden!
 			}
 		}
 
@@ -220,8 +226,10 @@ class OperationHandlerImpl implements OperationHandler {
 	}
 
 	private void registerRollbackHandler(RollbackHandler rollbackHandler,
-			Endpoint chosenEndpoint, WsaSoapMessage wsaSoapMessage, String surrogate) {
-		logger.debug("Registering rollback handler for endpoint: " + chosenEndpoint.toString());
+			Endpoint chosenEndpoint, WsaSoapMessage wsaSoapMessage,
+			String surrogate) {
+		logger.debug("Registering rollback handler for endpoint: "
+				+ chosenEndpoint.toString());
 		// TODO: Parse Message for Max Rollbacks and use the count
 		if (rollbackHandler == null) {
 			rollbackHandler = new RollbackHandler(chosenEndpoint,
@@ -256,6 +264,7 @@ class OperationHandlerImpl implements OperationHandler {
 		RollbackHandler handler = runningRollbacks.remove(wsaSoapMessage
 				.getWsaRelatesTo());
 		if (handler == null) {
+			//TODO: Rollbackhandler entfernen! Was passiert wenn waehrend einem Rollback eine normale Antwort noch eintrifft --> die muss man wegschmeissen!
 			logger.debug("Received regular answer:" + wsaSoapMessage.toString());
 			// in case this is a regular answer (no rollback), just forward it
 			new MessageRouter(wsaSoapMessage).forwardAnswer();
@@ -263,7 +272,8 @@ class OperationHandlerImpl implements OperationHandler {
 			// Endpunkt hier gar nicht kenne
 			// StorageAccessFactory.getHistoryAccess().appendWorkflowOperationAnswer(null);
 		} else {
-			logger.debug("Received rollback answer:" + wsaSoapMessage.toString());
+			logger.debug("Received rollback answer:"
+					+ wsaSoapMessage.toString());
 			// in case it is a rollback answer, do the appropriate handling
 			handler.onRollbackCompleted(wsaSoapMessage);
 		}
