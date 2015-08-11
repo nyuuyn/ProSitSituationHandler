@@ -50,7 +50,8 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 				// .to("stream:out")
 				.process(new SoapProcessor())
 				.to("seda:workflowRequests?waitForTaskToComplete=Never")
-				.transform(constant("")).setHeader(Exchange.HTTP_RESPONSE_CODE, constant("202"));
+				.transform(constant(""))
+				.setHeader(Exchange.HTTP_RESPONSE_CODE, constant("202"));
 
 		from(
 				"seda:workflowRequests?concurrentConsumers="
@@ -87,9 +88,8 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 						+ GlobalProperties.SITUATION_ENDPOINT_PATH).to(
 				"seda:situationChange?waitForTaskToComplete=Never").transform(
 				constant("Ok"));
-		from(
-				"seda:situationChange?concurrentConsumers="
-						+ GlobalProperties.DEFAULT_THREAD_POOL_SIZE).to(
+		//no conucurrent consumers here!
+		from("seda:situationChange").to(
 				"bean:situationEndpoint?method=situationReceived");
 	}
 

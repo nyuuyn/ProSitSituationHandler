@@ -55,13 +55,6 @@ public class SituationEndpoint {
 					+ " | occured: "
 					+ situationResult.isOccured());
 
-
-			// notify notification and workflow handling
-			SituationHandlerFactory.getSituationHandler().situationChanged(
-					situation, situationResult.isOccured());
-			OperationHandlerFactory.getOperationHandler().situationChanged(
-					situation, situationResult.isOccured());
-
 			// updates the cache, if the cache is enabled
 			SituationManager situationManager = SituationManagerFactory
 					.getSituationManager();
@@ -71,6 +64,12 @@ public class SituationEndpoint {
 						new Situation(situation.getSituationName(), situation
 								.getObjectName()), situationResult.isOccured());
 			}
+
+			// notify notification and workflow handling
+			SituationHandlerFactory.getSituationHandler().situationChanged(
+					situation, situationResult.isOccured());
+			OperationHandlerFactory.getOperationHandler().situationChanged(
+					situation, situationResult.isOccured());
 
 		} catch (IOException e) {
 			logger.warn("Received invalid message from Situation Recognition System."

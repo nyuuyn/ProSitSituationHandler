@@ -72,5 +72,9 @@ public class RollbackHandler {
 	void setSurrogateId(String surrogateId) {
 		this.surrogateId = surrogateId;
 	}
+	
+	String getSurrogateId (){
+		return surrogateId;
+	}
 
 }

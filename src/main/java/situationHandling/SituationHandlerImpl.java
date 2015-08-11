@@ -28,17 +28,22 @@ class SituationHandlerImpl implements SituationHandler {
 		RuleStorageAccess rsa = StorageAccessFactory.getRuleStorageAccess();
 		PluginManager pm = PluginManagerFactory.getPluginManager();
 
-		ExecutionTime time = state ? ExecutionTime.onSituationAppear : ExecutionTime.onSituationDisappear;
-		List<Action> actions = rsa.getActionsBySituationAndExecutionTime(situation, time);
+		ExecutionTime time = state ? ExecutionTime.onSituationAppear
+				: ExecutionTime.onSituationDisappear;
+		List<Action> actions = rsa.getActionsBySituationAndExecutionTime(
+				situation, time);
 		logger.debug("Executing actions:\n" + actions.toString());
 
-		//TODO: Das vllt anders machen (keine doppelte schleife usw.
+		// TODO: Das vllt anders machen (keine doppelte schleife usw. -->
+		// ausserdem scheisse weil das ergebnis nicht berücksichtigt wird
 		for (Action action : actions) {
-			StorageAccessFactory.getHistoryAccess().appendAction(action, situation, state);
+			StorageAccessFactory.getHistoryAccess().appendAction(action,
+					situation, state);
 		}
 
-		actions.forEach(action -> threadExecutor.submit(pm.getPluginSender(action.getPluginID(), action.getAddress(),
-				action.getPayload(), new PluginParams(action.getParams()))));
+		actions.forEach(action -> threadExecutor.submit(pm.getPluginSender(
+				action.getPluginID(), action.getAddress(), action.getPayload(),
+				new PluginParams(action.getParams()))));
 
 	}
 

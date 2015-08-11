@@ -41,8 +41,6 @@ class OperationHandlerImpl implements OperationHandler {
 	 */
 	private HashMap<String, RollbackHandler> runningRollbacks;
 
-	
-
 	/**
 	 * @param rollbackHandlers
 	 */
@@ -57,6 +55,8 @@ class OperationHandlerImpl implements OperationHandler {
 	public OperationHandlingResult handleOperation(
 			WsaSoapMessage wsaSoapMessage, RollbackHandler rollbackHandler) {
 
+		// TODO: scheinbar kann es bei einem Situationswechsel vorkommen, dass
+		// mehrfach dieselbe Implementierung gewählt wird.
 		String operationName;
 		String qualifier;
 		// wsa action is used if specified, else ns + name
@@ -189,11 +189,14 @@ class OperationHandlerImpl implements OperationHandler {
 		synchronized (OperationHandler.class) {
 			LinkedList<RollbackHandler> handlers = rollbackHandlers
 					.get(situation);
+			if (handlers == null) {// no handlers registred
+				return;
+			}
 			Iterator<RollbackHandler> it = handlers.iterator();
 			while (it.hasNext()) {
 				RollbackHandler handler = it.next();
 				it.remove();
-				
+
 				String messageID = handler.initiateRollback();
 				if (messageID == null) {
 					// TODO: send fault (man sollte hier dann auch die ganzen
@@ -212,7 +215,6 @@ class OperationHandlerImpl implements OperationHandler {
 							handler);
 				}
 
-				
 				// TODO: Das ganze Zeug mit den Listen und auch mit der Routing
 				// Tabelle muss eigentlich noch ausführlich getestet werden!
 			}
@@ -264,9 +266,12 @@ class OperationHandlerImpl implements OperationHandler {
 		RollbackHandler handler = runningRollbacks.remove(wsaSoapMessage
 				.getWsaRelatesTo());
 		if (handler == null) {
-			//TODO: Rollbackhandler entfernen! Was passiert wenn waehrend einem Rollback eine normale Antwort noch eintrifft --> die muss man wegschmeissen!
+			// the rollbackhandler that still exists for this message must be
+			// removed!
+			removeRollbackHandler(wsaSoapMessage.getWsaRelatesTo());
 			logger.debug("Received regular answer:" + wsaSoapMessage.toString());
 			// in case this is a regular answer (no rollback), just forward it
+			// (if an "old" answer arrives, the forwarding will not succeed)
 			new MessageRouter(wsaSoapMessage).forwardAnswer();
 			// TODO: Das passt noch nicht ganz mit der History, weil ich den
 			// Endpunkt hier gar nicht kenne
@@ -277,6 +282,45 @@ class OperationHandlerImpl implements OperationHandler {
 			// in case it is a rollback answer, do the appropriate handling
 			handler.onRollbackCompleted(wsaSoapMessage);
 		}
+	}
+
+	private synchronized void removeRollbackHandler(String messageId) {
+		for (LinkedList<RollbackHandler> handlers : rollbackHandlers.values()) {
+			Iterator<RollbackHandler> it = handlers.iterator();
+			while (it.hasNext()) {
+				RollbackHandler currentHandler = it.next();
+				if (currentHandler.getSurrogateId().equals(messageId)) {
+					it.remove();
+				}
+			}
+		}
+	}
+
+	private void printRunningRollbacks() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("---------Running Rollback Handlers---------\n");
+		sb.append("<Rollback message id> --> <Surrogate id of request message>");
+		for (String s : runningRollbacks.keySet()) {
+			sb.append(s + " --> " + runningRollbacks.get(s).getSurrogateId());
+			sb.append("\n");
+		}
+		sb.append("---------Running Handlers Finish---------\n");
+		System.out.println(sb.toString());
+	}
+
+	private void printExistingRollbackHandlers() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("---------Existing Rollback Handlers---------\n");
+		sb.append("<Situation> --> <Surrogate ID of request message the handler relates to>, <...>");
+		for (Situation sit : rollbackHandlers.keySet()) {
+			sb.append(sit + " --> ");
+			for (RollbackHandler rh : rollbackHandlers.get(sit)) {
+				sb.append(rh.getSurrogateId() + ", ");
+			}
+			sb.append("\n");
+		}
+		sb.append("---------Rollback Handlers Finish---------\n");
+		System.out.println(sb.toString());
 	}
 
 }
