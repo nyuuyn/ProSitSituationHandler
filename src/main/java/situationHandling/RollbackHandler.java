@@ -12,7 +12,7 @@ public class RollbackHandler {
 	private Endpoint endpoint;
 	private int rollbackCount = 0;
 	private final int maxRollbacks;
-	private SoapMessage orignalMessage;
+	private WsaSoapMessage orignalMessage;
 
 	/**
 	 * @param surrogateId
@@ -22,7 +22,7 @@ public class RollbackHandler {
 	 * @param orignalMessage
 	 */
 	RollbackHandler(Endpoint endpoint, int maxRollbacks,
-			SoapMessage orignalMessage) {
+			WsaSoapMessage orignalMessage) {
 		this.surrogateId = orignalMessage.getWsaMessageID();
 		this.endpoint = endpoint;
 		this.maxRollbacks = maxRollbacks;
@@ -46,9 +46,9 @@ public class RollbackHandler {
 		return newSurrogateId.toString();
 	}
 
-	void onRollbackCompleted(SoapMessage soapMessage) {
+	void onRollbackCompleted(WsaSoapMessage wsaSoapMessage) {
 		// MessageRouter.getRoutingTable().removeSurrogateId(soapMessage.getWsaMessageID());
-		new MessageRouter(null).rollbackResponseReceived(soapMessage
+		new MessageRouter(null).rollbackResponseReceived(wsaSoapMessage
 				.getWsaMessageID());
 		// init handling
 		OperationHandlerFactory.getOperationHandler().handleOperation(

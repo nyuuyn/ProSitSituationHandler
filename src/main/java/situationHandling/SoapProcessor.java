@@ -19,11 +19,11 @@ public class SoapProcessor implements Processor {
 
 		String body = exchange.getIn().getBody(String.class);
 
-		SoapMessage soapProcessor;
+		WsaSoapMessage wsaSoapMessage;
 
 		try {
-			soapProcessor = new SoapMessage(body);
-			exchange.getIn().setBody(soapProcessor, SoapProcessor.class);
+			wsaSoapMessage = new WsaSoapMessage(body);
+			exchange.getIn().setBody(wsaSoapMessage, WsaSoapMessage.class);
 		} catch (SOAPException e) {
 			exchange.getIn().setBody("Invalid Soap Message");
 			exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");

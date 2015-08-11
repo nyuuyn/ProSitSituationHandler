@@ -17,12 +17,12 @@ public class OperationHandlerEndpoint {
 			.getLogger(OperationHandlerEndpoint.class);
 
 	public void receiveRequest(Exchange exchange) {
-		SoapMessage soapMessage = exchange.getIn().getBody(SoapMessage.class);
+		WsaSoapMessage wsaSoapMessage = exchange.getIn().getBody(WsaSoapMessage.class);
 
-		logger.debug("Received request:\n" + soapMessage.toString());
+		logger.debug("Received request:\n" + wsaSoapMessage.toString());
 
 		OperationHandlerFactory.getOperationHandler().handleOperation(
-				soapMessage, null);
+				wsaSoapMessage, null);
 
 		// // TODO:useless
 		// OperationHandlingResult result = OperationHandlingResult.success;
@@ -45,7 +45,7 @@ public class OperationHandlerEndpoint {
 	}
 
 	public void receiveAnswer(Exchange exchange) {
-		SoapMessage sp = exchange.getIn().getBody(SoapMessage.class);
+		WsaSoapMessage sp = exchange.getIn().getBody(WsaSoapMessage.class);
 		logger.debug("Received Answer Message: " + sp.toString());
 		OperationHandlerFactory.getOperationHandler().onAnswerReceived(sp);
 	}

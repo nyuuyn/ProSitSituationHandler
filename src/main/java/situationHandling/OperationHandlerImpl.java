@@ -52,19 +52,19 @@ class OperationHandlerImpl implements OperationHandler {
 	}
 
 	@Override
-	public OperationHandlingResult handleOperation(SoapMessage soapMessage,
+	public OperationHandlingResult handleOperation(WsaSoapMessage wsaSoapMessage,
 			RollbackHandler rollbackHandler) {
 
 		String operationName;
 		String qualifier;
 		// wsa action is used if specified, else ns + name
-		if (soapMessage.getWsaAction() != null
-				&& !soapMessage.getWsaAction().equals("")) {
-			operationName = soapMessage.getWsaAction();
+		if (wsaSoapMessage.getWsaAction() != null
+				&& !wsaSoapMessage.getWsaAction().equals("")) {
+			operationName = wsaSoapMessage.getWsaAction();
 			qualifier = "wsa:Action";
 		} else {
-			operationName = soapMessage.getOperationName();
-			qualifier = soapMessage.getNamespace();
+			operationName = wsaSoapMessage.getOperationName();
+			qualifier = wsaSoapMessage.getNamespace();
 		}
 
 		logger.debug("Handling Operation: " + operationName + ":" + qualifier);
@@ -78,7 +78,7 @@ class OperationHandlerImpl implements OperationHandler {
 
 		try {
 			URL endpointURL = new URL(chosenEndpoint.getEndpointURL());
-			boolean success = new MessageRouter(soapMessage)
+			boolean success = new MessageRouter(wsaSoapMessage)
 					.forwardRequest(endpointURL);
 			StorageAccessFactory.getHistoryAccess()
 					.appendWorkflowOperationInvocation(chosenEndpoint, success);
@@ -88,7 +88,7 @@ class OperationHandlerImpl implements OperationHandler {
 			}
 
 			registerRollbackHandler(rollbackHandler, chosenEndpoint,
-					soapMessage);
+					wsaSoapMessage);
 
 			return OperationHandlingResult.success;
 		} catch (MalformedURLException e) {
@@ -218,11 +218,11 @@ class OperationHandlerImpl implements OperationHandler {
 	}
 
 	private void registerRollbackHandler(RollbackHandler rollbackHandler,
-			Endpoint chosenEndpoint, SoapMessage soapMessage) {
+			Endpoint chosenEndpoint, WsaSoapMessage wsaSoapMessage) {
 		// TODO: Parse Message for Max Rollbacks and use the count
 		if (rollbackHandler == null) {
 			rollbackHandler = new RollbackHandler(chosenEndpoint,
-					DEFAULT_ROLLBACK_MAXIMUM, soapMessage);
+					DEFAULT_ROLLBACK_MAXIMUM, wsaSoapMessage);
 		}
 
 		// add rollback to all situations
@@ -243,20 +243,20 @@ class OperationHandlerImpl implements OperationHandler {
 	}
 
 	@Override
-	public void onAnswerReceived(SoapMessage soapMessage) {
+	public void onAnswerReceived(WsaSoapMessage wsaSoapMessage) {
 			
 		// check if there is a message handler for this message
-		RollbackHandler handler = runningRollbacks.remove(soapMessage
+		RollbackHandler handler = runningRollbacks.remove(wsaSoapMessage
 				.getWsaRelatesTo());
 		if (handler == null) {
 			// in case this is a regular answer (no rollback), just forward it
-			new MessageRouter(soapMessage).forwardAnswer();
+			new MessageRouter(wsaSoapMessage).forwardAnswer();
 			// TODO: Das passt noch nicht ganz mit der History, weil ich den
 			// Endpunkt hier gar nicht kenne
 			// StorageAccessFactory.getHistoryAccess().appendWorkflowOperationAnswer(null);
 		} else {
 			// in case it is a rollback answer, do the appropriate handling
-			handler.onRollbackCompleted(soapMessage);
+			handler.onRollbackCompleted(wsaSoapMessage);
 		}
 	}
 

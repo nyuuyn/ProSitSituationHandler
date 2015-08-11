@@ -19,9 +19,9 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-class SoapMessage {
+class WsaSoapMessage {
 
-	private static final Logger logger = Logger.getLogger(SoapMessage.class);
+	private static final Logger logger = Logger.getLogger(WsaSoapMessage.class);
 
 	// TODO: Die ganzen WSA Header könnte man auch in einer Map oder so
 	// zurückgeben, falls es noch mehr werden
@@ -36,8 +36,11 @@ class SoapMessage {
 	private URL wsaTo = null;
 	private String wsaAction = null;
 	private String wsaRelatesTo = null;
+	
+	private boolean rollbackResponse;
+	private String rollbackResult = null;
 
-	SoapMessage(String soapString) throws SOAPException {
+	WsaSoapMessage(String soapString) throws SOAPException {
 
 		try {
 			InputStream inputStream = new ByteArrayInputStream(
@@ -45,8 +48,9 @@ class SoapMessage {
 
 			this.soapMessage = MessageFactory.newInstance().createMessage(null,
 					inputStream);
-			parseOperationName();
 			parseWsaHeaders();
+			setRollbackResponse();
+			parseOperationName();
 			inputStream.close();
 		} catch (SOAPException | IOException e) {
 			throw new SOAPException(e);
@@ -56,11 +60,15 @@ class SoapMessage {
 
 	private void parseOperationName() throws SOAPException {
 		String qualifiedOperation;
-		qualifiedOperation = soapMessage.getSOAPPart().getEnvelope().getBody()
-				.getChildNodes().item(1).getNodeName();
+		Node operationNode = soapMessage.getSOAPPart().getEnvelope().getBody()
+				.getChildNodes().item(1);
+		qualifiedOperation = operationNode.getNodeName();
 		String[] temp = qualifiedOperation.split(":");
 		this.operationName = temp[1];
 		this.namespace = temp[0];
+		if (rollbackResponse){//parse result of rollback
+			rollbackResult = operationNode.getFirstChild().getNodeValue();
+		}
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -105,6 +113,12 @@ class SoapMessage {
 			}
 		}
 
+	}
+	
+	private void setRollbackResponse(){
+		if (wsaRelationshipType != null && wsaRelationshipType.equals("rollback")){
+			rollbackResponse = true;
+		}
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -247,6 +261,24 @@ class SoapMessage {
 	String getWsaRelationshipType() {
 		return wsaRelationshipType;
 	}
+	
+	
+
+	/**
+	 * @return the rollbackResponse
+	 */
+	boolean isRollbackResponse() {
+		return rollbackResponse;
+	}
+	
+	
+
+	/**
+	 * @return the rollbackResult
+	 */
+	String getRollbackResult() {
+		return rollbackResult;
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -255,11 +287,15 @@ class SoapMessage {
 	 */
 	@Override
 	public String toString() {
-		return "SoapMessage [operationName=" + operationName + ", namespace="
+		return "WsaSoapMessage [operationName=" + operationName + ", namespace="
 				+ namespace + ", wsaMessageID=" + wsaMessageID
 				+ ", wsaReplyTo=" + wsaReplyTo + ", wsaTo=" + wsaTo
 				+ ", wsaAction=" + wsaAction + ", wsaRelatesTo=" + wsaRelatesTo
 				+ ", wsaRelationshipType=" + wsaRelationshipType + "]";
+	}
+	
+	static WsaSoapMessage createRollbackRequest(){
+		return null;
 	}
 
 }

@@ -27,21 +27,21 @@ class MessageRouter {
 
 	private static final Logger logger = Logger.getLogger(MessageRouter.class);
 
-	private SoapMessage soapMessage;
+	private WsaSoapMessage wsaSoapMessage;
 
 	/**
-	 * @param soapMessage
+	 * @param wsaSoapMessage
 	 */
-	MessageRouter(SoapMessage soapMessage) {//TODO: Das ist komisch, wenn man verschiedene Nachrichten forwarden will..
-		this.soapMessage = soapMessage;
+	MessageRouter(WsaSoapMessage wsaSoapMessage) {//TODO: Das ist komisch, wenn man verschiedene Nachrichten forwarden will..
+		this.wsaSoapMessage = wsaSoapMessage;
 	}
 
 	boolean forwardRequest(URL receiverUrl) {
-		URL answerRecipent = soapMessage.getWsaReplyTo();
+		URL answerRecipent = wsaSoapMessage.getWsaReplyTo();
 		// set new answer address
 		try {
 			String ownIPAdress = InetAddress.getLocalHost().getHostAddress();
-			soapMessage.setWsaReplyTo(new URL("http://" + ownIPAdress + ":"
+			wsaSoapMessage.setWsaReplyTo(new URL("http://" + ownIPAdress + ":"
 					+ GlobalProperties.NETWORK_PORT + "/"
 					+ GlobalProperties.ANSWER_ENDPOINT_PATH));
 		} catch (MalformedURLException | UnknownHostException e) {
@@ -50,13 +50,13 @@ class MessageRouter {
 		}
 
 		// set To address
-		soapMessage.setWsaTo(receiverUrl);
+		wsaSoapMessage.setWsaTo(receiverUrl);
 		UUID surrogate = UUID.randomUUID();
-		String originalId = soapMessage.getWsaMessageID();
-		soapMessage.setWsaMessageId(surrogate.toString());
+		String originalId = wsaSoapMessage.getWsaMessageID();
+		wsaSoapMessage.setWsaMessageId(surrogate.toString());
 
 		// send message
-		if (sendMessage(receiverUrl, soapMessage.getSoapMessage())) {
+		if (sendMessage(receiverUrl, wsaSoapMessage.getSoapMessage())) {
 			routingTable.addReplyAddress(originalId, answerRecipent);
 			routingTable
 					.addSurrogateMessageId(originalId, surrogate.toString());
@@ -67,14 +67,14 @@ class MessageRouter {
 
 	boolean forwardAnswer() {
 		// lookup original id
-		String surrogateId = soapMessage.getWsaRelatesTo();
+		String surrogateId = wsaSoapMessage.getWsaRelatesTo();
 		String originalId = routingTable.getOriginalMessageId(surrogateId);
 		if (originalId == null) {
 			logger.warn("No message id found for surrogate: "
-					+ soapMessage.getWsaRelatesTo());
+					+ wsaSoapMessage.getWsaRelatesTo());
 			return false;
 		}
-		soapMessage.setWsaRelatesTo(originalId);
+		wsaSoapMessage.setWsaRelatesTo(originalId);
 
 		// get receiver
 		URL receiver = routingTable.getReplyAddress(originalId);
@@ -84,18 +84,18 @@ class MessageRouter {
 		}
 
 		// set receiver
-		soapMessage.setWsaTo(receiver);
+		wsaSoapMessage.setWsaTo(receiver);
 
 		// remove entries in routing table
 		routingTable.removeReplyEntry(originalId);
 		routingTable.removeSurrogateId(surrogateId);
 
-		return sendMessage(receiver, soapMessage.getSoapMessage());
+		return sendMessage(receiver, wsaSoapMessage.getSoapMessage());
 	}
 
 	boolean forwardRollbackRequest(){
 		
-		routingTable.removeSurrogateId(soapMessage.getWsaRelatesTo());
+		routingTable.removeSurrogateId(wsaSoapMessage.getWsaRelatesTo());
 		
 		return false;
 	}
