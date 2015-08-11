@@ -47,7 +47,7 @@ public class OperationHandlerEndpoint {
 
 	public void receiveAnswer(Exchange exchange) {
 		WsaSoapMessage sp = exchange.getIn().getBody(WsaSoapMessage.class);
-		logger.debug("Received Answer Message: " + sp.toString());
+		logger.trace("Received Answer Message: " + sp.toString());
 		OperationHandlerFactory.getOperationHandler().onAnswerReceived(sp);
 	}
 

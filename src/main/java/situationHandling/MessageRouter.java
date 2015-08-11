@@ -10,6 +10,8 @@ import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.xml.soap.SOAPException;
+
 import org.apache.log4j.Logger;
 
 import pluginManagement.PluginManager;
@@ -32,11 +34,19 @@ class MessageRouter {
 	/**
 	 * @param wsaSoapMessage
 	 */
-	MessageRouter(WsaSoapMessage wsaSoapMessage) {//TODO: Das ist komisch, wenn man verschiedene Nachrichten forwarden will..
-		this.wsaSoapMessage = wsaSoapMessage;
+	MessageRouter(WsaSoapMessage wsaSoapMessage) {
+		// TODO: Das (mit dem Argument) ist komisch, wenn man verschiedene
+		// Nachrichten forwarden
+		// will..
+		try {
+			this.wsaSoapMessage = new WsaSoapMessage(
+					wsaSoapMessage.getSoapMessage());
+		} catch (SOAPException e) {
+			logger.error("Invalid soap message submitted to router", e);
+		}
 	}
 
-	boolean forwardRequest(URL receiverUrl) {
+	String forwardRequest(URL receiverUrl) {
 		URL answerRecipent = wsaSoapMessage.getWsaReplyTo();
 		// set new answer address
 		try {
@@ -46,7 +56,7 @@ class MessageRouter {
 					+ GlobalProperties.ANSWER_ENDPOINT_PATH));
 		} catch (MalformedURLException | UnknownHostException e) {
 			logger.error("Could not create answer address", e);
-			return false;
+			return null;
 		}
 
 		// set To address
@@ -60,9 +70,18 @@ class MessageRouter {
 			routingTable.addReplyAddress(originalId, answerRecipent);
 			routingTable
 					.addSurrogateMessageId(originalId, surrogate.toString());
-			return true;
+			return surrogate.toString();
 		}
-		return false;
+		return null;
+	}
+
+	boolean forwardRollbackRequest() {
+
+		// remove the old entry in the surrogate table
+		routingTable.removeSurrogateId(wsaSoapMessage.getWsaRelatesTo());
+		
+		URL receiverUrl = wsaSoapMessage.getWsaTo();
+		return sendMessage(receiverUrl, wsaSoapMessage.getSoapMessage());
 	}
 
 	boolean forwardAnswer() {
@@ -93,15 +112,13 @@ class MessageRouter {
 		return sendMessage(receiver, wsaSoapMessage.getSoapMessage());
 	}
 
-	boolean forwardRollbackRequest(){
-		
-		routingTable.removeSurrogateId(wsaSoapMessage.getWsaRelatesTo());
-		
-		return false;
-	}
-
+	/**
+	 * loeschen
+	 * @param messageId
+	 */
+	@Deprecated
 	void rollbackResponseReceived(String messageId) {
-		routingTable.removeSurrogateId(messageId);
+		// routingTable.removeSurrogateId(messageId);
 	}
 
 	/**

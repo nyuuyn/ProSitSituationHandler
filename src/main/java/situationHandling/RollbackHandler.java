@@ -1,12 +1,16 @@
 package situationHandling;
 
 import java.util.List;
-import java.util.UUID;
+
+import org.apache.log4j.Logger;
 
 import situationHandling.storage.datatypes.Endpoint;
 import situationHandling.storage.datatypes.Situation;
 
 public class RollbackHandler {
+
+	private static final Logger logger = Logger
+			.getLogger(RollbackHandler.class);
 
 	private String surrogateId;
 	private Endpoint endpoint;
@@ -22,35 +26,40 @@ public class RollbackHandler {
 	 * @param orignalMessage
 	 */
 	RollbackHandler(Endpoint endpoint, int maxRollbacks,
-			WsaSoapMessage orignalMessage) {
-		this.surrogateId = orignalMessage.getWsaMessageID();
+			WsaSoapMessage orignalMessage, String surrogateId) {
+		this.surrogateId = surrogateId;
 		this.endpoint = endpoint;
 		this.maxRollbacks = maxRollbacks;
 		this.orignalMessage = orignalMessage;
 	}
 
 	String initiateRollback() {
+
 		rollbackCount++;
+		
+		logger.debug("Initiating Rollback number " + rollbackCount +": Message " + surrogateId + " "
+				+ endpoint.toString());
+		
 		if (rollbackCount > maxRollbacks) {
 			return null;
 		}
+		
+
+		WsaSoapMessage rollbackRequest = WsaSoapMessage.createRollbackRequest(
+				endpoint.getEndpointURL(), surrogateId);
 
 		// MessageRouter.getRoutingTable().removeSurrogateId(surrogateId);
-		new MessageRouter(null).forwardRollbackRequest();
+		new MessageRouter(rollbackRequest).forwardRollbackRequest();
 
 		// TODO: define rollback message and forward it
-		// TODO: Set new UUID
 
-		UUID newSurrogateId = UUID.randomUUID();
-
-		return newSurrogateId.toString();
+		return rollbackRequest.getWsaMessageID();
 	}
 
 	void onRollbackCompleted(WsaSoapMessage wsaSoapMessage) {
-		//TODO: Rollback Fault
-		// MessageRouter.getRoutingTable().removeSurrogateId(soapMessage.getWsaMessageID());
-		new MessageRouter(null).rollbackResponseReceived(wsaSoapMessage
-				.getWsaMessageID());
+		// TODO: Rollback Fault handeln
+		logger.debug("Rollback completed: Message " + surrogateId + " "
+				+ endpoint.toString());
 		// init handling
 		OperationHandlerFactory.getOperationHandler().handleOperation(
 				orignalMessage, this);
@@ -58,6 +67,10 @@ public class RollbackHandler {
 
 	List<Situation> getSituations() {
 		return endpoint.getRollbackSituations();
+	}
+
+	void setSurrogateId(String surrogateId) {
+		this.surrogateId = surrogateId;
 	}
 
 }

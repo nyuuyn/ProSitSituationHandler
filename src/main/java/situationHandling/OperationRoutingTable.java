@@ -5,8 +5,17 @@ import java.util.HashMap;
 
 class OperationRoutingTable {
 
+	/**
+	 * 
+	 * <Original-ID, Reply-Address>
+	 * 
+	 */
 	private HashMap<String, URL> replyAddresses = new HashMap<>();
 
+	/**
+	 * 
+	 * <surrogate, original>
+	 */
 	private HashMap<String, String> surrogateTable = new HashMap<>();
 
 	void addReplyAddress(String messageId, URL target) {

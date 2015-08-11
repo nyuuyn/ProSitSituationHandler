@@ -14,20 +14,16 @@ import java.util.UUID;
 import javax.xml.namespace.QName;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPBody;
-import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPEnvelope;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPHeader;
 import javax.xml.soap.SOAPHeaderElement;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.soap.SOAPPart;
-import javax.xml.soap.Text;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import com.fasterxml.jackson.databind.node.TextNode;
 
 import routes.GlobalProperties;
 
@@ -109,6 +105,7 @@ public class WsaSoapMessage {
 
 	@SuppressWarnings("rawtypes")
 	private void parseWsaHeaders() throws SOAPException, MalformedURLException {
+
 		SOAPHeader sh = soapMessage.getSOAPHeader();
 		Iterator it = sh.examineAllHeaderElements();
 		while (it.hasNext()) {// TODO: Hier noch den prefix von wsa parsen und
