@@ -1,22 +1,15 @@
 package routes;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import situationHandling.WsaSoapMessage;
 
-import situationHandling.storage.StorageAccessFactory;
 
 public class Test {
 
 	public static void main(String[] args) {
+		
 
-		
-		System.out.println(StorageAccessFactory.getHistoryAccess().getHistorySize());
-		
-		try {
-			System.out.println(InetAddress.getLocalHost().getHostAddress());
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		}
+		System.out.println(WsaSoapMessage.createRollbackRequest(
+				"http://testEmpfaenger", "123345667").toString());
 
 	}
 }

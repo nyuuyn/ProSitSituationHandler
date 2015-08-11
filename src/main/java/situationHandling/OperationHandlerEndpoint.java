@@ -17,7 +17,8 @@ public class OperationHandlerEndpoint {
 			.getLogger(OperationHandlerEndpoint.class);
 
 	public void receiveRequest(Exchange exchange) {
-		WsaSoapMessage wsaSoapMessage = exchange.getIn().getBody(WsaSoapMessage.class);
+		WsaSoapMessage wsaSoapMessage = exchange.getIn().getBody(
+				WsaSoapMessage.class);
 
 		logger.debug("Received request:\n" + wsaSoapMessage.toString());
 

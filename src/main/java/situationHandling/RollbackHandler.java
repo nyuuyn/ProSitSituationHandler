@@ -47,6 +47,7 @@ public class RollbackHandler {
 	}
 
 	void onRollbackCompleted(WsaSoapMessage wsaSoapMessage) {
+		//TODO: Rollback Fault
 		// MessageRouter.getRoutingTable().removeSurrogateId(soapMessage.getWsaMessageID());
 		new MessageRouter(null).rollbackResponseReceived(wsaSoapMessage
 				.getWsaMessageID());
