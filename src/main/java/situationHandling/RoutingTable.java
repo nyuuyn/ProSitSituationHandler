@@ -3,10 +3,14 @@ package situationHandling;
 import java.net.URL;
 import java.util.HashMap;
 
+import org.apache.log4j.Logger;
+
 class RoutingTable {
 
-	//TODO: Ist bei diesen Maps eine synchronisierung notwendig?
-	
+	private static final Logger logger = Logger.getLogger(RoutingTable.class);
+
+	// TODO: Ist bei diesen Maps eine synchronisierung notwendig?
+
 	/**
 	 * 
 	 * <Original-ID, Reply-Address>
@@ -27,8 +31,8 @@ class RoutingTable {
 	URL getReplyAddress(String messageId) {
 		return replyAddresses.get(messageId);
 	}
-	
-	void removeReplyEntry (String messageId){
+
+	void removeReplyEntry(String messageId) {
 		replyAddresses.remove(messageId);
 	}
 
@@ -39,12 +43,12 @@ class RoutingTable {
 	String getOriginalMessageId(String surrogateId) {
 		return surrogateTable.get(surrogateId);
 	}
-	
-	void removeSurrogateId(String surrogate){
+
+	void removeSurrogateId(String surrogate) {
 		surrogateTable.remove(surrogate);
 	}
-	
-	void printRoutingTable(){
+
+	void printRoutingTable() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("---------Routing Table---------\n");
 		sb.append("<Original ID> --> <Reply Address>\n");
@@ -58,8 +62,8 @@ class RoutingTable {
 			sb.append(surrogate + " --> " + surrogateTable.get(surrogate));
 			sb.append("\n");
 		}
-		
+
 		sb.append("---------End Routing Table---------\n");
-		System.out.println(sb.toString());
+		logger.trace(sb.toString());
 	}
 }

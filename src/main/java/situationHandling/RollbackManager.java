@@ -146,7 +146,7 @@ class RollbackManager {
 			sb.append("\n");
 		}
 		sb.append("---------Running Handlers Finish---------\n");
-		System.out.println(sb.toString());
+		logger.trace(sb.toString());
 	}
 
 	private void printExistingRollbackHandlers() {
@@ -161,6 +161,6 @@ class RollbackManager {
 			sb.append("\n");
 		}
 		sb.append("---------Rollback Handlers Finish---------\n");
-		System.out.println(sb.toString());
+		logger.trace(sb.toString());
 	}
 }
