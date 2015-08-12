@@ -14,11 +14,12 @@ import situationHandling.storage.datatypes.Situation;
  */
 public class OperationHandlerFactory {
 
-	private static HashMap<Situation, LinkedList<RollbackHandler>> rollbackHandlers = new HashMap<>();
-	private static HashMap<String, RollbackHandler> runningRollbacks = new HashMap<>();
+
+	
+	private static RollbackManager rollbackManager = new RollbackManager();
 
 	public static OperationHandler getOperationHandler() {
-		return new OperationHandlerImpl(rollbackHandlers, runningRollbacks);
+		return new OperationHandlerImpl(rollbackManager);
 	}
 
 }

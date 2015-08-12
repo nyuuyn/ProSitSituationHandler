@@ -3,8 +3,6 @@ package situationHandling;
 import java.net.URL;
 import java.util.HashMap;
 
-import situationHandling.storage.datatypes.Situation;
-
 class RoutingTable {
 
 	/**
