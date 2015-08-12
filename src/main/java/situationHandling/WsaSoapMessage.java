@@ -4,28 +4,20 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.Iterator;
-import java.util.UUID;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.MessageFactory;
-import javax.xml.soap.SOAPBody;
-import javax.xml.soap.SOAPEnvelope;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPHeader;
 import javax.xml.soap.SOAPHeaderElement;
 import javax.xml.soap.SOAPMessage;
-import javax.xml.soap.SOAPPart;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import routes.GlobalProperties;
 
 public class WsaSoapMessage {
 
@@ -159,7 +151,7 @@ public class WsaSoapMessage {
 
 	private void setRollbackRequest() {
 		if (wsaRelationshipType != null
-				&& wsaRelationshipType.equals(SoapConstants.ROLLBACK_RELATIONSHIP_TYPE)) {
+				&& wsaRelationshipType.equals(SoapConstants.RELATIONSHIP_TYPE_ROLLBACK)) {
 			rollbackRequest = true;
 		}
 	}
