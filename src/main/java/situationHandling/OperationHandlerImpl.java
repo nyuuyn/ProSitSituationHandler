@@ -299,7 +299,7 @@ class OperationHandlerImpl implements OperationHandler {
 	private void printRunningRollbacks() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("---------Running Rollback Handlers---------\n");
-		sb.append("<Rollback message id> --> <Surrogate id of request message>");
+		sb.append("<Rollback message id> --> <Surrogate id of request message>\n");
 		for (String s : runningRollbacks.keySet()) {
 			sb.append(s + " --> " + runningRollbacks.get(s).getSurrogateId());
 			sb.append("\n");
@@ -311,7 +311,7 @@ class OperationHandlerImpl implements OperationHandler {
 	private void printExistingRollbackHandlers() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("---------Existing Rollback Handlers---------\n");
-		sb.append("<Situation> --> <Surrogate ID of request message the handler relates to>, <...>");
+		sb.append("<Situation> --> <Surrogate ID of request message the handler relates to>, <...>\n");
 		for (Situation sit : rollbackHandlers.keySet()) {
 			sb.append(sit + " --> ");
 			for (RollbackHandler rh : rollbackHandlers.get(sit)) {

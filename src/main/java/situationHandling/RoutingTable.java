@@ -3,7 +3,9 @@ package situationHandling;
 import java.net.URL;
 import java.util.HashMap;
 
-class OperationRoutingTable {
+import situationHandling.storage.datatypes.Situation;
+
+class RoutingTable {
 
 	/**
 	 * 
@@ -40,5 +42,24 @@ class OperationRoutingTable {
 	
 	void removeSurrogateId(String surrogate){
 		surrogateTable.remove(surrogate);
+	}
+	
+	void printRoutingTable(){
+		StringBuilder sb = new StringBuilder();
+		sb.append("---------Routing Table---------\n");
+		sb.append("<Original ID> --> <Reply Address>\n");
+		for (String id : replyAddresses.keySet()) {
+			sb.append(id + " --> " + replyAddresses.get(id));
+			sb.append("\n");
+		}
+		sb.append("--------------\n");
+		sb.append("<Surrogate ID> --> <Original Id>\n");
+		for (String surrogate : replyAddresses.keySet()) {
+			sb.append(surrogate + " --> " + replyAddresses.get(surrogate));
+			sb.append("\n");
+		}
+		
+		sb.append("---------End Routing Table---------\n");
+		System.out.println(sb.toString());
 	}
 }

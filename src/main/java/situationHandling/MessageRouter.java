@@ -25,7 +25,7 @@ import situationHandler.plugin.PluginParams;
  */
 class MessageRouter {
 
-	private static OperationRoutingTable routingTable = new OperationRoutingTable();
+	private static RoutingTable routingTable = new RoutingTable();
 
 	private static final Logger logger = Logger.getLogger(MessageRouter.class);
 
@@ -153,11 +153,13 @@ class MessageRouter {
 		}
 
 	}
+	
+
 
 	// /**
 	// * @return the routingTable
 	// */
-	// static OperationRoutingTable getRoutingTable() {
+	// static RoutingTable getRoutingTable() {
 	// return routingTable;
 	// }
 
