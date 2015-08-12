@@ -39,7 +39,7 @@ public class WsaSoapMessage {
 
 	private boolean rollbackResponse = false;
 	private boolean rollbackRequest = false;
-	private String rollbackResult = null;
+	private boolean rollbackResult = false;
 
 	private Integer maxRetries = null;
 
@@ -70,6 +70,7 @@ public class WsaSoapMessage {
 		// empty text elements)
 		NodeList operations = soapMessage.getSOAPPart().getEnvelope().getBody()
 				.getChildNodes();
+
 		Node operationNode = null;
 		for (int i = 0; i < operations.getLength(); i++) {
 			operationNode = operations.item(i);
@@ -90,7 +91,15 @@ public class WsaSoapMessage {
 			throw new SOAPException("Invalid operation.");
 		}
 		if (rollbackResponse) {// parse result of rollback
-			rollbackResult = operationNode.getFirstChild().getNodeValue();
+			NodeList returnValues = operationNode.getChildNodes();
+			Node returnValue = null;
+			for (int i = 0; i < returnValues.getLength(); i++) {
+				returnValue = returnValues.item(i);
+				if (returnValue.getNodeType() == Node.ELEMENT_NODE) {
+					break; // return value found
+				}
+			}
+			rollbackResult = Boolean.parseBoolean(returnValue.getFirstChild().getNodeValue());
 		}
 	}
 
@@ -340,7 +349,7 @@ public class WsaSoapMessage {
 	/**
 	 * @return the rollbackResult
 	 */
-	String getRollbackResult() {
+	boolean getRollbackResult() {
 		return rollbackResult;
 	}
 
@@ -382,14 +391,9 @@ public class WsaSoapMessage {
 						: "")
 				+ (wsaRelationshipType != null ? "wsaRelationshipType="
 						+ wsaRelationshipType + ", " : "")
-				+ "rollbackResponse="
-				+ rollbackResponse
-				+ ", rollbackRequest="
-				+ rollbackRequest
-				+ ", "
-				+ (rollbackResult != null ? "rollbackResult=" + rollbackResult
-						+ ", " : "")
-				+ (maxRetries != null ? "maxRetries=" + maxRetries : "") + "]";
+				+ "rollbackResponse=" + rollbackResponse + ", rollbackRequest="
+				+ rollbackRequest + ", " + "rollbackResult=" + rollbackResult
+				+ ", " + (maxRetries != null ? "maxRetries=" + maxRetries : "")
+				+ "]";
 	}
-
 }

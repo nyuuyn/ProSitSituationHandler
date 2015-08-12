@@ -45,32 +45,44 @@ public class RollbackHandler {
 		WsaSoapMessage rollbackRequest = SoapRequestFactory
 				.createRollbackRequest(endpoint.getEndpointURL(), surrogateId);
 		new MessageRouter(rollbackRequest).forwardRollbackRequest();
-
+		// TODO: Den fall abdecken, wenn der Endpunkt plötzlich nicht mehr
+		// erreicht wird? (Wichtig: hier müsste man noch alle möglichen Router einträge usw löschen!)
 		return rollbackRequest.getWsaMessageID();
 	}
 
 	void onRollbackCompleted(WsaSoapMessage wsaSoapMessage) {
-		// TODO: Rollback Fault handeln
-		logger.debug("Rollback completed: Message " + surrogateId + " "
-				+ endpoint.toString());
-		if (rollbackCount > maxRollbacks) {
-			logger.info("Maximum number of retries reached for: " + endpoint);
+		if (wsaSoapMessage.getRollbackResult()) {// rollback success
 
-			WsaSoapMessage errorMessage = SoapRequestFactory
-					.createFaultMessageWsa(originalMessage.getWsaReplyTo()
-							.toString(), originalMessage.getWsaMessageID(),
-							new Operation(originalMessage.getOperationName(),
-									originalMessage.getNamespace()),
-							"Maximum number of rollbacks reached.",
-							SOAPConstants.SOAP_SENDER_FAULT);
+			logger.debug("Rollback completed: Message " + surrogateId + " "
+					+ endpoint.toString());
+			if (rollbackCount > maxRollbacks) {
+				logger.info("Maximum number of retries reached for: "
+						+ endpoint);
 
-			new MessageRouter(errorMessage).forwardFaultMessage(surrogateId);
+				sendRollbackFailedMessage("Maximum number of rollbacks reached.");
 
-		} else {
-			// init handling
-			OperationHandlerFactory.getOperationHandler().handleOperation(
-					originalMessage, this);
+			} else {
+				// init handling
+				OperationHandlerFactory.getOperationHandler().handleOperation(
+						originalMessage, this);
+			}
+		} else {// rollback failed
+			sendRollbackFailedMessage("Problems occured due to situation change. Tried rollback, but the endpoint failed in the process. "
+					+ endpoint);
+			logger.info("Problems occured due to situation change. Tried rollback, but the endpoint failed in the process. "
+					+ endpoint);
 		}
+	}
+
+	private void sendRollbackFailedMessage(String errorText) {
+		WsaSoapMessage errorMessage = SoapRequestFactory.createFaultMessageWsa(
+				originalMessage.getWsaReplyTo().toString(), originalMessage
+						.getWsaMessageID(),
+				new Operation(originalMessage.getOperationName(),
+						originalMessage.getNamespace()), errorText,
+				SOAPConstants.SOAP_SENDER_FAULT);
+
+		new MessageRouter(errorMessage).forwardFaultMessage(surrogateId);
 	}
 
 	List<Situation> getSituations() {
