@@ -2,9 +2,12 @@ package situationHandling;
 
 import java.util.List;
 
+import javax.xml.soap.SOAPConstants;
+
 import org.apache.log4j.Logger;
 
 import situationHandling.storage.datatypes.Endpoint;
+import situationHandling.storage.datatypes.Operation;
 import situationHandling.storage.datatypes.Situation;
 
 public class RollbackHandler {
@@ -16,34 +19,31 @@ public class RollbackHandler {
 	private Endpoint endpoint;
 	private int rollbackCount = 0;
 	private final int maxRollbacks;
-	private WsaSoapMessage orignalMessage;
+	private WsaSoapMessage originalMessage;
 
 	/**
 	 * @param surrogateId
 	 * @param endpoint
 	 * @param rollbackCount
 	 * @param maxRollbacks
-	 * @param orignalMessage
+	 * @param originalMessage
 	 */
 	RollbackHandler(Endpoint endpoint, int maxRollbacks,
-			WsaSoapMessage orignalMessage, String surrogateId) {
+			WsaSoapMessage originalMessage, String surrogateId) {
 		this.surrogateId = surrogateId;
 		this.endpoint = endpoint;
 		this.maxRollbacks = maxRollbacks;
-		this.orignalMessage = orignalMessage;
+		this.originalMessage = originalMessage;
 	}
 
 	String initiateRollback() {
 
 		rollbackCount++;
-		logger.debug("Initiating Rollback number " + rollbackCount +": Message " + surrogateId + " "
-				+ endpoint.toString());
-		if (rollbackCount > maxRollbacks) {
-			return null;
-		}
-		
-		WsaSoapMessage rollbackRequest = SoapRequestFactory.createRollbackRequest(
-				endpoint.getEndpointURL(), surrogateId);
+		logger.debug("Initiating Rollback number " + rollbackCount
+				+ ": Message " + surrogateId + " " + endpoint.toString());
+
+		WsaSoapMessage rollbackRequest = SoapRequestFactory
+				.createRollbackRequest(endpoint.getEndpointURL(), surrogateId);
 		new MessageRouter(rollbackRequest).forwardRollbackRequest();
 
 		return rollbackRequest.getWsaMessageID();
@@ -53,9 +53,24 @@ public class RollbackHandler {
 		// TODO: Rollback Fault handeln
 		logger.debug("Rollback completed: Message " + surrogateId + " "
 				+ endpoint.toString());
-		// init handling
-		OperationHandlerFactory.getOperationHandler().handleOperation(
-				orignalMessage, this);
+		if (rollbackCount > maxRollbacks) {
+			logger.info("Maximum number of retries reached for: " + endpoint);
+
+			WsaSoapMessage errorMessage = SoapRequestFactory
+					.createFaultMessageWsa(originalMessage.getWsaReplyTo()
+							.toString(), originalMessage.getWsaMessageID(),
+							new Operation(originalMessage.getOperationName(),
+									originalMessage.getNamespace()),
+							"Maximum number of rollbacks reached.",
+							SOAPConstants.SOAP_SENDER_FAULT);
+
+			new MessageRouter(errorMessage).forwardFaultMessage(surrogateId);
+
+		} else {
+			// init handling
+			OperationHandlerFactory.getOperationHandler().handleOperation(
+					originalMessage, this);
+		}
 	}
 
 	List<Situation> getSituations() {
@@ -65,12 +80,16 @@ public class RollbackHandler {
 	void setSurrogateId(String surrogateId) {
 		this.surrogateId = surrogateId;
 	}
-	
-	void setEndpoint (Endpoint endpoint){
+
+	void setEndpoint(Endpoint endpoint) {
 		this.endpoint = endpoint;
 	}
-	
-	String getSurrogateId (){
+
+	WsaSoapMessage getOriginalMessage() {
+		return this.originalMessage;
+	}
+
+	String getSurrogateId() {
 		return surrogateId;
 	}
 

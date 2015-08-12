@@ -3,6 +3,7 @@
  */
 package situationHandling;
 
+import javax.xml.soap.SOAPConstants;
 import javax.xml.soap.SOAPException;
 
 import org.apache.camel.Exchange;
@@ -25,10 +26,12 @@ public class SoapProcessor implements Processor {
 			wsaSoapMessage = new WsaSoapMessage(body);
 			exchange.getIn().setBody(wsaSoapMessage, WsaSoapMessage.class);
 		} catch (SOAPException e) {
-			exchange.getIn().setBody("Invalid Soap Message");
-			exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
+			WsaSoapMessage soapMessage = SoapRequestFactory.createFaultMessage(
+					"Invalid SOAP Message. " + e.getMessage(),
+					SOAPConstants.SOAP_SENDER_FAULT);
+			exchange.getIn().setBody(soapMessage.getSoapMessage());
 			exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 400);
-			//stop route
+			// stop route
 			exchange.setProperty(Exchange.ROUTE_STOP, Boolean.TRUE);
 		}
 

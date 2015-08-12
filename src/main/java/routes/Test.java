@@ -1,9 +1,5 @@
 package routes;
 
-import javax.xml.soap.SOAPConstants;
-
-import situationHandling.SoapRequestFactory;
-import situationHandling.storage.datatypes.Operation;
 
 public class Test {
 

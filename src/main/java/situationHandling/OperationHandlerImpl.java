@@ -4,6 +4,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
+import javax.xml.soap.SOAPConstants;
+
 import org.apache.log4j.Logger;
 
 import situationHandling.storage.StorageAccessFactory;
@@ -20,7 +22,6 @@ class OperationHandlerImpl implements OperationHandler {
 	private final static Logger logger = Logger
 			.getLogger(OperationHandlerImpl.class);
 
-
 	private RollbackManager rollbackManager;
 
 	/**
@@ -31,8 +32,8 @@ class OperationHandlerImpl implements OperationHandler {
 	}
 
 	@Override
-	public OperationHandlingResult handleOperation(
-			WsaSoapMessage wsaSoapMessage, RollbackHandler rollbackHandler) {
+	public void handleOperation(WsaSoapMessage wsaSoapMessage,
+			RollbackHandler rollbackHandler) {
 
 		String operationName;
 		String qualifier;
@@ -52,29 +53,45 @@ class OperationHandlerImpl implements OperationHandler {
 		if (chosenEndpoint == null) {
 			logger.warn("No endpoint found for Operation: " + operationName
 					+ ":" + qualifier);
-			return OperationHandlingResult.noMatchFound;
+			sendErrorMessage("No endpoint found for " + operationName + ":"
+					+ qualifier + ". Nothing executed.", wsaSoapMessage);
+			return;
 		}
 
+		URL endpointURL = null;
 		try {
-			URL endpointURL = new URL(chosenEndpoint.getEndpointURL());
-			String surrogate = new MessageRouter(wsaSoapMessage)
-					.forwardRequest(endpointURL);
-			StorageAccessFactory.getHistoryAccess()
-					.appendWorkflowOperationInvocation(chosenEndpoint,
-							(surrogate != null));
-			// TODO: Hier wird gleich eine Fehler Nachricht gesendet!
-			if (surrogate == null) {
-				return OperationHandlingResult.error;
-			}
-
-			rollbackManager.registerRollbackHandler(rollbackHandler,
-					chosenEndpoint, wsaSoapMessage, surrogate);
-
-			return OperationHandlingResult.success;
+			endpointURL = new URL(chosenEndpoint.getEndpointURL());
 		} catch (MalformedURLException e) {
-			return OperationHandlingResult.error;
+			sendErrorMessage("Chosen endpoint is invalid. URL: "
+					+ chosenEndpoint.getEndpointURL(), wsaSoapMessage);
+			return;
+		}
+		String surrogate = new MessageRouter(wsaSoapMessage)
+				.forwardRequest(endpointURL);
+		StorageAccessFactory.getHistoryAccess()
+				.appendWorkflowOperationInvocation(chosenEndpoint,
+						(surrogate != null));
+		if (surrogate == null) {
+			sendErrorMessage("Endpoint cannot be reached. " + chosenEndpoint,
+					wsaSoapMessage);
+			return;
 		}
 
+		rollbackManager.registerRollbackHandler(rollbackHandler,
+				chosenEndpoint, wsaSoapMessage, surrogate);
+
+	}
+
+	private void sendErrorMessage(String error, WsaSoapMessage message) {
+		WsaSoapMessage rollbackMessage = SoapRequestFactory
+				.createFaultMessageWsa(
+						message.getWsaReplyTo().toString(),
+						message.getWsaMessageID(),
+						new Operation(message.getOperationName(), message
+								.getNamespace()), error,
+						SOAPConstants.SOAP_RECEIVER_FAULT);
+
+		new MessageRouter(rollbackMessage).forwardFaultMessage(null);;
 	}
 
 	/**

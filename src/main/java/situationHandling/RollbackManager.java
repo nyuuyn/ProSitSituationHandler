@@ -15,7 +15,7 @@ class RollbackManager {
 	private final static Logger logger = Logger
 			.getLogger(RollbackManager.class);
 
-	private static final int DEFAULT_ROLLBACK_MAXIMUM = 5;
+	private static final int DEFAULT_ROLLBACK_MAXIMUM = 2;
 
 	/**
 	 * Manages rollbacks ready to start
@@ -45,12 +45,7 @@ class RollbackManager {
 				it.remove();
 
 				String messageID = handler.initiateRollback();
-				if (messageID == null) {
-					// TODO: send fault (man sollte hier dann auch die ganzen
-					// Mappings entfernen!)
-				} else {
-					runningRollbacks.put(messageID, handler);
-				}
+				runningRollbacks.put(messageID, handler);
 
 				// the handler is also removed from all other situations the
 				// handler is registred on..(to avoid double rollbacks)
@@ -63,7 +58,7 @@ class RollbackManager {
 				}
 			}
 		}
-		
+
 		printExistingRollbackHandlers();
 		printRunningRollbacks();
 
@@ -104,7 +99,7 @@ class RollbackManager {
 				handlers.add(rollbackHandler);
 			}
 		}
-		
+
 		printExistingRollbackHandlers();
 	}
 

@@ -83,7 +83,7 @@ class MessageRouter {
 		routingTable.removeSurrogateId(wsaSoapMessage.getWsaRelatesTo());
 
 		URL receiverUrl = wsaSoapMessage.getWsaTo();
-		
+
 		routingTable.printRoutingTable();
 		return sendMessage(receiverUrl, wsaSoapMessage.getSoapMessage());
 	}
@@ -118,6 +118,19 @@ class MessageRouter {
 		return sendMessage(receiver, wsaSoapMessage.getSoapMessage());
 	}
 
+	void forwardFaultMessage(String surrogateId) {
+
+		if (surrogateId != null) {
+			// remove the old entry in the surrogate table
+			routingTable.removeSurrogateId(surrogateId);
+			routingTable.removeReplyEntry(wsaSoapMessage.getWsaRelatesTo());
+			routingTable.printRoutingTable();
+		}
+
+		if (!sendMessage(wsaSoapMessage.getWsaTo(), wsaSoapMessage.getSoapMessage())) {
+			logger.error("Error sending Fault message...");
+		}
+	}
 
 	/**
 	 * 
@@ -141,7 +154,7 @@ class MessageRouter {
 		}
 
 		if (Boolean.parseBoolean(results.get("success"))) {
-			logger.debug("Success invoking Endpoint. Result: "
+			logger.trace("Success invoking Endpoint. Result: "
 					+ results.get("message"));
 			return true;
 		} else {
@@ -151,6 +164,5 @@ class MessageRouter {
 		}
 
 	}
-
 
 }

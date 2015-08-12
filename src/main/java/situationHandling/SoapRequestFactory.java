@@ -30,13 +30,10 @@ class SoapRequestFactory {
 			String relatedMessageId) {
 		try {
 			SOAPMessage msg = MessageFactory.newInstance().createMessage();
-
 			SOAPPart part = msg.getSOAPPart();
-
 			SOAPEnvelope envelope = part.getEnvelope();
 
-			SOAPBody body = envelope.getBody();
-
+			// create reply address
 			String ownIPAdress = InetAddress.getLocalHost().getHostAddress();
 			String replyToAddress = "http://" + ownIPAdress + ":"
 					+ GlobalProperties.NETWORK_PORT + "/"
@@ -47,18 +44,16 @@ class SoapRequestFactory {
 					SoapConstants.ROLLBACK_START_OPERATION);
 
 			// body
+			SOAPBody body = envelope.getBody();
 			body.addBodyElement(envelope
 					.createName(SoapConstants.ROLLBACK_START_OPERATION));
 
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			try {
-				msg.writeTo(out);
-			} catch (SOAPException | IOException e) {
-				logger.error("Error converting soap message.", e);
-			}
-			return new WsaSoapMessage(out.toString());
+			return createTheMessage(msg);
 		} catch (SOAPException | UnknownHostException e) {
 			logger.error("Error creating rollback request", e);
+			return null;
+		} catch (IOException e) {
+			logger.error("Error converting soap message.", e);
 			return null;
 		}
 
@@ -75,17 +70,14 @@ class SoapRequestFactory {
 	 * 
 	 * @see SOAPConstants
 	 */
-	static WsaSoapMessage createFaultMessage(String receiver,
+	static WsaSoapMessage createFaultMessageWsa(String receiver,
 			String relatedMessageId, Operation operation, String errorMessage,
 			QName faultCode) {
 		SOAPMessage msg;
 		try {
 			msg = MessageFactory.newInstance().createMessage();
-
 			SOAPPart part = msg.getSOAPPart();
-
 			SOAPEnvelope envelope = part.getEnvelope();
-			SOAPBody body = envelope.getBody();
 
 			addWsaHeaders(
 					envelope,
@@ -98,22 +90,43 @@ class SoapRequestFactory {
 							+ operation.getOperationName() + "Response");
 
 			// add body
+			SOAPBody body = envelope.getBody();
 			body.addFault(faultCode, errorMessage);
 
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			try {
-				msg.writeTo(out);
-			} catch (SOAPException | IOException e) {
-				logger.error("Error converting soap message.", e);
-			}
-			return new WsaSoapMessage(out.toString());
-
+			return createTheMessage(msg);
 		} catch (SOAPException e) {
 			logger.error("Error creating fault request", e);
+			return null;
+		} catch (IOException e) {
+			logger.error("Error converting soap message.", e);
 			return null;
 		}
 
 	}
+
+	static WsaSoapMessage createFaultMessage(String errorMessage,
+			QName faultCode) {
+		SOAPMessage msg;
+		try {
+			msg = MessageFactory.newInstance().createMessage();
+			SOAPPart part = msg.getSOAPPart();
+			SOAPEnvelope envelope = part.getEnvelope();
+
+			// add body
+			SOAPBody body = envelope.getBody();
+			body.addFault(faultCode, errorMessage);
+
+			return createTheMessage(msg);
+		} catch (SOAPException e) {
+			logger.error("Error creating fault request", e);
+			return null;
+		} catch (IOException e) {
+			logger.error("Error converting soap message.", e);
+			return null;
+		}
+	}
+
+
 
 	private static void addWsaHeaders(SOAPEnvelope env, String receiver,
 			boolean idRequired, String releatesToId, String relatesToType,
@@ -159,6 +172,13 @@ class SoapRequestFactory {
 					relatesToType);
 		}
 
+	}
+	
+	private static WsaSoapMessage createTheMessage(SOAPMessage msg)
+			throws SOAPException, IOException {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		msg.writeTo(out);
+		return new WsaSoapMessage(out.toString());
 	}
 
 }
