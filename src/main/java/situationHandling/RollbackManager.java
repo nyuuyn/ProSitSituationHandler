@@ -6,6 +6,7 @@ import java.util.LinkedList;
 
 import org.apache.log4j.Logger;
 
+import situationHandling.storage.StorageAccessFactory;
 import situationHandling.storage.datatypes.Endpoint;
 import situationHandling.storage.datatypes.Situation;
 
@@ -32,7 +33,7 @@ class RollbackManager {
 	 */
 	private HashMap<String, RollbackHandler> runningRollbacks = new HashMap<>();
 
-	void checkRollback(Situation situation) {
+	void checkRollback(Situation situation, boolean state) {
 		synchronized (RollbackManager.class) {
 			LinkedList<RollbackHandler> handlers = rollbackHandlers
 					.get(situation);
@@ -46,6 +47,9 @@ class RollbackManager {
 
 				String messageID = handler.initiateRollback();
 				runningRollbacks.put(messageID, handler);
+				
+				StorageAccessFactory.getHistoryAccess().appendWorkflowRollback(handler.getEndpoint(),
+						situation, state);
 
 				// the handler is also removed from all other situations the
 				// handler is registred on..(to avoid double rollbacks)
@@ -61,11 +65,6 @@ class RollbackManager {
 
 		printExistingRollbackHandlers();
 		printRunningRollbacks();
-
-		// TODO: Hier passt das nicht so ganz, weil ich den Endpunkt nicht
-		// kenne!
-		// StorageAccessFactory.getHistoryAccess().appendWorkflowRollback(null,
-		// situation, state);
 	}
 
 	void registerRollbackHandler(RollbackHandler rollbackHandler,

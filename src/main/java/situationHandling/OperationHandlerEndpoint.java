@@ -24,25 +24,6 @@ public class OperationHandlerEndpoint {
 
 		OperationHandlerFactory.getOperationHandler().handleOperation(
 				wsaSoapMessage, null);
-
-		// // TODO:useless
-		// OperationHandlingResult result = OperationHandlingResult.success;
-		//
-		// // TODO: Hier muss eine Request an einen anderen Endpunkt gesendet
-		// // werden! (Das Return hier ist momentan fürn Arsch! (bzw. eigentlich
-		// // muss das Unten beim Receive Anser gemacht werden! Hier wäre dann
-		// vllt
-		// // vorgeschaltet noch ein Validity check schön!
-		// if (result == OperationHandlingResult.success) {
-		// exchange.getOut().setBody("");
-		// } else if (result == OperationHandlingResult.noMatchFound) {
-		// exchange.getOut().setBody("No matching endpoint found.");
-		// exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, 404);
-		// } else if (result == OperationHandlingResult.error) {
-		// exchange.getOut().setBody("Arbitrary error.");
-		// exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, 500);
-		// }
-
 	}
 
 	public void receiveAnswer(Exchange exchange) {

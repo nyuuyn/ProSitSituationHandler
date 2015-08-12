@@ -6,6 +6,7 @@ import javax.xml.soap.SOAPConstants;
 
 import org.apache.log4j.Logger;
 
+import situationHandling.storage.StorageAccessFactory;
 import situationHandling.storage.datatypes.Endpoint;
 import situationHandling.storage.datatypes.Operation;
 import situationHandling.storage.datatypes.Situation;
@@ -45,8 +46,10 @@ public class RollbackHandler {
 		WsaSoapMessage rollbackRequest = SoapRequestFactory
 				.createRollbackRequest(endpoint.getEndpointURL(), surrogateId);
 		new MessageRouter(rollbackRequest).forwardRollbackRequest();
+
 		// TODO: Den fall abdecken, wenn der Endpunkt plötzlich nicht mehr
-		// erreicht wird? (Wichtig: hier müsste man noch alle möglichen Router einträge usw löschen!)
+		// erreicht wird? (Wichtig: hier müsste man noch alle möglichen Router
+		// einträge usw löschen!)
 		return rollbackRequest.getWsaMessageID();
 	}
 
@@ -56,21 +59,26 @@ public class RollbackHandler {
 			logger.debug("Rollback completed: Message " + surrogateId + " "
 					+ endpoint.toString());
 			if (rollbackCount > maxRollbacks) {
-				logger.info("Maximum number of retries reached for: "
-						+ endpoint);
-
-				sendRollbackFailedMessage("Maximum number of rollbacks reached.");
-
+				String resultMessage = "Maximum number of retries reached for: "
+						+ endpoint.toString();
+				logger.info(resultMessage);
+				sendRollbackFailedMessage(resultMessage);
+				StorageAccessFactory.getHistoryAccess()
+						.appendWorkflowRollbackAnswer(endpoint, false,
+								resultMessage);
 			} else {
 				// init handling
 				OperationHandlerFactory.getOperationHandler().handleOperation(
 						originalMessage, this);
 			}
 		} else {// rollback failed
-			sendRollbackFailedMessage("Problems occured due to situation change. Tried rollback, but the endpoint failed in the process. "
-					+ endpoint);
-			logger.info("Problems occured due to situation change. Tried rollback, but the endpoint failed in the process. "
-					+ endpoint);
+			String resultMessage = "Problems occured due to situation change. Tried rollback, but the endpoint failed in the process. "
+					+ endpoint.toString();
+			sendRollbackFailedMessage(resultMessage);
+			logger.info(resultMessage);
+			StorageAccessFactory.getHistoryAccess()
+					.appendWorkflowRollbackAnswer(endpoint, false,
+							resultMessage);
 		}
 	}
 
@@ -103,6 +111,10 @@ public class RollbackHandler {
 
 	String getSurrogateId() {
 		return surrogateId;
+	}
+
+	Endpoint getEndpoint() {
+		return this.endpoint;
 	}
 
 }

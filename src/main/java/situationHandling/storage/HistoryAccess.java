@@ -43,7 +43,8 @@ public class HistoryAccess {
 	/**
 	 * Used to run asynchronous tasks
 	 * 
-	 *TODO: Ist das mit dem Threading hier so sinnvoll, oder irgendeine Camel Methode benutzen?
+	 * TODO: Ist das mit dem Threading hier so sinnvoll, oder irgendeine Camel
+	 * Methode benutzen?
 	 */
 	private ExecutorService threadExectutor;
 
@@ -77,7 +78,7 @@ public class HistoryAccess {
 		threadExectutor.submit(new Thread(new Runnable() {
 			@Override
 			public void run() {
-				logger.debug("Creating action history entry:" + situation
+				logger.trace("Creating action history entry:" + situation
 						+ action);
 
 				String situationString = "Situation defined by SituationTemplate: "
@@ -114,7 +115,7 @@ public class HistoryAccess {
 
 			@Override
 			public void run() {
-				logger.debug("Creating workflow history entry: " + endpoint);
+				logger.trace("Creating workflow history entry: " + endpoint);
 
 				String misc = "Invocation "
 						+ (success ? "successful" : "failed");
@@ -129,8 +130,13 @@ public class HistoryAccess {
 	}
 
 	/**
-	 * Append an workflow operation to the history. This method will create an
-	 * entry that states that the result of an workflow operation was received.
+	 * TODO: Das hier ist wohl eher gestrichen, weil man die Antwort nicht
+	 * wirklich dem Endpunkt zuordnen kann und daher auch keinen vernüftigen
+	 * History Eintrag hinkriegt.
+	 * <p>
+	 *  Append an workflow operation to the history.
+	 * This method will create an entry that states that the result of an
+	 * workflow operation was received.
 	 *
 	 * @param endpoint
 	 *            the endpoint that was used to execute the operation
@@ -143,7 +149,7 @@ public class HistoryAccess {
 
 			@Override
 			public void run() {
-				logger.debug("Creating workflow history entry for answer: "
+				logger.trace("Creating workflow history entry for answer: "
 						+ endpoint);
 
 				String misc = "Answer received. Operation successfully handled";
@@ -156,14 +162,16 @@ public class HistoryAccess {
 	}
 
 	/**
-	 * Append an workflow operation to the history. This method will create an
-	 * entry that states that a situation changed and therefore a rollback was
-	 * required.
+	 * Append an workflow rollback operation to the history. This method will
+	 * create an entry that states that a situation changed and therefore a
+	 * rollback was required.
 	 *
 	 * @param endpoint
 	 *            the endpoint that was used to execute the operation
-	 * @param success
-	 *            true if the operation was executed successfully, false else
+	 * @param situation
+	 *            the situation that triggered the rollback.
+	 * @param state
+	 *            the state to which the situation switched.
 	 */
 	public void appendWorkflowRollback(Endpoint endpoint, Situation situation,
 			boolean state) {
@@ -172,10 +180,38 @@ public class HistoryAccess {
 
 			@Override
 			public void run() {
-				logger.debug("Creating history entry for rollback: " + endpoint);
+				logger.trace("Creating history entry for rollback: " + endpoint);
 				HistoryEntry entry = createWorkflowEntry(endpoint);
 				String misc = situation.toString() + " changed to " + state
 						+ " . Rollback required.";
+				entry.setMisc(misc);
+				storeEntry(entry);
+			}
+		}));
+	}
+
+	/**
+	 * Append an workflow operation rollback answer to the history. This method
+	 * will create an entry that states that a the rollback of an operation
+	 * succeeded or not.
+	 *
+	 * @param endpoint
+	 *            the endpoint that was used to execute the operation
+	 * @param success
+	 *            true if the rollback was executed successfully, false else
+	 * @message A message describing the result
+	 */
+	public void appendWorkflowRollbackAnswer(Endpoint endpoint,
+			boolean success, String message) {
+		// write history asynchronously in thread
+		threadExectutor.submit(new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				logger.trace("Creating history entry for rollback: " + endpoint);
+				HistoryEntry entry = createWorkflowEntry(endpoint);
+				String misc = "Rollback " + (success ? "succeeded" : "failed")
+						+ " . " + message;
 				entry.setMisc(misc);
 				storeEntry(entry);
 			}
@@ -205,7 +241,7 @@ public class HistoryAccess {
 			throw new IllegalArgumentException(
 					"Offset and number of entries must be equal or greater than null.");
 		}
-		logger.debug("Getting " + numberOfEntries
+		logger.trace("Getting " + numberOfEntries
 				+ " history entries with offset: " + 0);
 
 		Session session = sessionFactory.openSession();
@@ -240,7 +276,7 @@ public class HistoryAccess {
 	 * @return the history size as long.
 	 */
 	public long getHistorySize() {
-		logger.debug("Getting history size.");
+		logger.trace("Getting history size.");
 
 		Session session = sessionFactory.openSession();
 		Transaction tx = null;

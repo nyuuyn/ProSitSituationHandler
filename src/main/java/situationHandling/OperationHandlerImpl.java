@@ -180,7 +180,7 @@ class OperationHandlerImpl implements OperationHandler {
 		logger.debug(situation.toString() + " changed to " + state
 				+ ". Check Rollback.");
 
-		rollbackManager.checkRollback(situation);
+		rollbackManager.checkRollback(situation, state);
 	}
 
 	@Override
@@ -193,9 +193,6 @@ class OperationHandlerImpl implements OperationHandler {
 			new MessageRouter(wsaSoapMessage).forwardAnswer();
 		}
 
-		// TODO: Das passt noch nicht ganz mit der History, weil ich den
-		// Endpunkt hier gar nicht kenne
-		// StorageAccessFactory.getHistoryAccess().appendWorkflowOperationAnswer(null);
 
 	}
 
