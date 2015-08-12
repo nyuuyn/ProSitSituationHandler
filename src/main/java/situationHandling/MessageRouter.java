@@ -35,9 +35,6 @@ class MessageRouter {
 	 * @param wsaSoapMessage
 	 */
 	MessageRouter(WsaSoapMessage wsaSoapMessage) {
-		// TODO: Das (mit dem Argument) ist komisch, wenn man verschiedene
-		// Nachrichten forwarden
-		// will..
 		try {
 			this.wsaSoapMessage = new WsaSoapMessage(
 					wsaSoapMessage.getSoapMessage());
@@ -121,15 +118,6 @@ class MessageRouter {
 		return sendMessage(receiver, wsaSoapMessage.getSoapMessage());
 	}
 
-	/**
-	 * loeschen
-	 * 
-	 * @param messageId
-	 */
-	@Deprecated
-	void rollbackResponseReceived(String messageId) {
-		// routingTable.removeSurrogateId(messageId);
-	}
 
 	/**
 	 * 
@@ -164,11 +152,5 @@ class MessageRouter {
 
 	}
 
-	// /**
-	// * @return the routingTable
-	// */
-	// static RoutingTable getRoutingTable() {
-	// return routingTable;
-	// }
 
 }

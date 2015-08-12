@@ -36,22 +36,15 @@ public class RollbackHandler {
 	String initiateRollback() {
 
 		rollbackCount++;
-		
 		logger.debug("Initiating Rollback number " + rollbackCount +": Message " + surrogateId + " "
 				+ endpoint.toString());
-		
 		if (rollbackCount > maxRollbacks) {
 			return null;
 		}
 		
-
 		WsaSoapMessage rollbackRequest = WsaSoapMessage.createRollbackRequest(
 				endpoint.getEndpointURL(), surrogateId);
-
-		// MessageRouter.getRoutingTable().removeSurrogateId(surrogateId);
 		new MessageRouter(rollbackRequest).forwardRollbackRequest();
-
-		// TODO: define rollback message and forward it
 
 		return rollbackRequest.getWsaMessageID();
 	}

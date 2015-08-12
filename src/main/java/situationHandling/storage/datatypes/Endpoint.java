@@ -212,8 +212,12 @@ public class Endpoint {
 	 */
 	public List<Situation> getRollbackSituations() {
 		LinkedList<Situation> rollbackSituations = new LinkedList<>();
-		situations.forEach(handledSit -> rollbackSituations.add(handledSit
-				.getSituation()));
+		for (HandledSituation handledSit : situations) {
+			if (handledSit.isRollbackOnChange()) {
+				rollbackSituations.add(handledSit.getSituation());
+			}
+		}
+
 		return rollbackSituations;
 	}
 

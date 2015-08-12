@@ -34,8 +34,6 @@ class OperationHandlerImpl implements OperationHandler {
 	public OperationHandlingResult handleOperation(
 			WsaSoapMessage wsaSoapMessage, RollbackHandler rollbackHandler) {
 
-		// TODO: scheinbar kann es bei einem Situationswechsel vorkommen, dass
-		// mehrfach dieselbe Implementierung gewählt wird.
 		String operationName;
 		String qualifier;
 		// wsa action is used if specified, else ns + name

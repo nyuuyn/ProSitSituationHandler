@@ -20,7 +20,6 @@ class RollbackManager {
 	/**
 	 * Manages rollbacks ready to start
 	 * 
-	 * TODO: Hier muss bei erfolg gelöscht werden!
 	 * 
 	 * <Situation, all handlers that must run when this situation changes>
 	 */
@@ -62,9 +61,6 @@ class RollbackManager {
 					rollbackHandlers.get(sitToCheck).removeFirstOccurrence(
 							handler);
 				}
-
-				// TODO: Das ganze Zeug mit den Listen und auch mit der Routing
-				// Tabelle muss eigentlich noch ausführlich getestet werden!
 			}
 		}
 		
@@ -75,7 +71,6 @@ class RollbackManager {
 		// kenne!
 		// StorageAccessFactory.getHistoryAccess().appendWorkflowRollback(null,
 		// situation, state);
-		// TODO: Rollback
 	}
 
 	void registerRollbackHandler(RollbackHandler rollbackHandler,
@@ -94,7 +89,7 @@ class RollbackManager {
 			logger.trace("Reusing existing handler.");
 		}
 
-		// add rollback to all situations
+		// add rollback to all rollback situations
 		for (Situation sit : chosenEndpoint.getRollbackSituations()) {
 			LinkedList<RollbackHandler> handlers;
 			synchronized (RollbackManager.class) {
