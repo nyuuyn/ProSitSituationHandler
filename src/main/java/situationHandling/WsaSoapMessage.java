@@ -23,8 +23,6 @@ public class WsaSoapMessage {
 
 	private static final Logger logger = Logger.getLogger(WsaSoapMessage.class);
 
-
-
 	// TODO: Die ganzen WSA Header könnte man auch in einer Map oder so
 	// zurückgeben, falls es noch mehr werden
 	private SOAPMessage soapMessage;
@@ -43,6 +41,8 @@ public class WsaSoapMessage {
 	private boolean rollbackRequest = false;
 	private String rollbackResult = null;
 
+	private Integer maxRetries = null;
+
 	WsaSoapMessage(String soapString) throws SOAPException {
 
 		try {
@@ -52,6 +52,7 @@ public class WsaSoapMessage {
 			this.soapMessage = MessageFactory.newInstance().createMessage(null,
 					inputStream);
 			parseWsaHeaders();
+			parseActorSpecificHeaders();
 			setRollbackResponse();
 			setRollbackRequest();
 			parseOperationName();
@@ -121,9 +122,34 @@ public class WsaSoapMessage {
 				this.wsaRelationshipType = she.getAttributeValue(new QName(
 						"RelationshipType"));
 				break;
+			case "MaxRetries":
+				break;
 			default:
 				break;
 			}
+		}
+	}
+
+	@SuppressWarnings({ "rawtypes" })
+	private void parseActorSpecificHeaders() throws SOAPException {
+		SOAPHeader sh = soapMessage.getSOAPHeader();
+		Iterator it = sh
+				.examineHeaderElements(SoapConstants.SITUATION_HANDLER_ROLE);
+		while (it.hasNext()) {
+			SOAPHeaderElement she = (SOAPHeaderElement) it.next();
+			String headerName = she.getTagName();
+			if (headerName.equals(SoapConstants.HEADER_MAX_RETRIES)) {
+				try {
+					maxRetries = Integer.parseInt(she.getValue());
+					if (maxRetries < 0) {
+						throw new SOAPException("Invalid Number of retries");
+					}
+				} catch (NumberFormatException e) {
+					throw new SOAPException("Invalid Number of retries", e);
+				}
+				it.remove();
+			}
+
 		}
 	}
 
@@ -151,7 +177,8 @@ public class WsaSoapMessage {
 
 	private void setRollbackRequest() {
 		if (wsaRelationshipType != null
-				&& wsaRelationshipType.equals(SoapConstants.RELATIONSHIP_TYPE_ROLLBACK)) {
+				&& wsaRelationshipType
+						.equals(SoapConstants.RELATIONSHIP_TYPE_ROLLBACK)) {
 			rollbackRequest = true;
 		}
 	}
@@ -316,7 +343,14 @@ public class WsaSoapMessage {
 	String getRollbackResult() {
 		return rollbackResult;
 	}
-	
+
+	/**
+	 * @return the maxRetries
+	 */
+	Integer getMaxRetries() {
+		return maxRetries;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -326,37 +360,36 @@ public class WsaSoapMessage {
 	public String toString() {
 		return "WsaSoapMessage [operationName=" + operationName
 				+ ", namespace=" + namespace + ", wsaMessageID=" + wsaMessageID
-				+ ", wsaReplyTo=" + wsaReplyTo + ", wsaTo=" + wsaTo
-				+ ", wsaAction=" + wsaAction + ", wsaRelatesTo=" + wsaRelatesTo
-				+ ", wsaRelationshipType=" + wsaRelationshipType + "]";
+				+ ", wsaTo=" + wsaTo + ", wsaAction=" + wsaAction
+				+ ", wsaRelatesTo=" + wsaRelatesTo + ", wsaRelationshipType="
+				+ wsaRelationshipType + ", wsaReplyTo=" + wsaReplyTo
+				+ ", rollbackResponse=" + rollbackResponse
+				+ ", rollbackRequest=" + rollbackRequest + ", rollbackResult="
+				+ rollbackResult + ", maxRetries=" + maxRetries + "]";
 	}
-
-
-
 
 	public String toStringCompact() {
 		return "WsaSoapMessage ["
+				+ (namespace != null ? "namespace=" + namespace + ", " : "")
 				+ (operationName != null ? "operationName=" + operationName
 						+ ", " : "")
-				+ (namespace != null ? "namespace=" + namespace + ", " : "")
 				+ (wsaMessageID != null ? "wsaMessageID=" + wsaMessageID + ", "
 						: "")
-				+ (wsaReplyTo != null ? "wsaReplyTo=" + wsaReplyTo + ", " : "")
-				+ (wsaRelationshipType != null ? "wsaRelationshipType="
-						+ wsaRelationshipType + ", " : "")
 				+ (wsaTo != null ? "wsaTo=" + wsaTo + ", " : "")
 				+ (wsaAction != null ? "wsaAction=" + wsaAction + ", " : "")
+				+ (wsaReplyTo != null ? "wsaReplyTo=" + wsaReplyTo + ", " : "")
 				+ (wsaRelatesTo != null ? "wsaRelatesTo=" + wsaRelatesTo + ", "
 						: "")
+				+ (wsaRelationshipType != null ? "wsaRelationshipType="
+						+ wsaRelationshipType + ", " : "")
 				+ "rollbackResponse="
 				+ rollbackResponse
 				+ ", rollbackRequest="
 				+ rollbackRequest
 				+ ", "
 				+ (rollbackResult != null ? "rollbackResult=" + rollbackResult
-						: "") + "]";
+						+ ", " : "")
+				+ (maxRetries != null ? "maxRetries=" + maxRetries : "") + "]";
 	}
-
-	
 
 }

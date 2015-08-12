@@ -73,10 +73,12 @@ class RollbackManager {
 			String surrogate) {
 		logger.debug("Registering rollback handler for endpoint: "
 				+ chosenEndpoint.toString());
-		// TODO: Parse Message for Max Rollbacks and use the count
+
 		if (rollbackHandler == null) {
+			int rollbackMaximum = wsaSoapMessage.getMaxRetries() != null ? wsaSoapMessage
+					.getMaxRetries() : DEFAULT_ROLLBACK_MAXIMUM;
 			rollbackHandler = new RollbackHandler(chosenEndpoint,
-					DEFAULT_ROLLBACK_MAXIMUM, wsaSoapMessage, surrogate);
+					rollbackMaximum, wsaSoapMessage, surrogate);
 			logger.trace("New Handler created");
 		} else {
 			rollbackHandler.setSurrogateId(surrogate);

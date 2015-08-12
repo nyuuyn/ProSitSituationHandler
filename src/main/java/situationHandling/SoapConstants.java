@@ -11,5 +11,6 @@ class SoapConstants {
 	static final String ROLLBACK_START_OPERATION = "StartRollback";
 	
 	static final String SITUATION_HANDLER_ROLE = "Situation_Handler";
+	static final String HEADER_MAX_RETRIES = "MaxRetries";
 
 }
