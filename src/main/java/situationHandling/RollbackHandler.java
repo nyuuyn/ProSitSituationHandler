@@ -73,6 +73,10 @@ public class RollbackHandler {
 		this.surrogateId = surrogateId;
 	}
 	
+	void setEndpoint (Endpoint endpoint){
+		this.endpoint = endpoint;
+	}
+	
 	String getSurrogateId (){
 		return surrogateId;
 	}

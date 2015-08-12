@@ -326,7 +326,7 @@ public class WsaSoapMessage {
 	String getRollbackResult() {
 		return rollbackResult;
 	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -341,6 +341,33 @@ public class WsaSoapMessage {
 				+ ", wsaRelationshipType=" + wsaRelationshipType + "]";
 	}
 
+
+
+
+	public String toStringCompact() {
+		return "WsaSoapMessage ["
+				+ (operationName != null ? "operationName=" + operationName
+						+ ", " : "")
+				+ (namespace != null ? "namespace=" + namespace + ", " : "")
+				+ (wsaMessageID != null ? "wsaMessageID=" + wsaMessageID + ", "
+						: "")
+				+ (wsaReplyTo != null ? "wsaReplyTo=" + wsaReplyTo + ", " : "")
+				+ (wsaRelationshipType != null ? "wsaRelationshipType="
+						+ wsaRelationshipType + ", " : "")
+				+ (wsaTo != null ? "wsaTo=" + wsaTo + ", " : "")
+				+ (wsaAction != null ? "wsaAction=" + wsaAction + ", " : "")
+				+ (wsaRelatesTo != null ? "wsaRelatesTo=" + wsaRelatesTo + ", "
+						: "")
+				+ "rollbackResponse="
+				+ rollbackResponse
+				+ ", rollbackRequest="
+				+ rollbackRequest
+				+ ", "
+				+ (rollbackResult != null ? "rollbackResult=" + rollbackResult
+						: "") + "]";
+	}
+
+	// TODO: in extra Klasse dann zusammen mit dem Zeug um Faults zu generieren
 	public static WsaSoapMessage createRollbackRequest(String receiver,
 			String relatedMessageId) {
 		try {
@@ -367,7 +394,8 @@ public class WsaSoapMessage {
 					.createQName("ReplyTo", wsaPrefix));
 			String ownIPAdress = InetAddress.getLocalHost().getHostAddress();
 			replyTo.addChildElement("Address", wsaPrefix).setValue(
-					"http://" + ownIPAdress + ":" + GlobalProperties.NETWORK_PORT + "/"
+					"http://" + ownIPAdress + ":"
+							+ GlobalProperties.NETWORK_PORT + "/"
 							+ GlobalProperties.ANSWER_ENDPOINT_PATH);
 
 			// id

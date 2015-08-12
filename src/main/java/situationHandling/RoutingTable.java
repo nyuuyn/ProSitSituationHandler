@@ -5,6 +5,8 @@ import java.util.HashMap;
 
 class RoutingTable {
 
+	//TODO: Ist bei diesen Maps eine synchronisierung notwendig?
+	
 	/**
 	 * 
 	 * <Original-ID, Reply-Address>
@@ -52,8 +54,8 @@ class RoutingTable {
 		}
 		sb.append("--------------\n");
 		sb.append("<Surrogate ID> --> <Original Id>\n");
-		for (String surrogate : replyAddresses.keySet()) {
-			sb.append(surrogate + " --> " + replyAddresses.get(surrogate));
+		for (String surrogate : surrogateTable.keySet()) {
+			sb.append(surrogate + " --> " + surrogateTable.get(surrogate));
 			sb.append("\n");
 		}
 		

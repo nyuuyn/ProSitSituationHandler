@@ -15,7 +15,7 @@ class RollbackManager {
 	private final static Logger logger = Logger
 			.getLogger(RollbackManager.class);
 
-	private static final int DEFAULT_ROLLBACK_MAXIMUM = 2;
+	private static final int DEFAULT_ROLLBACK_MAXIMUM = 5;
 
 	/**
 	 * Manages rollbacks ready to start
@@ -90,6 +90,7 @@ class RollbackManager {
 			logger.trace("New Handler created");
 		} else {
 			rollbackHandler.setSurrogateId(surrogate);
+			rollbackHandler.setEndpoint(chosenEndpoint);
 			logger.trace("Reusing existing handler.");
 		}
 

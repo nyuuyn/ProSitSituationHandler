@@ -47,6 +47,8 @@ class MessageRouter {
 	}
 
 	String forwardRequest(URL receiverUrl) {
+		logger.trace("Forwarding request: " + wsaSoapMessage.toStringCompact()
+				+ " to " + receiverUrl.toString());
 		URL answerRecipent = wsaSoapMessage.getWsaReplyTo();
 		// set new answer address
 		try {
@@ -70,21 +72,27 @@ class MessageRouter {
 			routingTable.addReplyAddress(originalId, answerRecipent);
 			routingTable
 					.addSurrogateMessageId(originalId, surrogate.toString());
+			routingTable.printRoutingTable();
 			return surrogate.toString();
 		}
 		return null;
 	}
 
 	boolean forwardRollbackRequest() {
+		logger.trace("Forwarding rollback request: "
+				+ wsaSoapMessage.toStringCompact());
 
 		// remove the old entry in the surrogate table
 		routingTable.removeSurrogateId(wsaSoapMessage.getWsaRelatesTo());
-		
+
 		URL receiverUrl = wsaSoapMessage.getWsaTo();
+		
+		routingTable.printRoutingTable();
 		return sendMessage(receiverUrl, wsaSoapMessage.getSoapMessage());
 	}
 
 	boolean forwardAnswer() {
+		logger.trace("Forwarding answer: " + wsaSoapMessage.toStringCompact());
 		// lookup original id
 		String surrogateId = wsaSoapMessage.getWsaRelatesTo();
 		String originalId = routingTable.getOriginalMessageId(surrogateId);
@@ -108,12 +116,14 @@ class MessageRouter {
 		// remove entries in routing table
 		routingTable.removeReplyEntry(originalId);
 		routingTable.removeSurrogateId(surrogateId);
+		routingTable.printRoutingTable();
 
 		return sendMessage(receiver, wsaSoapMessage.getSoapMessage());
 	}
 
 	/**
 	 * loeschen
+	 * 
 	 * @param messageId
 	 */
 	@Deprecated
@@ -153,8 +163,6 @@ class MessageRouter {
 		}
 
 	}
-	
-
 
 	// /**
 	// * @return the routingTable
