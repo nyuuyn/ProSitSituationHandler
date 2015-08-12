@@ -42,7 +42,7 @@ public class RollbackHandler {
 			return null;
 		}
 		
-		WsaSoapMessage rollbackRequest = WsaSoapMessage.createRollbackRequest(
+		WsaSoapMessage rollbackRequest = SoapRequestFactory.createRollbackRequest(
 				endpoint.getEndpointURL(), surrogateId);
 		new MessageRouter(rollbackRequest).forwardRollbackRequest();
 

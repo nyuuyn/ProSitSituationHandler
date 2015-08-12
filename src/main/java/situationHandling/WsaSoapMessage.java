@@ -31,9 +31,7 @@ public class WsaSoapMessage {
 
 	private static final Logger logger = Logger.getLogger(WsaSoapMessage.class);
 
-	private static final String ROLLBACK_RELATIONSHIP_TYPE = "Rollback";
-	private static final String ROLLBACK_RESPONSE_RELATIONSHIP_TYPE = "RollbackResponse";
-	private static final String ROLLBACK_START_OPERATION = "StartRollback";
+
 
 	// TODO: Die ganzen WSA Header könnte man auch in einer Map oder so
 	// zurückgeben, falls es noch mehr werden
@@ -154,14 +152,14 @@ public class WsaSoapMessage {
 	private void setRollbackResponse() {
 		if (wsaRelationshipType != null
 				&& wsaRelationshipType
-						.equals(ROLLBACK_RESPONSE_RELATIONSHIP_TYPE)) {
+						.equals(SoapConstants.ROLLBACK_RESPONSE_RELATIONSHIP_TYPE)) {
 			rollbackResponse = true;
 		}
 	}
 
 	private void setRollbackRequest() {
 		if (wsaRelationshipType != null
-				&& wsaRelationshipType.equals(ROLLBACK_RELATIONSHIP_TYPE)) {
+				&& wsaRelationshipType.equals(SoapConstants.ROLLBACK_RELATIONSHIP_TYPE)) {
 			rollbackRequest = true;
 		}
 	}
@@ -367,71 +365,6 @@ public class WsaSoapMessage {
 						: "") + "]";
 	}
 
-	// TODO: in extra Klasse dann zusammen mit dem Zeug um Faults zu generieren
-	public static WsaSoapMessage createRollbackRequest(String receiver,
-			String relatedMessageId) {
-		try {
-			SOAPMessage msg = MessageFactory.newInstance().createMessage();
+	
 
-			SOAPPart part = msg.getSOAPPart();
-
-			SOAPEnvelope envelope = part.getEnvelope();
-			SOAPHeader header = envelope.getHeader();
-			SOAPBody body = envelope.getBody();
-
-			String wsaPrefix = "wsa";
-			header = (SOAPHeader) header.addNamespaceDeclaration(wsaPrefix,
-					"http://www.w3.org/2005/08/addressing");
-
-			// headers
-			// to
-			SOAPHeaderElement to = header.addHeaderElement(header.createQName(
-					"To", wsaPrefix));
-			to.setValue(receiver);
-
-			// reply to
-			SOAPHeaderElement replyTo = header.addHeaderElement(header
-					.createQName("ReplyTo", wsaPrefix));
-			String ownIPAdress = InetAddress.getLocalHost().getHostAddress();
-			replyTo.addChildElement("Address", wsaPrefix).setValue(
-					"http://" + ownIPAdress + ":"
-							+ GlobalProperties.NETWORK_PORT + "/"
-							+ GlobalProperties.ANSWER_ENDPOINT_PATH);
-
-			// id
-			SOAPHeaderElement messageID = header.addHeaderElement(header
-					.createQName("MessageID", wsaPrefix));
-
-			messageID.setValue(UUID.randomUUID().toString());
-
-			// relates to
-			SOAPHeaderElement relates = header.addHeaderElement(header
-					.createQName("RelatesTo", wsaPrefix));
-
-			relates.setValue(relatedMessageId);
-			relates.addAttribute(envelope.createName("RelationshipType"),
-					ROLLBACK_RELATIONSHIP_TYPE);
-
-			// action
-
-			SOAPHeaderElement action = header.addHeaderElement(header
-					.createQName("Action", wsaPrefix));
-			action.setValue(ROLLBACK_START_OPERATION);
-
-			// body
-			body.addBodyElement(envelope.createName(ROLLBACK_START_OPERATION));
-
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			try {
-				msg.writeTo(out);
-			} catch (SOAPException | IOException e) {
-				logger.error("Error converting soap message.", e);
-			}
-			return new WsaSoapMessage(out.toString());
-		} catch (SOAPException | UnknownHostException e) {
-			logger.error("Error creating rollback request", e);
-			return null;
-		}
-
-	}
 }
