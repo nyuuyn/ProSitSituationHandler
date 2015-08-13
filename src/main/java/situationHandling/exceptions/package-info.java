@@ -1,7 +1,8 @@
 
 /**
  * 
- * This pacakge contains several exceptions, that might occur while handling situations.
+ * This pacakge contains several exceptions, that might occur while handling
+ * situations.
  * 
  * @author Stefan
  */

@@ -11,29 +11,29 @@ import situationHandling.storage.datatypes.Action;
  */
 public class InvalidActionException extends Exception {
 
-	/** The Constant serialVersionUID. */
-	private static final long serialVersionUID = -2218182694949963434L;
+    /** The Constant serialVersionUID. */
+    private static final long serialVersionUID = -2218182694949963434L;
 
-	/**
-	 * Instantiates a new invalid action exception.
-	 *
-	 * @param message
-	 *            the message
-	 * @param cause
-	 *            the cause
-	 */
-	public InvalidActionException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    /**
+     * Instantiates a new invalid action exception.
+     *
+     * @param message
+     *            the message
+     * @param cause
+     *            the cause
+     */
+    public InvalidActionException(String message, Throwable cause) {
+	super(message, cause);
+    }
 
-	/**
-	 * Instantiates a new invalid action exception.
-	 *
-	 * @param message
-	 *            the message
-	 */
-	public InvalidActionException(String message) {
-		super(message);
-	}
+    /**
+     * Instantiates a new invalid action exception.
+     *
+     * @param message
+     *            the message
+     */
+    public InvalidActionException(String message) {
+	super(message);
+    }
 
 }
