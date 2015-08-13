@@ -22,7 +22,7 @@ import utils.soap.WsaSoapMessage;
 /**
  * The Class OperationHandlerImpl.
  */
-class OperationHandlerImpl implements OperationHandlerWithRollback {
+class OperationHandlerImpl implements OperationHandlerForRollback {
 
     /** The logger for this class. */
     private final static Logger logger = Logger.getLogger(OperationHandlerImpl.class);

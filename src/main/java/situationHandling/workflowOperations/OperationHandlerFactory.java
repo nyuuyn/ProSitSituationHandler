@@ -26,7 +26,7 @@ public class OperationHandlerFactory {
 		return new OperationHandlerImpl(rollbackManager);
 	}
 	
-	static OperationHandlerWithRollback getOperationHandlerWithRollback(){
+	static OperationHandlerForRollback getOperationHandlerWithRollback(){
 	    return new OperationHandlerImpl(rollbackManager);
 	}
 

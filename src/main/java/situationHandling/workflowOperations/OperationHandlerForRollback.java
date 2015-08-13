@@ -2,7 +2,7 @@ package situationHandling.workflowOperations;
 
 import utils.soap.WsaSoapMessage;
 
-interface OperationHandlerWithRollback extends OperationHandler {
+interface OperationHandlerForRollback extends OperationHandler {
     /**
      * Does the same than
      * {@code OperationHandler#handleOperation(WsaSoapMessage)}.
