@@ -1,4 +1,4 @@
-package situationHandling;
+package situationHandling.workflowOperations;
 
 import java.net.URL;
 import java.util.HashMap;

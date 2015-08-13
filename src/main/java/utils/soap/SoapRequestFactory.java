@@ -1,4 +1,4 @@
-package situationHandling;
+package utils.soap;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -22,11 +22,11 @@ import org.apache.log4j.Logger;
 import routes.GlobalProperties;
 import situationHandling.storage.datatypes.Operation;
 
-class SoapRequestFactory {
+public class SoapRequestFactory {
 
 	private static Logger logger = Logger.getLogger(SoapRequestFactory.class);
 
-	static WsaSoapMessage createRollbackRequest(String receiver,
+	public static WsaSoapMessage createRollbackRequest(String receiver,
 			String relatedMessageId) {
 		try {
 			SOAPMessage msg = MessageFactory.newInstance().createMessage();
@@ -70,7 +70,7 @@ class SoapRequestFactory {
 	 * 
 	 * @see SOAPConstants
 	 */
-	static WsaSoapMessage createFaultMessageWsa(String receiver,
+	public static WsaSoapMessage createFaultMessageWsa(String receiver,
 			String relatedMessageId, Operation operation, String errorMessage,
 			QName faultCode) {
 		SOAPMessage msg;
@@ -104,7 +104,7 @@ class SoapRequestFactory {
 
 	}
 
-	static WsaSoapMessage createFaultMessage(String errorMessage,
+	public static WsaSoapMessage createFaultMessage(String errorMessage,
 			QName faultCode) {
 		SOAPMessage msg;
 		try {
@@ -125,8 +125,6 @@ class SoapRequestFactory {
 			return null;
 		}
 	}
-
-
 
 	private static void addWsaHeaders(SOAPEnvelope env, String receiver,
 			boolean idRequired, String releatesToId, String relatesToType,
@@ -173,7 +171,7 @@ class SoapRequestFactory {
 		}
 
 	}
-	
+
 	private static WsaSoapMessage createTheMessage(SOAPMessage msg)
 			throws SOAPException, IOException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();

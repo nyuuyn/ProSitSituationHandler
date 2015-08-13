@@ -1,4 +1,4 @@
-package situationHandling;
+package utils.soap;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -43,7 +43,7 @@ public class WsaSoapMessage {
 
 	private Integer maxRetries = null;
 
-	WsaSoapMessage(String soapString) throws SOAPException {
+	public WsaSoapMessage(String soapString) throws SOAPException {
 
 		try {
 			InputStream inputStream = new ByteArrayInputStream(
@@ -99,7 +99,8 @@ public class WsaSoapMessage {
 					break; // return value found
 				}
 			}
-			rollbackResult = Boolean.parseBoolean(returnValue.getFirstChild().getNodeValue());
+			rollbackResult = Boolean.parseBoolean(returnValue.getFirstChild()
+					.getNodeValue());
 		}
 	}
 
@@ -193,7 +194,7 @@ public class WsaSoapMessage {
 	}
 
 	@SuppressWarnings("rawtypes")
-	void setWsaReplyTo(URL replyAddress) {
+	public void setWsaReplyTo(URL replyAddress) {
 		try {
 			SOAPHeader sh = soapMessage.getSOAPHeader();
 
@@ -225,21 +226,21 @@ public class WsaSoapMessage {
 
 	}
 
-	void setWsaTo(URL receiverAddress) {
+	public void setWsaTo(URL receiverAddress) {
 		if (setStandardWsaHeader("wsa:To", receiverAddress.toString())) {// TODO:
 																			// PRefix
 			this.wsaTo = receiverAddress;
 		}
 	}
 
-	void setWsaMessageId(String messageId) {
+	public void setWsaMessageId(String messageId) {
 		if (setStandardWsaHeader("wsa:MessageID", messageId)) {// TODO: PRefix
 			this.wsaMessageID = messageId;
 		}
 
 	}
 
-	void setWsaRelatesTo(String messageId) {
+	public void setWsaRelatesTo(String messageId) {
 		if (setStandardWsaHeader("wsa:RelatesTo", messageId)) {// TODO: PRefix
 			this.wsaRelatesTo = messageId;
 		}
@@ -265,7 +266,7 @@ public class WsaSoapMessage {
 		return false;
 	}
 
-	String getSoapMessage() {
+	public String getSoapMessage() {
 		// TODO: Streams schlieﬂen?
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		try {
@@ -279,84 +280,84 @@ public class WsaSoapMessage {
 	/**
 	 * @return the operationName
 	 */
-	String getOperationName() {
+	public String getOperationName() {
 		return operationName;
 	}
 
 	/**
 	 * @return the namespace
 	 */
-	String getNamespace() {
+	public String getNamespace() {
 		return namespace;
 	}
 
 	/**
 	 * @return the wsaMessageID
 	 */
-	String getWsaMessageID() {
+	public String getWsaMessageID() {
 		return wsaMessageID;
 	}
 
 	/**
 	 * @return the wsaReplyTo
 	 */
-	URL getWsaReplyTo() {
+	public URL getWsaReplyTo() {
 		return wsaReplyTo;
 	}
 
 	/**
 	 * @return the wsaAction
 	 */
-	String getWsaAction() {
+	public String getWsaAction() {
 		return wsaAction;
 	}
 
 	/**
 	 * @return the wsaTo
 	 */
-	URL getWsaTo() {
+	public URL getWsaTo() {
 		return wsaTo;
 	}
 
 	/**
 	 * @return the wsaRelatesTo
 	 */
-	String getWsaRelatesTo() {
+	public String getWsaRelatesTo() {
 		return wsaRelatesTo;
 	}
 
 	/**
 	 * @return the wsaRelationshipType
 	 */
-	String getWsaRelationshipType() {
+	public String getWsaRelationshipType() {
 		return wsaRelationshipType;
 	}
 
 	/**
 	 * @return the rollbackResponse
 	 */
-	boolean isRollbackResponse() {
+	public boolean isRollbackResponse() {
 		return rollbackResponse;
 	}
 
 	/**
 	 * @return the rollbackRequest
 	 */
-	boolean isRollbackRequest() {
+	public boolean isRollbackRequest() {
 		return rollbackRequest;
 	}
 
 	/**
 	 * @return the rollbackResult
 	 */
-	boolean getRollbackResult() {
+	public boolean getRollbackResult() {
 		return rollbackResult;
 	}
 
 	/**
 	 * @return the maxRetries
 	 */
-	Integer getMaxRetries() {
+	public Integer getMaxRetries() {
 		return maxRetries;
 	}
 

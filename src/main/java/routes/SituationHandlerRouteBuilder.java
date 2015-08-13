@@ -3,7 +3,7 @@ package routes;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 
-import situationHandling.SoapProcessor;
+import utils.soap.SoapProcessor;
 
 class SituationHandlerRouteBuilder extends RouteBuilder {
 	private String hostname;

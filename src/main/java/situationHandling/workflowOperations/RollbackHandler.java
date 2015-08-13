@@ -1,4 +1,4 @@
-package situationHandling;
+package situationHandling.workflowOperations;
 
 import java.util.List;
 
@@ -10,6 +10,8 @@ import situationHandling.storage.StorageAccessFactory;
 import situationHandling.storage.datatypes.Endpoint;
 import situationHandling.storage.datatypes.Operation;
 import situationHandling.storage.datatypes.Situation;
+import utils.soap.SoapRequestFactory;
+import utils.soap.WsaSoapMessage;
 
 public class RollbackHandler {
 

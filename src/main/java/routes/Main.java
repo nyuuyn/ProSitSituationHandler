@@ -13,8 +13,8 @@ import org.apache.log4j.Logger;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.util.resource.Resource;
 
-import situationHandling.OperationHandlerEndpoint;
 import situationHandling.storage.StorageAccessFactory;
+import situationHandling.workflowOperations.OperationHandlerEndpoint;
 import situationManagement.SituationEndpoint;
 import situationManagement.SituationManagerFactory;
 import api.configuration.EndpointAPI;

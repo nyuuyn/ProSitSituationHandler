@@ -1,4 +1,4 @@
-package situationHandling;
+package situationHandling.workflowOperations;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -15,6 +15,8 @@ import situationHandling.storage.datatypes.Operation;
 import situationHandling.storage.datatypes.Situation;
 import situationManagement.SituationManager;
 import situationManagement.SituationManagerFactory;
+import utils.soap.SoapRequestFactory;
+import utils.soap.WsaSoapMessage;
 
 class OperationHandlerImpl implements OperationHandler {
 

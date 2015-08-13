@@ -1,7 +1,7 @@
 package situatinHandling;
 
-import situationHandling.SituationHandler;
-import situationHandling.SituationHandlerFactory;
+import situationHandling.notifications.SituationHandler;
+import situationHandling.notifications.SituationHandlerFactory;
 import situationHandling.storage.datatypes.Situation;
 
 public class SituationHandlerTest {

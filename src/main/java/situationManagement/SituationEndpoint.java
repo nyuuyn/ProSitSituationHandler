@@ -7,9 +7,9 @@ import org.apache.log4j.Logger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import situationHandling.OperationHandlerFactory;
-import situationHandling.SituationHandlerFactory;
+import situationHandling.notifications.SituationHandlerFactory;
 import situationHandling.storage.datatypes.Situation;
+import situationHandling.workflowOperations.OperationHandlerFactory;
 
 /**
  * The Class SituationEndpoint implements the endpoint that is used to receive

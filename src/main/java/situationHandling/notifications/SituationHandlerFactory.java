@@ -1,4 +1,4 @@
-package situationHandling;
+package situationHandling.notifications;
 
 public class SituationHandlerFactory {
 	

@@ -1,4 +1,4 @@
-package situationHandling;
+package situationHandling.notifications;
 
 import situationHandling.storage.datatypes.Situation;
 

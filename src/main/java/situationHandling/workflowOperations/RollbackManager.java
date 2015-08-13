@@ -1,4 +1,4 @@
-package situationHandling;
+package situationHandling.workflowOperations;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import situationHandling.storage.StorageAccessFactory;
 import situationHandling.storage.datatypes.Endpoint;
 import situationHandling.storage.datatypes.Situation;
+import utils.soap.WsaSoapMessage;
 
 class RollbackManager {
 

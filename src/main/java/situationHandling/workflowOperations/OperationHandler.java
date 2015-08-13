@@ -1,6 +1,7 @@
-package situationHandling;
+package situationHandling.workflowOperations;
 
 import situationHandling.storage.datatypes.Situation;
+import utils.soap.WsaSoapMessage;
 
 
 public interface OperationHandler {

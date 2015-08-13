@@ -1,10 +1,12 @@
 /**
  * 
  */
-package situationHandling;
+package situationHandling.workflowOperations;
 
 import org.apache.camel.Exchange;
 import org.apache.log4j.Logger;
+
+import utils.soap.WsaSoapMessage;
 
 /**
  * @author Stefan

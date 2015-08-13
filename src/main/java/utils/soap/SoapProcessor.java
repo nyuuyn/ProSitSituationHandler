@@ -1,7 +1,7 @@
 /**
  * 
  */
-package situationHandling;
+package utils.soap;
 
 import javax.xml.soap.SOAPConstants;
 import javax.xml.soap.SOAPException;

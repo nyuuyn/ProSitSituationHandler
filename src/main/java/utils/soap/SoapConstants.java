@@ -1,4 +1,4 @@
-package situationHandling;
+package utils.soap;
 
 class SoapConstants {
 	

@@ -1,4 +1,4 @@
-package situationHandling;
+package situationHandling.notifications;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package situationHandling;
+package situationHandling.workflowOperations;
 
 import java.net.InetAddress;
 import java.net.MalformedURLException;
@@ -18,6 +18,7 @@ import pluginManagement.PluginManager;
 import pluginManagement.PluginManagerFactory;
 import routes.GlobalProperties;
 import situationHandler.plugin.PluginParams;
+import utils.soap.WsaSoapMessage;
 
 /**
  * @author Stefan
