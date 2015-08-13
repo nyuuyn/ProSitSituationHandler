@@ -7,6 +7,9 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.xml.soap.SOAPException;
 
@@ -50,6 +53,9 @@ class MessageRouter {
 
     /** The logger. */
     private static final Logger logger = Logger.getLogger(MessageRouter.class);
+
+    private static final ExecutorService EXECUTOR_SERVICE = Executors
+	    .newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
     /** The soap message to send. */
     private WsaSoapMessage wsaSoapMessage;
@@ -198,11 +204,12 @@ class MessageRouter {
 
 	params.setParam("Http method", "POST");
 	Map<String, String> results = null;
+
 	try {
-	    // TODO: Das sollte man eigentlich in einem Pool machen!
-	    results = pm.getPluginSender("situationHandler.http", url.toString(), payload, params)
-		    .call();
-	} catch (Exception e) {
+	    results = EXECUTOR_SERVICE.submit(
+		    pm.getPluginSender("situationHandler.http", url.toString(), payload, params))
+		    .get();
+	} catch (InterruptedException | ExecutionException e) {
 	    logger.error("Error when invoking Endpoint.", e);
 	    return false;
 	}
