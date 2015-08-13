@@ -53,22 +53,32 @@ class NotificationComponentImpl implements NotificationComponent {
 	List<Action> actions = rsa.getActionsBySituationAndExecutionTime(situation, time);
 	logger.debug("Executing actions:\n" + actions.toString());
 
-	LinkedList<Future<Map<String, String>>> results = new LinkedList<>();
+	LinkedList<ActionResultWrapper> results = new LinkedList<>();
 	for (Action action : actions) {
-	    StorageAccessFactory.getHistoryAccess().appendAction(action, situation, state);
+
 	    Future<Map<String, String>> result = threadExecutor
 		    .submit(pm.getPluginSender(action.getPluginID(), action.getAddress(),
 			    action.getPayload(), new PluginParams(action.getParams())));
-	    results.add(result);
+	    results.add(new ActionResultWrapper(action, result));
 	}
 
-	for (Future<Map<String, String>> result : results) {
-	    try {
-		logger.debug("Action executed - Result: " + result.get().toString());
-	    } catch (InterruptedException | ExecutionException e) {
-		logger.error("Failure when executing action.", e);
+	// extra threads waits for the actions to execute
+	threadExecutor.execute(new Runnable() {
+	    @Override
+	    public void run() {
+		for (ActionResultWrapper arw : results) {
+		    try {
+			StorageAccessFactory.getHistoryAccess().appendAction(arw.getAction(),
+				situation, state, arw.getResult().get());
+			logger.debug(
+				"Action executed - Result: " + arw.getResult().get().toString());
+		    } catch (InterruptedException | ExecutionException e) {
+			logger.error("Failure when executing action.", e);
+		    }
+		}
 	    }
-	}
+	});
+
     }
 
 }
