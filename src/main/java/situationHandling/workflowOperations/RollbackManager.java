@@ -11,20 +11,20 @@ import situationHandling.storage.datatypes.Endpoint;
 import situationHandling.storage.datatypes.Situation;
 import utils.soap.WsaSoapMessage;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class RollbackManager.
+ */
 class RollbackManager {
 
 	/** The logger for this class. */
 	private final static Logger logger = Logger
 			.getLogger(RollbackManager.class);
 
+	/** The Constant DEFAULT_ROLLBACK_MAXIMUM. */
 	private static final int DEFAULT_ROLLBACK_MAXIMUM = 2;
 
-	/**
-	 * Manages rollbacks ready to start
-	 * 
-	 * 
-	 * <Situation, all handlers that must run when this situation changes>
-	 */
+	/** Manages rollbacks ready to start   <Situation, all handlers that must run when this situation changes>. */
 	private HashMap<Situation, LinkedList<RollbackHandler>> rollbackHandlers = new HashMap<>();
 
 	/**
@@ -34,6 +34,12 @@ class RollbackManager {
 	 */
 	private HashMap<String, RollbackHandler> runningRollbacks = new HashMap<>();
 
+	/**
+	 * Check rollback.
+	 *
+	 * @param situation the situation
+	 * @param state the state
+	 */
 	void checkRollback(Situation situation, boolean state) {
 		synchronized (RollbackManager.class) {
 			LinkedList<RollbackHandler> handlers = rollbackHandlers
@@ -68,6 +74,14 @@ class RollbackManager {
 		printRunningRollbacks();
 	}
 
+	/**
+	 * Register rollback handler.
+	 *
+	 * @param rollbackHandler the rollback handler
+	 * @param chosenEndpoint the chosen endpoint
+	 * @param wsaSoapMessage the wsa soap message
+	 * @param surrogate the surrogate
+	 */
 	void registerRollbackHandler(RollbackHandler rollbackHandler,
 			Endpoint chosenEndpoint, WsaSoapMessage wsaSoapMessage,
 			String surrogate) {
@@ -105,6 +119,12 @@ class RollbackManager {
 		printExistingRollbackHandlers();
 	}
 
+	/**
+	 * Rollback answered.
+	 *
+	 * @param wsaSoapMessage the wsa soap message
+	 * @return true, if successful
+	 */
 	boolean rollbackAnswered(WsaSoapMessage wsaSoapMessage) {
 		// check if there is a running rollback handler for this message
 		RollbackHandler handler = runningRollbacks.remove(wsaSoapMessage
@@ -127,6 +147,11 @@ class RollbackManager {
 		}
 	}
 
+	/**
+	 * Removes the rollback handler.
+	 *
+	 * @param messageId the message id
+	 */
 	private synchronized void removeRollbackHandler(String messageId) {
 		for (LinkedList<RollbackHandler> handlers : rollbackHandlers.values()) {
 			Iterator<RollbackHandler> it = handlers.iterator();
@@ -139,6 +164,9 @@ class RollbackManager {
 		}
 	}
 
+	/**
+	 * Prints the running rollbacks.
+	 */
 	private void printRunningRollbacks() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("---------Running Rollback Handlers---------\n");
@@ -151,6 +179,9 @@ class RollbackManager {
 		logger.trace(sb.toString());
 	}
 
+	/**
+	 * Prints the existing rollback handlers.
+	 */
 	private void printExistingRollbackHandlers() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("---------Existing Rollback Handlers---------\n");

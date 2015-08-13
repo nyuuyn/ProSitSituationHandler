@@ -18,20 +18,48 @@ import situationManagement.SituationManagerFactory;
 import utils.soap.SoapRequestFactory;
 import utils.soap.WsaSoapMessage;
 
-class OperationHandlerImpl implements OperationHandler {
+// TODO: Auto-generated Javadoc
+/**
+ * The Class OperationHandlerImpl.
+ */
+class OperationHandlerImpl implements OperationHandlerWithRollback {
 
     /** The logger for this class. */
     private final static Logger logger = Logger.getLogger(OperationHandlerImpl.class);
 
+    /** The rollback manager. */
     private RollbackManager rollbackManager;
 
     /**
-     * @param rollbackHandlers
+     * Instantiates a new operation handler impl.
+     *
+     * @param rollbackManager
+     *            the rollback manager
      */
     OperationHandlerImpl(RollbackManager rollbackManager) {
 	this.rollbackManager = rollbackManager;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * situationHandling.workflowOperations.OperationHandler#handleOperation(
+     * utils.soap.WsaSoapMessage)
+     */
+    @Override
+    public void handleOperation(WsaSoapMessage wsaSoapMessage) {
+	handleOperation(wsaSoapMessage, null);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * situationHandling.workflowOperations.OperationHandler#handleOperation(
+     * utils.soap.WsaSoapMessage,
+     * situationHandling.workflowOperations.RollbackHandler)
+     */
     @Override
     public void handleOperation(WsaSoapMessage wsaSoapMessage, RollbackHandler rollbackHandler) {
 
@@ -76,6 +104,14 @@ class OperationHandlerImpl implements OperationHandler {
 
     }
 
+    /**
+     * Send error message.
+     *
+     * @param error
+     *            the error
+     * @param message
+     *            the message
+     */
     private void sendErrorMessage(String error, WsaSoapMessage message) {
 	WsaSoapMessage rollbackMessage = SoapRequestFactory.createFaultMessageWsa(
 		message.getWsaReplyTo().toString(), message.getWsaMessageID(),
@@ -160,6 +196,13 @@ class OperationHandlerImpl implements OperationHandler {
 	return bestCandidate;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * situationHandling.workflowOperations.OperationHandler#situationChanged(
+     * situationHandling.storage.datatypes.Situation, boolean)
+     */
     @Override
     public void situationChanged(Situation situation, boolean state) {
 	logger.debug(situation.toString() + " changed to " + state + ". Check Rollback.");
@@ -167,6 +210,13 @@ class OperationHandlerImpl implements OperationHandler {
 	rollbackManager.checkRollback(situation, state);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * situationHandling.workflowOperations.OperationHandler#onAnswerReceived(
+     * utils.soap.WsaSoapMessage)
+     */
     @Override
     public void onAnswerReceived(WsaSoapMessage wsaSoapMessage) {
 

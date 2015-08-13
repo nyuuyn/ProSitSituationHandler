@@ -15,7 +15,6 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
 
-import pluginManagement.PluginManagerFactory;
 import situationHandling.exceptions.InvalidActionException;
 import situationHandling.exceptions.InvalidRuleException;
 import situationHandling.storage.datatypes.Action;

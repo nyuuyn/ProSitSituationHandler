@@ -21,20 +21,27 @@ import pluginManagement.PluginManagerFactory;
 import situationHandler.plugin.PluginParams;
 import utils.soap.WsaSoapMessage;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Stefan
+ * The Class MessageRouter.
  *
+ * @author Stefan
  */
 class MessageRouter {
 
+	/** The routing table. */
 	private static RoutingTable routingTable = new RoutingTable();
 
+	/** The Constant logger. */
 	private static final Logger logger = Logger.getLogger(MessageRouter.class);
 
+	/** The wsa soap message. */
 	private WsaSoapMessage wsaSoapMessage;
 
 	/**
-	 * @param wsaSoapMessage
+	 * Instantiates a new message router.
+	 *
+	 * @param wsaSoapMessage the wsa soap message
 	 */
 	MessageRouter(WsaSoapMessage wsaSoapMessage) {
 		try {
@@ -45,6 +52,12 @@ class MessageRouter {
 		}
 	}
 
+	/**
+	 * Forward request.
+	 *
+	 * @param receiverUrl the receiver url
+	 * @return the string
+	 */
 	String forwardRequest(URL receiverUrl) {
 		logger.trace("Forwarding request: " + wsaSoapMessage.toStringCompact()
 				+ " to " + receiverUrl.toString());
@@ -77,6 +90,11 @@ class MessageRouter {
 		return null;
 	}
 
+	/**
+	 * Forward rollback request.
+	 *
+	 * @return true, if successful
+	 */
 	boolean forwardRollbackRequest() {
 		logger.trace("Forwarding rollback request: "
 				+ wsaSoapMessage.toStringCompact());
@@ -90,6 +108,11 @@ class MessageRouter {
 		return sendMessage(receiverUrl, wsaSoapMessage.getSoapMessage());
 	}
 
+	/**
+	 * Forward answer.
+	 *
+	 * @return true, if successful
+	 */
 	boolean forwardAnswer() {
 		logger.trace("Forwarding answer: " + wsaSoapMessage.toStringCompact());
 		// lookup original id
@@ -120,6 +143,11 @@ class MessageRouter {
 		return sendMessage(receiver, wsaSoapMessage.getSoapMessage());
 	}
 
+	/**
+	 * Forward fault message.
+	 *
+	 * @param surrogateId the surrogate id
+	 */
 	void forwardFaultMessage(String surrogateId) {
 
 		if (surrogateId != null) {
@@ -135,9 +163,10 @@ class MessageRouter {
 	}
 
 	/**
-	 * 
-	 * @param endpoint
-	 * @param payload
+	 * Send message.
+	 *
+	 * @param url the url
+	 * @param payload the payload
 	 * @return true when successful, false else
 	 */
 	private boolean sendMessage(URL url, String payload) {

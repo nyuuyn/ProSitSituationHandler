@@ -8,9 +8,11 @@ import org.apache.log4j.Logger;
 
 import utils.soap.WsaSoapMessage;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Stefan
+ * The Class OperationHandlerEndpoint.
  *
+ * @author Stefan
  */
 public class OperationHandlerEndpoint {
 
@@ -18,6 +20,11 @@ public class OperationHandlerEndpoint {
 	private final static Logger logger = Logger
 			.getLogger(OperationHandlerEndpoint.class);
 
+	/**
+	 * Receive request.
+	 *
+	 * @param exchange the exchange
+	 */
 	public void receiveRequest(Exchange exchange) {
 		WsaSoapMessage wsaSoapMessage = exchange.getIn().getBody(
 				WsaSoapMessage.class);
@@ -25,9 +32,14 @@ public class OperationHandlerEndpoint {
 		logger.debug("Received request:\n" + wsaSoapMessage.toString());
 
 		OperationHandlerFactory.getOperationHandler().handleOperation(
-				wsaSoapMessage, null);
+				wsaSoapMessage);
 	}
 
+	/**
+	 * Receive answer.
+	 *
+	 * @param exchange the exchange
+	 */
 	public void receiveAnswer(Exchange exchange) {
 		WsaSoapMessage sp = exchange.getIn().getBody(WsaSoapMessage.class);
 		logger.debug("Received Answer Message: " + sp.toString());
