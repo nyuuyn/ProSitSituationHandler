@@ -15,9 +15,9 @@ import situationHandling.storage.datatypes.Action;
 import situationHandling.storage.datatypes.Action.ExecutionTime;
 import situationHandling.storage.datatypes.Situation;
 
-class SituationHandlerImpl implements SituationHandler {
+class NotificationComponentImpl implements NotificationComponent {
 
-	private static Logger logger = Logger.getLogger(SituationHandlerImpl.class);
+	private static Logger logger = Logger.getLogger(NotificationComponentImpl.class);
 
 	private static ExecutorService threadExecutor = Executors
 			.newFixedThreadPool(Runtime.getRuntime().availableProcessors());

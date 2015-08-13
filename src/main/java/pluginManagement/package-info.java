@@ -1,6 +1,6 @@
 /**
  * 
- * This class contains classes that are responsible for the management of the
+ * This package contains classes that are responsible for the management of the
  * plugins.In this case a Plugin is a exchangeable unit that provides a certain
  * type of communication.
  * <p>

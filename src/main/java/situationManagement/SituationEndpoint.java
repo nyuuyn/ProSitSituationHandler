@@ -7,7 +7,7 @@ import org.apache.log4j.Logger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import situationHandling.notifications.SituationHandlerFactory;
+import situationHandling.notifications.NotificationComponentFactory;
 import situationHandling.storage.datatypes.Situation;
 import situationHandling.workflowOperations.OperationHandlerFactory;
 
@@ -66,7 +66,7 @@ public class SituationEndpoint {
 			}
 
 			// notify notification and workflow handling
-			SituationHandlerFactory.getSituationHandler().situationChanged(
+			NotificationComponentFactory.getSituationHandler().situationChanged(
 					situation, situationResult.isOccured());
 			OperationHandlerFactory.getOperationHandler().situationChanged(
 					situation, situationResult.isOccured());
