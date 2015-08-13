@@ -26,23 +26,26 @@ public interface OperationHandler {
      */
     public void handleOperation(WsaSoapMessage wsaSoapMessage);
 
-
-
     /**
-     * Situation changed.
+     * Notifies the operation handling component about situation changes. This
+     * might trigger a rollback of an endpoint that is currently running a
+     * operation.
      *
      * @param situation
-     *            the situation
+     *            the situation that changed
      * @param state
-     *            the state
+     *            the new state of the situation, i.e. true when the situation
+     *            appeared or false when it disappeared.
      */
     public void situationChanged(Situation situation, boolean state);
 
     /**
-     * On answer received.
+     * Handles the answer of an endpoint for a workflow request. The Answer will
+     * be forwarded to the workflow that requested the operation.
      *
      * @param wsaSoapMessage
-     *            the wsa soap message
+     *            A valid soap message the contains the answer to a request. The
+     *            answer must use WS-Addressing to relate to the request.
      */
     public void onAnswerReceived(WsaSoapMessage wsaSoapMessage);
 

@@ -13,41 +13,44 @@ import situationHandling.storage.datatypes.Situation;
 import utils.soap.SoapRequestFactory;
 import utils.soap.WsaSoapMessage;
 
-// TODO: Auto-generated Javadoc
 /**
- * The Class RollbackHandler.
+ * The Class RollbackHandler does the handling for rollbacks of single
+ * operations. Each rollback handler is associated to a single request.
+ * <p>
+ * It is responsible for handling the rollback, the answer of the rollback and
+ * possible errors.
  */
 class RollbackHandler {
 
-    /** The Constant logger. */
+    /** The logger. */
     private static final Logger logger = Logger.getLogger(RollbackHandler.class);
 
-    /** The surrogate id. */
+    /** The request this handler is responsible for. */
+    private WsaSoapMessage originalMessage;
+
+    /** The surrogate id that was last assigned to the request. */
     private String surrogateId;
 
-    /** The endpoint. */
+    /** The last endpoint the request was sent to. */
     private Endpoint endpoint;
 
-    /** The rollback count. */
+    /** The number of times a rollback was performed. */
     private int rollbackCount = 0;
 
-    /** The max rollbacks. */
+    /** The maximum number of rollbacks allowed for this request. */
     private final int maxRollbacks;
-
-    /** The original message. */
-    private WsaSoapMessage originalMessage;
 
     /**
      * Instantiates a new rollback handler.
      *
      * @param endpoint
-     *            the endpoint
+     *            The last endpoint the request was sent to.
      * @param maxRollbacks
-     *            the max rollbacks
+     *            The maximum number of rollbacks allowed for this request
      * @param originalMessage
-     *            the original message
+     *            The request this handler is responsible for.
      * @param surrogateId
-     *            the surrogate id
+     *            The surrogate id that was last assigned to the request.
      */
     RollbackHandler(Endpoint endpoint, int maxRollbacks, WsaSoapMessage originalMessage,
 	    String surrogateId) {
@@ -58,9 +61,10 @@ class RollbackHandler {
     }
 
     /**
-     * Initiate rollback.
+     * Initiate rollback, i.e. send a rollback message to the endpoint that is
+     * currently processing the request.
      *
-     * @return the string
+     * @return the id of the rollback request
      */
     String initiateRollback() {
 
@@ -79,13 +83,15 @@ class RollbackHandler {
     }
 
     /**
-     * On rollback completed.
+     * On rollback completed. This method must be called when the rollback was
+     * completed. It initiates further steps. Either the request is handled
+     * again or a fault is sent to the original requester.
      *
-     * @param wsaSoapMessage
-     *            the wsa soap message
+     * @param rollbackAnswer
+     *            the answer
      */
-    void onRollbackCompleted(WsaSoapMessage wsaSoapMessage) {
-	if (wsaSoapMessage.getRollbackResult()) {// rollback success
+    void onRollbackCompleted(WsaSoapMessage rollbackAnswer) {
+	if (rollbackAnswer.getRollbackResult()) {// rollback success
 
 	    logger.debug("Rollback completed: Message " + surrogateId + " " + endpoint.toString());
 	    if (rollbackCount > maxRollbacks) {
@@ -111,10 +117,11 @@ class RollbackHandler {
     }
 
     /**
-     * Send rollback failed message.
+     * Helper method to send a "rollback failed" message.
      *
      * @param errorText
-     *            the error text
+     *            the error text. Should contain a message that describes why
+     *            the rollback failed.
      */
     private void sendRollbackFailedMessage(String errorText) {
 	WsaSoapMessage errorMessage = SoapRequestFactory.createFaultMessageWsa(
@@ -126,7 +133,7 @@ class RollbackHandler {
     }
 
     /**
-     * Gets the situations.
+     * Gets the situations in which a rollback is executed by this handler.
      *
      * @return the situations
      */
@@ -135,7 +142,7 @@ class RollbackHandler {
     }
 
     /**
-     * Sets the surrogate id.
+     * Sets the surrogate id that was last assigned to the request.
      *
      * @param surrogateId
      *            the new surrogate id
@@ -145,7 +152,7 @@ class RollbackHandler {
     }
 
     /**
-     * Sets the endpoint.
+     * Sets the last endpoint the request was sent to.
      *
      * @param endpoint
      *            the new endpoint
@@ -157,7 +164,7 @@ class RollbackHandler {
     /**
      * Gets the original message.
      *
-     * @return the original message
+     * @return The request this handler is responsible for.
      */
     WsaSoapMessage getOriginalMessage() {
 	return this.originalMessage;
@@ -166,7 +173,7 @@ class RollbackHandler {
     /**
      * Gets the surrogate id.
      *
-     * @return the surrogate id
+     * @return The surrogate id that was last assigned to the request.
      */
     String getSurrogateId() {
 	return surrogateId;
@@ -175,7 +182,7 @@ class RollbackHandler {
     /**
      * Gets the endpoint.
      *
-     * @return the endpoint
+     * @return The last endpoint the request was sent to.
      */
     Endpoint getEndpoint() {
 	return this.endpoint;

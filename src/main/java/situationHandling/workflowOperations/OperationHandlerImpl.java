@@ -18,9 +18,17 @@ import situationManagement.SituationManagerFactory;
 import utils.soap.SoapRequestFactory;
 import utils.soap.WsaSoapMessage;
 
-// TODO: Auto-generated Javadoc
 /**
- * The Class OperationHandlerImpl.
+ * The Class OperationHandlerImpl provides the implementation of
+ * {@link OperationHandlerForRollback}.
+ * <p>
+ * It is primarily used to determine an appropriate endpoint to execute an
+ * operation. The requests and answers are forwarded to the correct receiver. If
+ * no endpoint is found or another error occurs, it initiates the sending of a
+ * fault message.
+ * <p>
+ * Furthermore, there is tight cooperation with a rollback manager to ensure
+ * appropriate rollback handling.
  */
 class OperationHandlerImpl implements OperationHandlerForRollback {
 
@@ -31,10 +39,10 @@ class OperationHandlerImpl implements OperationHandlerForRollback {
     private RollbackManager rollbackManager;
 
     /**
-     * Instantiates a new operation handler impl.
+     * Instantiates a new operation handler implementation.
      *
      * @param rollbackManager
-     *            the rollback manager
+     *            the rollback manager to use
      */
     OperationHandlerImpl(RollbackManager rollbackManager) {
 	this.rollbackManager = rollbackManager;
@@ -105,17 +113,18 @@ class OperationHandlerImpl implements OperationHandlerForRollback {
     }
 
     /**
-     * Send error message.
+     * Helper method to send an error message that was caused when processing a
+     * request.
      *
      * @param error
-     *            the error
-     * @param message
-     *            the message
+     *            the error message
+     * @param request
+     *            the message that caused the error
      */
-    private void sendErrorMessage(String error, WsaSoapMessage message) {
+    private void sendErrorMessage(String error, WsaSoapMessage request) {
 	WsaSoapMessage rollbackMessage = SoapRequestFactory.createFaultMessageWsa(
-		message.getWsaReplyTo().toString(), message.getWsaMessageID(),
-		new Operation(message.getOperationName(), message.getNamespace()), error,
+		request.getWsaReplyTo().toString(), request.getWsaMessageID(),
+		new Operation(request.getOperationName(), request.getNamespace()), error,
 		SOAPConstants.SOAP_RECEIVER_FAULT);
 
 	new MessageRouter(rollbackMessage).forwardFaultMessage(null);
@@ -220,7 +229,7 @@ class OperationHandlerImpl implements OperationHandlerForRollback {
     @Override
     public void onAnswerReceived(WsaSoapMessage wsaSoapMessage) {
 
-	if (!rollbackManager.rollbackAnswered(wsaSoapMessage)) {
+	if (!rollbackManager.onRollbackAnswered(wsaSoapMessage)) {
 	    // in case this is a regular answer (no rollback), just forward it
 	    // (if an "old" answer arrives, the forwarding will not succeed)
 	    logger.debug("Received regular answer:" + wsaSoapMessage.toString());
