@@ -1,4 +1,4 @@
-package routes;
+package main;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -13,14 +13,15 @@ import org.apache.log4j.Logger;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.util.resource.Resource;
 
+import restApiImpl.EndpointAPI;
+import restApiImpl.HistoryAPI;
+import restApiImpl.PluginAPI;
+import restApiImpl.RestApiRoutes;
+import restApiImpl.RuleAPI;
 import situationHandling.storage.StorageAccessFactory;
 import situationHandling.workflowOperations.OperationHandlerEndpoint;
 import situationManagement.SituationEndpoint;
 import situationManagement.SituationManagerFactory;
-import api.configuration.EndpointAPI;
-import api.configuration.PluginAPI;
-import api.configuration.RuleAPI;
-import api.information.HistoryAPI;
 
 public class Main {
 

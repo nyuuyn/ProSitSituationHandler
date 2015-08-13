@@ -7,10 +7,11 @@ import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.Map;
 
+import main.GlobalProperties;
+
 import org.apache.commons.collections4.map.LRUMap;
 import org.apache.log4j.Logger;
 
-import routes.GlobalProperties;
 import situationHandling.storage.datatypes.Situation;
 
 /**

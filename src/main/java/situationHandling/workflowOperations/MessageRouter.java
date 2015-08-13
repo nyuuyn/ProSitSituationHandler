@@ -12,11 +12,12 @@ import java.util.UUID;
 
 import javax.xml.soap.SOAPException;
 
+import main.GlobalProperties;
+
 import org.apache.log4j.Logger;
 
 import pluginManagement.PluginManager;
 import pluginManagement.PluginManagerFactory;
-import routes.GlobalProperties;
 import situationHandler.plugin.PluginParams;
 import utils.soap.WsaSoapMessage;
 

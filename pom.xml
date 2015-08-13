@@ -33,7 +33,7 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<mainClass>routes.Main</mainClass>
+							<mainClass>main.Main</mainClass>
 						</manifest>
 					</archive>
 

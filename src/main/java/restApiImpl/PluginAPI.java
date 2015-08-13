@@ -1,8 +1,10 @@
-package api.configuration;
+package restApiImpl;
 
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+
+import main.CamelUtil;
 
 import org.apache.camel.CamelExecutionException;
 import org.apache.camel.Exchange;
@@ -10,7 +12,6 @@ import org.apache.camel.Exchange;
 import pluginManagement.PluginInfo;
 import pluginManagement.PluginManager;
 import pluginManagement.PluginManagerFactory;
-import routes.CamelUtil;
 import situationHandler.plugin.Plugin;
 import situationHandling.storage.StorageAccessFactory;
 

@@ -11,7 +11,7 @@ Note that the project also needs the "Plugin-Project" as dependency. When using 
 
 ### Run ###
 
-To run the situation handler, use eclipse and run routes.Main or you can just run the jar created from maven with "java -jar SituationHandler.jar".
+To run the situation handler, use eclipse and run main.Main or you can just run the jar created from maven with "java -jar SituationHandler.jar".
 
 Note that the situation handler needs its database running. It uses a MySQL Database server. You can use the structure dump to create the required tables. 
 

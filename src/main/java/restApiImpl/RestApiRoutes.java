@@ -1,4 +1,4 @@
-package routes;
+package restApiImpl;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
@@ -24,7 +24,7 @@ import situationHandling.storage.datatypes.Situation;
  * @author Stefan
  *
  */
-class RestApiRoutes extends RouteBuilder {
+public class RestApiRoutes extends RouteBuilder {
 
 	/**
 	 * The port under which the api is available
@@ -97,6 +97,7 @@ class RestApiRoutes extends RouteBuilder {
 		provideDocumentation();
 	}
 
+	//TODO: Comments!
 	private void restSetup() {
 		// TODO: Workaround. Fix in Camel 15.3, siehe Link in Dropbox. Sollte
 		// dann vllt auch mit Jetty wieder gehn

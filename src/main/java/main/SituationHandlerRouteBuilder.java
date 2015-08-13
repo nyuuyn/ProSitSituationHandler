@@ -1,4 +1,4 @@
-package routes;
+package main;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;

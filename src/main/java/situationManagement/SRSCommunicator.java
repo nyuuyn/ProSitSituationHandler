@@ -5,13 +5,14 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+import main.CamelUtil;
+
 import org.apache.camel.CamelExecutionException;
 import org.apache.camel.Exchange;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.component.http.HttpOperationFailedException;
 import org.apache.log4j.Logger;
 
-import routes.CamelUtil;
 import situationHandling.storage.datatypes.Situation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;

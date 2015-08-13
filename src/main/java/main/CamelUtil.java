@@ -1,4 +1,4 @@
-package routes;
+package main;
 
 import org.apache.camel.ConsumerTemplate;
 import org.apache.camel.ProducerTemplate;

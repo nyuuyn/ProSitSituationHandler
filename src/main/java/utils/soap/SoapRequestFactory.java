@@ -17,9 +17,10 @@ import javax.xml.soap.SOAPHeaderElement;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.soap.SOAPPart;
 
+import main.GlobalProperties;
+
 import org.apache.log4j.Logger;
 
-import routes.GlobalProperties;
 import situationHandling.storage.datatypes.Operation;
 
 public class SoapRequestFactory {

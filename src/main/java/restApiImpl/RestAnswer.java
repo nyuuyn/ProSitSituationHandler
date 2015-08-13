@@ -1,4 +1,4 @@
-package api.configuration;
+package restApiImpl;
 
 /**
  * The Class RestAnswer is used to provide a appropriate answer for operations

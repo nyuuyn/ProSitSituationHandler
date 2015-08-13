@@ -1,4 +1,4 @@
-package routes;
+package main;
 
 public class GlobalProperties {
 	

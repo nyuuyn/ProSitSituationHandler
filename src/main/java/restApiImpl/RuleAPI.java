@@ -1,4 +1,4 @@
-package api.configuration;
+package restApiImpl;
 
 import java.util.List;
 
