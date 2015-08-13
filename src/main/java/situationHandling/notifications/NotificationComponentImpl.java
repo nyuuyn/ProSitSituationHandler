@@ -1,8 +1,12 @@
 package situationHandling.notifications;
 
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 
@@ -49,15 +53,22 @@ class NotificationComponentImpl implements NotificationComponent {
 	List<Action> actions = rsa.getActionsBySituationAndExecutionTime(situation, time);
 	logger.debug("Executing actions:\n" + actions.toString());
 
-	// TODO: Das vllt anders machen (keine doppelte schleife usw. -->
-	// ausserdem scheisse weil das ergebnis nicht berücksichtigt wird
+	LinkedList<Future<Map<String, String>>> results = new LinkedList<>();
 	for (Action action : actions) {
 	    StorageAccessFactory.getHistoryAccess().appendAction(action, situation, state);
+	    Future<Map<String, String>> result = threadExecutor
+		    .submit(pm.getPluginSender(action.getPluginID(), action.getAddress(),
+			    action.getPayload(), new PluginParams(action.getParams())));
+	    results.add(result);
 	}
 
-	actions.forEach(action -> threadExecutor.submit(pm.getPluginSender(action.getPluginID(),
-		action.getAddress(), action.getPayload(), new PluginParams(action.getParams()))));
-
+	for (Future<Map<String, String>> result : results) {
+	    try {
+		logger.debug("Action executed - Result: " + result.get().toString());
+	    } catch (InterruptedException | ExecutionException e) {
+		logger.error("Failure when executing action.", e);
+	    }
+	}
     }
 
 }
