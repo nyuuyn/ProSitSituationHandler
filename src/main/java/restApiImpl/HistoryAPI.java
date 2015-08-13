@@ -37,8 +37,8 @@ public class HistoryAPI {
 	 */
 	public void getHistory(Exchange exchange) {
 		try {
-			int offset = exchange.getIn().getHeader("offset", Integer.class);
-			int numberOfEntries = exchange.getIn().getHeader("entries",
+			int offset = (int) exchange.getIn().getHeader("offset", Integer.class);
+			int numberOfEntries = (int) exchange.getIn().getHeader("entries",
 					Integer.class);
 
 			exchange.getIn().setBody(
