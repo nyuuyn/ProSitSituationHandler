@@ -296,6 +296,10 @@ class PluginLoader {
 	private void searchJars() {
 
 		File folder = new File(pluginFolder);
+		
+		if (!folder.exists()){
+			folder.mkdir();
+		}
 
 		File[] jarList = folder.listFiles(new FileFilter() {
 			public boolean accept(File file) {
