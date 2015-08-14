@@ -65,7 +65,7 @@ class SubscriptionHandler {
 			logger.trace(subscriptions.get(situation).toString());
 		} else {
 			logger.debug("Creating subscription on " + situation.toString());
-			subscriptions.put(situation, new Subscription());
+			subscriptions.put(situation, new Subscription(srsCommunicator, ownAddress, situation));
 			srsCommunicator.subscribe(situation, ownAddress);
 		}
 
