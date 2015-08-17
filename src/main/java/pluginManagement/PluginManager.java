@@ -1,5 +1,6 @@
 package pluginManagement;
 
+import java.net.URL;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -112,8 +113,8 @@ public interface PluginManager {
 	 *         specified by the plugin. Null if no plugin with the specified ID
 	 *         was found.
 	 */
-	public Callable<Map<String, String>> getPluginSender(String pluginID,
-			String address, String payload, PluginParams pluginParams);
+	public Callable<Map<String, String>> getPluginSender(String pluginID, String address, String payload,
+			PluginParams pluginParams);
 
 	/**
 	 * Adds a plugin at runtime, using {@code ID} as ID for the plugin. The
@@ -139,14 +140,25 @@ public interface PluginManager {
 	 * @return true, if successful, false if no plugin with this id exists.
 	 */
 	public boolean removePlugin(String ID);
-	
+
 	/**
 	 * 
 	 * Checks wheter a plugin exists, i.e. is registred with the PluginManager.
 	 * 
-	 * @param Id The id of the plugin to check
+	 * @param Id
+	 *            The id of the plugin to check
 	 * @return true, if plugin exists, false else
 	 */
-	public boolean pluginExists (String Id);
+	public boolean pluginExists(String Id);
+
+	/**
+	 * Gets the plugin's manual.
+	 * 
+	 * @param Id
+	 *            the id of the plugin
+	 * @returnAn URL to the file that contains the manual of the plugin. The
+	 *           manual can be plain text or html.
+	 */
+	public URL getPluginManual(String Id);
 
 }

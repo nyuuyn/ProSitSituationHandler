@@ -235,6 +235,10 @@ public class RestApiRoutes extends RouteBuilder {
 	// ../plugins/<ID> --> GET information about the plugin with <ID>
 	rest("/config/plugins/{pluginID}").get().outType(PluginInfo.class)
 		.to("bean:pluginApi?method=getPluginByID(${header.pluginID})");
+	
+	// ../plugins/<ID>/manual --> GET the manual of the plugin with <ID>
+	rest("/config/plugins/{pluginID}/manual").get()
+		.to("bean:pluginApi?method=getPluginManual(${header.pluginID})");
 
 	// ../plugins/<id> --> DELETE: deletes the plugin with <id>
 	rest("/config/plugins/{pluginID}").delete()

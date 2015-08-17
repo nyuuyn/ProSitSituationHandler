@@ -1,5 +1,6 @@
 package pluginManagement;
 
+import java.net.URL;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -20,8 +21,7 @@ class PluginManagerImpl implements PluginManager {
 	private PluginLoader pluginLoader;
 
 	/** The logger for this class. */
-	private final static Logger logger = Logger
-			.getLogger(PluginManagerImpl.class);
+	private final static Logger logger = Logger.getLogger(PluginManagerImpl.class);
 
 	/**
 	 * Instantiates a new plugin manager impl.
@@ -68,9 +68,8 @@ class PluginManagerImpl implements PluginManager {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * pluginManagement.PluginManager#getPluginParamDescriptions(java.lang.String
-	 * )
+	 * @see pluginManagement.PluginManager#getPluginParamDescriptions(java.lang.
+	 * String )
 	 */
 	@Override
 	public Set<String> getPluginParamDescriptions(String pluginID) {
@@ -85,11 +84,10 @@ class PluginManagerImpl implements PluginManager {
 	 * java.lang.String, java.lang.String, situationHandler.plugin.PluginParams)
 	 */
 	@Override
-	public Callable<Map<String, String>> getPluginSender(String pluginID,
-			String address, String payload, PluginParams pluginParams) {
+	public Callable<Map<String, String>> getPluginSender(String pluginID, String address, String payload,
+			PluginParams pluginParams) {
 		logger.trace("Getting Sender for:" + pluginID);
-		return pluginLoader.getPluginByID(pluginID).getSender(address, payload,
-				pluginParams);
+		return pluginLoader.getPluginByID(pluginID).getSender(address, payload, pluginParams);
 	}
 
 	/*
@@ -129,8 +127,7 @@ class PluginManagerImpl implements PluginManager {
 		Plugin p = pluginLoader.getPluginByID(pluginID);
 		PluginInfo pluginInfo = null;
 		if (p != null) {
-			pluginInfo = new PluginInfo(p.getID(), p.getName(),
-					p.getNoOfRequiredParams(), p.getParamDescriptions());
+			pluginInfo = new PluginInfo(p.getID(), p.getName(), p.getNoOfRequiredParams(), p.getParamDescriptions());
 		}
 		return pluginInfo;
 	}
@@ -143,6 +140,15 @@ class PluginManagerImpl implements PluginManager {
 	@Override
 	public boolean pluginExists(String Id) {
 		return (pluginLoader.getPluginByID(Id) != null);
+	}
+
+	@Override
+	public URL getPluginManual(String Id) {
+		if (pluginExists(Id)) {
+			return pluginLoader.getPluginByID(Id).getManual();
+		} else {
+			return null;
+		}
 	}
 
 }

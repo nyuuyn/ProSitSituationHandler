@@ -1,14 +1,15 @@
 package restApiImpl;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
-import main.CamelUtil;
-
 import org.apache.camel.CamelExecutionException;
 import org.apache.camel.Exchange;
+import org.apache.commons.io.IOUtils;
 
+import main.CamelUtil;
 import pluginManagement.PluginInfo;
 import pluginManagement.PluginManager;
 import pluginManagement.PluginManagerFactory;
@@ -54,8 +55,7 @@ public class PluginAPI {
 	public void getPlugins(Exchange exchange) {
 		List<PluginInfo> pluginInfos = new LinkedList<>();
 
-		pm.getAllPluginIDs().forEach(
-				id -> pluginInfos.add(pm.getPluginInformation(id)));
+		pm.getAllPluginIDs().forEach(id -> pluginInfos.add(pm.getPluginInformation(id)));
 
 		exchange.getIn().setBody(pluginInfos);
 	}
@@ -78,33 +78,26 @@ public class PluginAPI {
 		String directory = "tempfiles";
 		String filename = pluginID + ".jar";
 
-		
 		// get first attachment, then save at temporarily (jetty version)
 		try {
-			CamelUtil.getProducerTemplate().sendBody(
-					"file:" + directory + "?fileName=" + filename,
-					exchange.getIn()
-							.getAttachment(
-									exchange.getIn().getAttachmentNames()
-											.iterator().next()).getContent());
+			CamelUtil.getProducerTemplate().sendBody("file:" + directory + "?fileName=" + filename, exchange.getIn()
+					.getAttachment(exchange.getIn().getAttachmentNames().iterator().next()).getContent());
 		} catch (CamelExecutionException | IOException e) {
 			e.printStackTrace();
 		}
 
-		//TODO: finale Komponente festlegen..
+		// TODO: finale Komponente festlegen..
 		// save file temporarily (netty version)
 		// CamelUtil.getProducerTemplate().sendBody(
 		// "file:" + directory + "?fileName=" + filename,
 		// exchange.getIn().getBody());
 
 		// add plugin (also deletes temp file)
-		exchange.getOut().setHeader(Exchange.CONTENT_TYPE,
-				"text/plain; charset=utf-8");
+		exchange.getOut().setHeader(Exchange.CONTENT_TYPE, "text/plain; charset=utf-8");
 		if (pm.addPlugin(pluginID, directory + "/" + filename, true)) {
 			exchange.getOut().setBody("Upload Complete!");
 		} else {
-			exchange.getOut().setBody(
-					"Plugin already exists. Plugin was NOT added.");
+			exchange.getOut().setBody("Plugin already exists. Plugin was NOT added.");
 			exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, 422);
 		}
 
@@ -136,6 +129,25 @@ public class PluginAPI {
 		}
 	}
 
+	public void getPluginManual(String pluginId, Exchange exchange) {
+		URL manualURL = pm.getPluginManual(pluginId);
+
+		exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
+		if (manualURL != null) {
+			try {
+				String man = IOUtils.toString(manualURL, "UTF-8");
+				man = man.replaceAll("[\\r\\n\\t]", "");
+				exchange.getIn().setBody(man);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		} else {
+			exchange.getIn().setBody("Plugin " + pluginId + " not found or plugin does not provide manual.");
+			exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 404);
+		}
+
+	}
+
 	/**
 	 * Deletes the plugin with the given id.
 	 * <p>
@@ -148,19 +160,15 @@ public class PluginAPI {
 	 *            as container for the answer.
 	 * @return A 404-error, if there is no plugin with the given id.
 	 */
-	public void deletePlugin(String pluginID, String deletePlugins,
-			Exchange exchange) {
+	public void deletePlugin(String pluginID, String deletePlugins, Exchange exchange) {
 		// do not delete if invalid argument..
 		boolean delete = Boolean.parseBoolean(deletePlugins);
 
 		if (pm.removePlugin(pluginID)) {
 			if (delete) {
-				StorageAccessFactory.getRuleStorageAccess()
-						.deleteActionsByPlugin(pluginID);
+				StorageAccessFactory.getRuleStorageAccess().deleteActionsByPlugin(pluginID);
 			}
-			exchange.getIn().setBody(
-					new RestAnswer("Plugin successfully deleted.", String
-							.valueOf(pluginID)));
+			exchange.getIn().setBody(new RestAnswer("Plugin successfully deleted.", String.valueOf(pluginID)));
 		} else {
 			exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
 			exchange.getIn().setBody("Plugin " + pluginID + " not found.");
