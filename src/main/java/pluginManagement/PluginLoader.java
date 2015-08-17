@@ -114,8 +114,7 @@ class PluginLoader {
 	 * available Plugins.
 	 */
 	private void initLoaders() {
-		urlClassLoader = new DynamicURLClassLoader(pluginUrls.values().toArray(
-				new URL[pluginUrls.values().size()]));
+		urlClassLoader = new DynamicURLClassLoader(pluginUrls.values().toArray(new URL[pluginUrls.values().size()]));
 
 		serviceLoader = ServiceLoader.load(Plugin.class, urlClassLoader);
 		updatePluginCache();
@@ -184,8 +183,7 @@ class PluginLoader {
 
 		// copy jar file in plugin directory
 		try {
-			Files.copy(Paths.get(path), Paths.get(targetPath.getPath()),
-					StandardCopyOption.REPLACE_EXISTING);
+			Files.copy(Paths.get(path), Paths.get(targetPath.getPath()), StandardCopyOption.REPLACE_EXISTING);
 			if (deleteJar) {
 				Files.delete(Paths.get(path));
 			}
@@ -213,8 +211,7 @@ class PluginLoader {
 	 */
 	private File buildTargetPath(String ID) {
 
-		String folderName = pluginFolder + File.separator + runtimeFolder
-				+ File.separator;
+		String folderName = pluginFolder + File.separator + runtimeFolder + File.separator;
 		String fileName = ID + ".jar";
 
 		File targetFile = new File(folderName + fileName);
@@ -240,8 +237,7 @@ class PluginLoader {
 	boolean removePlugin(String ID) {
 
 		if (!plugins.containsKey(ID)) {
-			logger.debug("Plugin: " + ID
-					+ " does not exist. Nothing was removed");
+			logger.debug("Plugin: " + ID + " does not exist. Nothing was removed");
 			return false;
 		}
 
@@ -296,8 +292,8 @@ class PluginLoader {
 	private void searchJars() {
 
 		File folder = new File(pluginFolder);
-		
-		if (!folder.exists()){
+
+		if (!folder.exists()) {
 			folder.mkdir();
 		}
 
@@ -309,8 +305,7 @@ class PluginLoader {
 
 		for (int i = 0; i < jarList.length; i++) {
 			try {
-				String pluginID = jarList[i].getName().substring(0,
-						jarList[i].getName().lastIndexOf('.'));
+				String pluginID = jarList[i].getName().substring(0, jarList[i].getName().lastIndexOf('.'));
 				pluginUrls.put(pluginID, jarList[i].toURI().toURL());
 			} catch (MalformedURLException e) {
 				e.printStackTrace();
@@ -328,7 +323,24 @@ class PluginLoader {
 		try {
 			FileUtils.deleteDirectory(folder);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("Could not clear Runtime directory.");
 		}
+	}
+
+	/**
+	 * Cleans up, when the Plugin loader is not needed anymore. Releases all
+	 * resources.
+	 * 
+	 */
+	void shutdown() {
+		plugins.values().forEach(plugin -> plugin.shutdown());
+		plugins.clear();
+		try {
+			urlClassLoader.close();
+		} catch (IOException e) {
+			logger.error("Could not close class loader.", e);
+		}
+		deleter.stop();
+		clearRuntimeDir();
 	}
 }

@@ -6,7 +6,7 @@ package pluginManagement;
  * @see PluginManager
  */
 public class PluginManagerFactory {
-	
+
 	/**
 	 * The path to the plugin folder. Jar-Files in this folder are loaded at
 	 * startup.
@@ -18,7 +18,6 @@ public class PluginManagerFactory {
 	 * are added at runtime.
 	 */
 	private static final String RUNTIME_FOLDER = "runtime";
-	
 
 	/** The pluginLoader used for the default Plugin Managers. */
 	private static final PluginLoader pluginLoader = new PluginLoader(PLUGIN_FOLDER, RUNTIME_FOLDER);
@@ -29,6 +28,16 @@ public class PluginManagerFactory {
 	 */
 	public static PluginManager getPluginManager() {
 		return new PluginManagerImpl(pluginLoader);
+	}
+
+	/**
+	 * Shuts down the plugin functionality. After shuting down, the plugins
+	 * cannot be used anymore (and there is no way to restart). *
+	 * <p>
+	 * Equal to {@link PluginManager#shutdownPluginManagement()}
+	 */
+	public static void shutdownPluginManagement() {
+		getPluginManager().shutdownPluginManagement();
 	}
 
 }

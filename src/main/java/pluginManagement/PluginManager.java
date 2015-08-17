@@ -160,5 +160,13 @@ public interface PluginManager {
 	 *           manual can be plain text or html.
 	 */
 	public URL getPluginManual(String Id);
+	
+	/**
+	 * Shuts down the plugin functionality. After shuting down, the plugins
+	 * cannot be used anymore (and there is no way to restart).
+	 * <p>
+	 * Equal to {@link PluginManagerFactory#shutdownPluginManagement()}
+	 */
+	public void shutdownPluginManagement();
 
 }

@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.util.resource.Resource;
 
+import pluginManagement.PluginManagerFactory;
 import restApiImpl.EndpointAPI;
 import restApiImpl.HistoryAPI;
 import restApiImpl.PluginAPI;
@@ -133,6 +134,8 @@ public class Main {
 					StorageAccessFactory.closeStorageAccess();
 					logger.info("stopping console listener");
 					in.close();
+					logger.info("Shutting down plugin system.");
+					PluginManagerFactory.shutdownPluginManagement();
 					logger.info("done");
 				} catch (IOException e) {
 					e.printStackTrace();

@@ -151,4 +151,9 @@ class PluginManagerImpl implements PluginManager {
 		}
 	}
 
+	@Override
+	public void shutdownPluginManagement() {
+		pluginLoader.shutdown();
+	}
+
 }
