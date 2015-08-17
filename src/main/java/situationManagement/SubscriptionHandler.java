@@ -66,7 +66,6 @@ class SubscriptionHandler {
 		} else {
 			logger.debug("Creating subscription on " + situation.toString());
 			subscriptions.put(situation, new Subscription(srsCommunicator, ownAddress, situation));
-			srsCommunicator.subscribe(situation, ownAddress);
 		}
 
 	}
@@ -81,7 +80,7 @@ class SubscriptionHandler {
 	void removeSubscription(Situation situation) {
 		if (subscriptions.containsKey(situation)) {
 			Subscription subscription = subscriptions.get(situation);
-			subscription.removeSubsription();
+			subscription.removeSubsription(false);
 			if (!subscription.subsriptionsAvailable()) {
 				deleteSubscription(situation);
 			} else {
@@ -99,7 +98,6 @@ class SubscriptionHandler {
 	 */
 	private void deleteSubscription(Situation situation) {
 		logger.debug("Deleting subscription on " + situation.toString());
-		srsCommunicator.unsubscribe(situation, ownAddress);
 		subscriptions.remove(situation);
 	}
 
@@ -132,6 +130,7 @@ class SubscriptionHandler {
 	void deleteAllSubscriptions() {
 		logger.debug("Deleting all subscriptions.");
 		for (Situation situation : subscriptions.keySet()) {
+			subscriptions.get(situation).removeSubsription(true);
 			deleteSubscription(situation);
 		}
 	}

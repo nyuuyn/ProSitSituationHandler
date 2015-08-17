@@ -48,8 +48,9 @@ class SRSCommunicator {
 	 * @param address
 	 *            the address to which the SRS should send the situation changes
 	 *            (should be the URL of the situation handler).
+	 * @return true, if subscription was successful
 	 */
-	void subscribe(Situation situation, URL address) {
+	boolean subscribe(Situation situation, URL address) {
 		ProducerTemplate pt = CamelUtil.getProducerTemplate();
 
 		// query string
@@ -69,12 +70,14 @@ class SRSCommunicator {
 		try {
 			pt.requestBodyAndHeaders(srsUrl.toString(), "", headers, String.class);
 			logger.debug("Successfully registrated on " + situation);
+			return true;
 		} catch (CamelExecutionException e) {
 			if (e.getCause() instanceof HttpOperationFailedException) {
 				HttpOperationFailedException httpOperationFailedException = (HttpOperationFailedException) e.getCause();
 				if (httpOperationFailedException.getStatusCode() == 400
 						&& httpOperationFailedException.getResponseBody().equals("\"Already registrated\"")) {
 					logger.debug("Already registered on: " + situation);
+					return true;
 				} else if (httpOperationFailedException.getStatusCode() == 404) {
 					logger.info("Could not register on: " + situation + ". Situation does not exist!.");
 				} else {
@@ -85,6 +88,7 @@ class SRSCommunicator {
 			}
 
 		}
+		return false;
 	}
 
 	/**
@@ -96,8 +100,9 @@ class SRSCommunicator {
 	 *            the address the situation changes were sent too. Must be the
 	 *            same that was used for subscription, see
 	 *            {@code SRSCommunicator#subscribe(Situation, URL)}
+	 * @return true, if unsubscription was successful
 	 */
-	void unsubscribe(Situation situation, URL address) {
+	boolean unsubscribe(Situation situation, URL address) {
 		ProducerTemplate pt = CamelUtil.getProducerTemplate();
 
 		// query string
@@ -116,6 +121,7 @@ class SRSCommunicator {
 		try {
 			pt.requestBodyAndHeaders(srsUrl.toString(), "", headers, String.class);
 			logger.debug("Successfully unsubscribed from " + situation);
+			return true;
 		} catch (CamelExecutionException e) {
 			if (e.getCause() instanceof HttpOperationFailedException) {
 				HttpOperationFailedException httpOperationFailedException = (HttpOperationFailedException) e.getCause();
@@ -127,8 +133,8 @@ class SRSCommunicator {
 			} else {
 				logger.error("Error when deleting registration on " + situation, e);
 			}
-
 		}
+		return false;
 	}
 
 	/**
@@ -161,11 +167,11 @@ class SRSCommunicator {
 		} catch (IOException e) {
 			logger.debug("Situation " + situation + " does not exist");
 		} catch (CamelExecutionException e) {
-			//handle error that situation was not found by srs
+			// handle error that situation was not found by srs
 			if (e.getCause() instanceof HttpOperationFailedException
 					&& ((HttpOperationFailedException) e.getCause()).getStatusCode() == 404) {
-					logger.debug("Situation: " + situation  + " could not be found. Status could not be fetched.");
-	
+				logger.debug("Situation: " + situation + " could not be found. Status could not be fetched.");
+
 			} else {
 				logger.error("Error when getting situation state: " + situation, e);
 			}

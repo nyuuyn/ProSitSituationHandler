@@ -1,6 +1,12 @@
 package situationManagement;
 
 import java.net.URL;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+import org.apache.log4j.Logger;
 
 import situationHandling.storage.datatypes.Situation;
 
@@ -17,6 +23,8 @@ import situationHandling.storage.datatypes.Situation;
  * subscription is removed.
  */
 class Subscription {
+
+	private static final Logger logger = Logger.getLogger(Subscription.class);
 
 	/** The subscription count. The number of times a subscription was made. */
 	private int subscriptionCount = 0;
@@ -35,6 +43,10 @@ class Subscription {
 	 */
 	private final Situation subscribeSituation;
 
+	// TODO
+	private ExecutorService subscriberPool = Executors.newSingleThreadExecutor();
+	private Future<Boolean> subscriberResult;
+
 	/**
 	 * Creates a new subscription.
 	 */
@@ -43,6 +55,8 @@ class Subscription {
 		this.srsCommunicator = srsCommunicator;
 		this.ownAddress = ownAddress;
 		this.subscribeSituation = subscribeSituation;
+		Subscriber subscriber = new Subscriber(this);
+		subscriberResult = subscriberPool.submit(subscriber);
 	}
 
 	/**
@@ -64,9 +78,32 @@ class Subscription {
 
 	/**
 	 * Removes a subsription.
+	 * 
+	 * @param permanently
+	 *            true, if the subscription is to be permanently removed, i.e.
+	 *            the subscription is also deleted from the srs.
 	 */
-	void removeSubsription() {
+	void removeSubsription(boolean permanently) {
 		subscriptionCount--;
+		if (!subsriptionsAvailable() || permanently) {
+			try {
+				if (!subscriberResult.isDone()) {
+					subscriberResult.cancel(true);
+				}
+
+				if (!subscriberResult.isCancelled() && subscriberResult.get()) {
+					srsCommunicator.unsubscribe(subscribeSituation, ownAddress);
+				}
+				onSubscriptionCreated();
+			} catch (InterruptedException | ExecutionException e) {
+				logger.error("Error when deleting subscription.", e);
+			}
+		}
+	}
+
+	// TODO
+	void onSubscriptionCreated() {
+		subscriberPool.shutdown();
 	}
 
 	/**
