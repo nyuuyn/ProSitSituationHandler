@@ -24,6 +24,9 @@ import situationHandling.storage.datatypes.Situation;
  */
 class Subscription {
 
+	/**
+	 * The logger for this class.
+	 */
 	private static final Logger logger = Logger.getLogger(Subscription.class);
 
 	/** The subscription count. The number of times a subscription was made. */
@@ -43,12 +46,18 @@ class Subscription {
 	 */
 	private final Situation subscribeSituation;
 
-	// TODO
+	/**
+	 * The Executor service to run the subscriber thread.
+	 */
 	private ExecutorService subscriberPool = Executors.newSingleThreadExecutor();
+
+	/**
+	 * The result of the subscriber thread.
+	 */
 	private Future<Boolean> subscriberResult;
 
 	/**
-	 * Creates a new subscription.
+	 * Creates a new subscription. Creates a subscription at the srs.
 	 */
 	Subscription(SRSCommunicator srsCommunicator, URL ownAddress, Situation subscribeSituation) {
 		subscriptionCount = 1;
@@ -77,7 +86,8 @@ class Subscription {
 	}
 
 	/**
-	 * Removes a subsription.
+	 * Removes a subsription. Removes the subscription from the SRS, if this was
+	 * the last subscription or permanentlyy is set to true.
 	 * 
 	 * @param permanently
 	 *            true, if the subscription is to be permanently removed, i.e.
@@ -101,7 +111,9 @@ class Subscription {
 		}
 	}
 
-	// TODO
+	/**
+	 * Callback when the subscription was successfully created.
+	 */
 	void onSubscriptionCreated() {
 		subscriberPool.shutdown();
 	}
