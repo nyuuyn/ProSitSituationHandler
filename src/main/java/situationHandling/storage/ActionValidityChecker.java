@@ -76,7 +76,7 @@ class ActionValidityChecker {
 	private void checkParameters() throws InvalidActionException {
 		Set<String> allValidParams = PluginManagerFactory.getPluginManager().getPluginParamDescriptions(pluginId);
 
-		//no params required and none submitted
+		// no params required and none submitted
 		if (allValidParams == null && (params == null || params.size() == 0)) {
 			return;
 		}
