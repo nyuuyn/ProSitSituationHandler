@@ -10,7 +10,8 @@ import situationHandling.storage.datatypes.Action;
 import situationHandling.storage.datatypes.Action.ExecutionTime;
 
 /**
- * The Class ActionValidityChecker is used to do semantic checks on an action. <br>
+ * The Class ActionValidityChecker is used to do semantic checks on an action.
+ * <br>
  * 
  * Semantic checks refer to the Parameters of an action and the used plugin. It
  * is checked if:
@@ -47,8 +48,7 @@ class ActionValidityChecker {
 	 * @param pluginId
 	 *            the plugin id
 	 */
-	ActionValidityChecker(Map<String, String> params, String pluginId,
-			ExecutionTime executionTime) {
+	ActionValidityChecker(Map<String, String> params, String pluginId, ExecutionTime executionTime) {
 		this.params = params;
 		this.pluginId = pluginId;
 		this.executionTime = executionTime;
@@ -62,8 +62,7 @@ class ActionValidityChecker {
 	 */
 	private void checkPluginId() throws InvalidActionException {
 		if (!PluginManagerFactory.getPluginManager().pluginExists(pluginId)) {
-			throw new InvalidActionException("Plugin with ID " + pluginId
-					+ " does not exist");
+			throw new InvalidActionException("Plugin with ID " + pluginId + " does not exist");
 		}
 	}
 
@@ -75,23 +74,31 @@ class ActionValidityChecker {
 	 *             when there is something wrong with the parameters
 	 */
 	private void checkParameters() throws InvalidActionException {
-		Set<String> allValidParams = PluginManagerFactory.getPluginManager()
-				.getPluginParamDescriptions(pluginId);
+		Set<String> allValidParams = PluginManagerFactory.getPluginManager().getPluginParamDescriptions(pluginId);
+
+		//no params required and none submitted
+		if (allValidParams == null && (params == null || params.size() == 0)) {
+			return;
+		}
+
+		// check if params were submitted, but none specified by plugin
+		if (allValidParams == null && params != null && params.size() > 0) {
+			throw new InvalidActionException("Action specified Params where no params are allowed.");
+		}
+
 		// check if too much params were specified by the action
 		if (allValidParams.size() < params.size()) {
 			HashSet<String> temp = new HashSet<>();
 			temp.addAll(params.keySet());
 			temp.removeAll(allValidParams);
-			throw new InvalidActionException("Unknown Params: "
-					+ temp.toString());
+			throw new InvalidActionException("Unknown Params: " + temp.toString());
 		}
 
 		// check if parameters in action contain all params specified by the
 		// plugin
 		for (String param : allValidParams) {
 			if (!params.containsKey(param)) {
-				throw new InvalidActionException(
-						"Action does not specifiy parameter " + param + ".");
+				throw new InvalidActionException("Action does not specifiy parameter " + param + ".");
 			}
 		}
 	}
@@ -103,8 +110,7 @@ class ActionValidityChecker {
 	 */
 	private void checkExecutionTime() throws InvalidActionException {
 		if (executionTime == null) {
-			throw new InvalidActionException(
-					"Action does not specify execution time.");
+			throw new InvalidActionException("Action does not specify execution time.");
 		}
 	}
 
@@ -123,21 +129,19 @@ class ActionValidityChecker {
 	 * @throws InvalidActionException
 	 *             if one of the defined constraints is violated.
 	 */
-	public void checkAction(boolean update, Integer actionID)
-			throws InvalidActionException {
+	public void checkAction(boolean update, Integer actionID) throws InvalidActionException {
 		if (update) {// check only specified params
 
 			if (pluginId != null) {
 				checkPluginId();
 			}
-			;
+
 			if (params != null) {
 				if (pluginId == null) {
 					// no update on plugin. We have to load
 					// the plugin from the existing action to be able to check
 					// the params
-					pluginId = StorageAccessFactory.getRuleStorageAccess()
-							.getActionByID(actionID).getPluginID();
+					pluginId = StorageAccessFactory.getRuleStorageAccess().getActionByID(actionID).getPluginID();
 
 				}
 				checkParameters();
@@ -146,6 +150,7 @@ class ActionValidityChecker {
 			checkExecutionTime();
 			checkPluginId();
 			checkParameters();
+
 		}
 
 	}
