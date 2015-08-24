@@ -27,4 +27,10 @@ public interface NotificationComponent {
      */
     public void situationChanged(Situation situation, boolean state);
 
+    /**
+     * Does necessary cleanup for a graceful shutdown;
+     * 
+     */
+    public void shutdown();
+
 }

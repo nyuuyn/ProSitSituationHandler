@@ -89,4 +89,10 @@ class NotificationComponentImpl implements NotificationComponent {
 
     }
 
+    @Override
+    public void shutdown() {
+	threadExecutor.shutdown();
+	
+    }
+
 }

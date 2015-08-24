@@ -19,6 +19,7 @@ import restApiImpl.HistoryAPI;
 import restApiImpl.PluginAPI;
 import restApiImpl.RestApiRoutes;
 import restApiImpl.RuleAPI;
+import situationHandling.notifications.NotificationComponentFactory;
 import situationHandling.storage.StorageAccessFactory;
 import situationHandling.workflowOperations.OperationHandlerEndpoint;
 import situationManagement.SituationEndpoint;
@@ -136,6 +137,8 @@ public class Main {
 					in.close();
 					logger.info("Shutting down plugin system.");
 					PluginManagerFactory.shutdownPluginManagement();
+					logger.info("Shutting down notification component.");
+					NotificationComponentFactory.getNotificationComponent().shutdown();
 					logger.info("done");
 				} catch (IOException e) {
 					e.printStackTrace();

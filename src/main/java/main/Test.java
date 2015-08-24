@@ -1,22 +1,30 @@
 package main;
 
-import situationHandling.workflowOperations.OperationHandler;
-import situationHandling.workflowOperations.OperationHandlerFactory;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Test {
 
-	public static void main(String[] args) {
+    public static void main(String[] args) {
 
+	/** The thread executor. */
+	ExecutorService threadExecutor = Executors
+		.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
-//		System.out.println(SoapRequestFactory.createRollbackRequest(
-//				"http://testEmpfaenger", "123345667").getSoapMessage());
-//		System.out
-//				.println("----------------------------------------------------");
-//		System.out.println(SoapRequestFactory.createFaultMessage("http://test",
-//				"123", new Operation("hello", "test"), "Execution failed",
-//				SOAPConstants.SOAP_SENDER_FAULT).getSoapMessage());
+	for (int i = 0; i < 20; i++) {
+	    threadExecutor.submit(new Callable<Map<String, String>>() {
 
-	    
-
+		@Override
+		public Map<String, String> call() throws Exception {
+		    System.out.println(Math.random());
+		    return null;
+		}
+	    });
 	}
+	
+	threadExecutor.shutdown();
+
+    }
 }

@@ -11,7 +11,7 @@ public class NotificationComponentFactory {
      *
      * @return the notification component.
      */
-    public static NotificationComponent getOperationComponent() {
+    public static NotificationComponent getNotificationComponent() {
 	return new NotificationComponentImpl();
     }
 

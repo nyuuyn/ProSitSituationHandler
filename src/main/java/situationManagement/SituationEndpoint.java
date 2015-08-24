@@ -66,7 +66,7 @@ public class SituationEndpoint {
 			}
 
 			// notify notification and workflow handling
-			NotificationComponentFactory.getOperationComponent().situationChanged(
+			NotificationComponentFactory.getNotificationComponent().situationChanged(
 					situation, situationResult.isOccured());
 			OperationHandlerFactory.getOperationHandler().situationChanged(
 					situation, situationResult.isOccured());
