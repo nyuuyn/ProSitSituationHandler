@@ -30,4 +30,13 @@ public class OperationHandlerFactory {
 	return new OperationHandlerImpl(rollbackManager);
     }
 
+    /**
+     * Does the cleanup for the Operation Handling Component to allow a graceful
+     * shutdown.
+     * 
+     */
+    public static void shutdown() {
+	MessageRouter.shutdown();
+    }
+
 }

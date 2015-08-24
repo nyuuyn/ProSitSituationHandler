@@ -232,4 +232,11 @@ class MessageRouter {
 	this.wsaSoapMessage = wsaSoapMessage;
     }
 
+    /**
+     * Message Router Cleanup.
+     */
+    static void shutdown() {
+	EXECUTOR_SERVICE.shutdown();
+    }
+
 }

@@ -15,4 +15,13 @@ public class NotificationComponentFactory {
 	return new NotificationComponentImpl();
     }
 
+    /**
+     * Does the cleanup for the Notification Component to allow a graceful
+     * shutdown.
+     * 
+     */
+    public static void shutdown() {
+	getNotificationComponent().shutdown();
+    }
+
 }
