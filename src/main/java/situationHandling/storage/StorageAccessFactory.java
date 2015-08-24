@@ -67,6 +67,7 @@ public class StorageAccessFactory {
 	 */
 	public static void closeStorageAccess() {
 		hibernateSession.shutdown();
+		threadExecutor.shutdownNow();
 	}
 
 }
