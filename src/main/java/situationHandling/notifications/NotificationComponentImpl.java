@@ -3,6 +3,7 @@ package situationHandling.notifications;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -56,10 +57,17 @@ class NotificationComponentImpl implements NotificationComponent {
 	LinkedList<ActionResultWrapper> results = new LinkedList<>();
 	for (Action action : actions) {
 
-	    Future<Map<String, String>> result = threadExecutor
-		    .submit(pm.getPluginSender(action.getPluginID(), action.getAddress(),
-			    action.getPayload(), new PluginParams(action.getParams())));
-	    results.add(new ActionResultWrapper(action, result));
+	    Callable<Map<String, String>> plugin = pm.getPluginSender(action.getPluginID(),
+		    action.getAddress(), action.getPayload(), new PluginParams(action.getParams()));
+
+	    if (plugin != null) {
+		Future<Map<String, String>> result = threadExecutor.submit(plugin);
+		results.add(new ActionResultWrapper(action, result));
+	    } else {
+		logger.warn("Could not find plugin: " + action.getPluginID() + ". Action "
+			+ action.getId() + " was not executed.");
+	    }
+
 	}
 
 	// extra threads waits for the actions to execute
