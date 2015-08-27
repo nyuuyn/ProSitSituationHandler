@@ -1,7 +1,16 @@
 package utils.soap;
 
+import java.io.StringReader;
+import java.io.StringWriter;
+
 import javax.xml.soap.SOAPConstants;
 import javax.xml.soap.SOAPException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
@@ -19,29 +28,53 @@ import org.apache.camel.Processor;
  */
 public class SoapProcessor implements Processor {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.camel.Processor#process(org.apache.camel.Exchange)
-     */
-    @Override
-    public void process(Exchange exchange) throws Exception {
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.camel.Processor#process(org.apache.camel.Exchange)
+	 */
+	@Override
+	public void process(Exchange exchange) throws Exception {
 
-	String body = exchange.getIn().getBody(String.class);
+		String body = exchange.getIn().getBody(String.class);
+		prettyPrintMessage(body, 2);
+		WsaSoapMessage wsaSoapMessage;
 
-	WsaSoapMessage wsaSoapMessage;
+		try {
+			wsaSoapMessage = new WsaSoapMessage(body);
+			exchange.getIn().setBody(wsaSoapMessage, WsaSoapMessage.class);
+		} catch (SOAPException e) {
+			WsaSoapMessage soapMessage = SoapRequestFactory
+					.createFaultMessage("Invalid SOAP Message. " + e.getMessage(), SOAPConstants.SOAP_SENDER_FAULT);
+			exchange.getIn().setBody(soapMessage.getSoapMessage());
+			exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 400);
+			// stop route
+			exchange.setProperty(Exchange.ROUTE_STOP, Boolean.TRUE);
+		}
 
-	try {
-	    wsaSoapMessage = new WsaSoapMessage(body);
-	    exchange.getIn().setBody(wsaSoapMessage, WsaSoapMessage.class);
-	} catch (SOAPException e) {
-	    WsaSoapMessage soapMessage = SoapRequestFactory.createFaultMessage(
-		    "Invalid SOAP Message. " + e.getMessage(), SOAPConstants.SOAP_SENDER_FAULT);
-	    exchange.getIn().setBody(soapMessage.getSoapMessage());
-	    exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 400);
-	    // stop route
-	    exchange.setProperty(Exchange.ROUTE_STOP, Boolean.TRUE);
 	}
 
-    }
+	/**
+	 * Helper mehtod to pretty print xml.
+	 * 
+	 * @param message
+	 *            the xml message as string
+	 * @param indent
+	 *            the number of indent spaces
+	 */
+	private void prettyPrintMessage(String message, int indent) {
+		try {
+			Source xmlInput = new StreamSource(new StringReader(message));
+			StringWriter stringWriter = new StringWriter();
+			StreamResult xmlOutput = new StreamResult(stringWriter);
+			TransformerFactory transformerFactory = TransformerFactory.newInstance();
+			transformerFactory.setAttribute("indent-number", indent);
+			Transformer transformer = transformerFactory.newTransformer();
+			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+			transformer.transform(xmlInput, xmlOutput);
+			System.out.println("Received message:\n" + xmlOutput.getWriter().toString());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }
