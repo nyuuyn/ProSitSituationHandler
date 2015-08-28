@@ -35,6 +35,8 @@ public class SoapProcessor implements Processor {
 	 */
 	@Override
 	public void process(Exchange exchange) throws Exception {
+	    
+	    	System.out.println("Received message Headers:\n" + exchange.getIn().getHeaders().toString());
 
 		String body = exchange.getIn().getBody(String.class);
 		prettyPrintMessage(body, 2);

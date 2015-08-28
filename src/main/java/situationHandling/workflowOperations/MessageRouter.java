@@ -5,6 +5,8 @@ import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -102,8 +104,15 @@ class MessageRouter {
 	String originalId = wsaSoapMessage.getWsaMessageID();
 	wsaSoapMessage.setWsaMessageId(surrogate.toString());
 
+	// set SOAPAction header (if available)
+	HashMap<String, String> headers = new HashMap<>();
+	if (wsaSoapMessage.getWsaAction() != null) {
+	    headers.put("SOAPAction", wsaSoapMessage.getWsaAction());
+	}
+	headers.put("Content-Type", "text/xml");
+
 	// send message
-	if (sendMessage(receiverUrl, wsaSoapMessage.getSoapMessage())) {
+	if (sendMessage(receiverUrl, wsaSoapMessage.getSoapMessage(), headers)) {
 	    routingTable.addReplyAddress(originalId, answerRecipent);
 	    routingTable.addSurrogateMessageId(originalId, surrogate.toString());
 	    routingTable.printRoutingTable();
@@ -127,8 +136,15 @@ class MessageRouter {
 
 	URL receiverUrl = wsaSoapMessage.getWsaTo();
 
+	// set soapAction header (if available)
+	HashMap<String, String> headers = new HashMap<>();
+	if (wsaSoapMessage.getWsaAction() != null) {
+	    headers.put("SOAPAction", wsaSoapMessage.getWsaAction());
+	}
+
 	routingTable.printRoutingTable();
-	return sendMessage(receiverUrl, wsaSoapMessage.getSoapMessage());
+
+	return sendMessage(receiverUrl, wsaSoapMessage.getSoapMessage(), headers);
     }
 
     /**
@@ -157,12 +173,19 @@ class MessageRouter {
 	// set receiver
 	wsaSoapMessage.setWsaTo(receiver);
 
+	// set soapAction header (if available)
+	HashMap<String, String> headers = new HashMap<>();
+	if (wsaSoapMessage.getWsaAction() != null) {
+	    headers.put("SOAPAction", wsaSoapMessage.getWsaAction());
+	}
+	headers.put("Content-Type", "text/xml");
+
 	// remove entries in routing table
 	routingTable.removeReplyEntry(originalId);
 	routingTable.removeSurrogateId(surrogateId);
 	routingTable.printRoutingTable();
 
-	return sendMessage(receiver, wsaSoapMessage.getSoapMessage());
+	return sendMessage(receiver, wsaSoapMessage.getSoapMessage(), headers);
     }
 
     /**
@@ -183,7 +206,13 @@ class MessageRouter {
 	    routingTable.printRoutingTable();
 	}
 
-	if (!sendMessage(wsaSoapMessage.getWsaTo(), wsaSoapMessage.getSoapMessage())) {
+	// set soapAction header (if available)
+	HashMap<String, String> headers = new HashMap<>();
+	if (wsaSoapMessage.getWsaAction() != null) {
+	    headers.put("SOAPAction", wsaSoapMessage.getWsaAction());
+	}
+
+	if (!sendMessage(wsaSoapMessage.getWsaTo(), wsaSoapMessage.getSoapMessage(), headers)) {
 	    logger.error("Error sending Fault message...");
 	}
     }
@@ -196,14 +225,31 @@ class MessageRouter {
      *            the url of the receiver
      * @param payload
      *            the payload of the message
+     * @param headers
+     *            the http headers to send with the request. Use the key as the
+     *            header and the value as the value of the header.
      * @return true when successful, false else
      */
-    private boolean sendMessage(URL url, String payload) {
+    private boolean sendMessage(URL url, String payload, Map<String, String> headers) {
 	PluginManager pm = PluginManagerFactory.getPluginManager();
+	// set params
 	PluginParams params = new PluginParams();
-
 	params.setParam("Http method", "POST");
+	// http headers
+	StringBuilder httpHeaders = new StringBuilder();
+	Iterator<String> keyIterator = headers.keySet().iterator();
+	while (keyIterator.hasNext()) {
+	    String key = keyIterator.next();
+	    httpHeaders.append(key + ":" + headers.get(key));
+	    if (keyIterator.hasNext()) {
+		httpHeaders.append("$");
+	    }
+	}
+	params.setParam("Request Headers", httpHeaders.toString());
+
 	Map<String, String> results = null;
+
+	System.out.println("Sending message:\n" + payload);
 
 	try {
 	    results = EXECUTOR_SERVICE.submit(

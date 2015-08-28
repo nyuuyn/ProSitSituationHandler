@@ -164,6 +164,9 @@ public class WsaSoapMessage {
     private void parseWsaHeaders() throws SOAPException, MalformedURLException {
 
 	SOAPHeader sh = soapMessage.getSOAPHeader();
+	if (sh == null){
+	    throw new SOAPException("Message does not contain required Headers.");
+	}
 	Iterator it = sh.examineAllHeaderElements();
 	while (it.hasNext()) {// TODO: Hier noch den prefix von wsa parsen und
 			      // nicht einfach annehmen, dass wsa verwendet

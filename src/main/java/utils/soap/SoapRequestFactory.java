@@ -104,7 +104,7 @@ public class SoapRequestFactory {
 
 	    addWsaHeaders(envelope, receiver, false, relatedMessageId,
 		    SoapConstants.RELATIONSHIP_TYPE_RESPONSE, null,
-		    operation.getQualifier() + ":" + operation.getOperationName() + "Response");
+		    "http://www.w3.org/2005/08/addressing/fault");
 
 	    // add body
 	    SOAPBody body = envelope.getBody();
