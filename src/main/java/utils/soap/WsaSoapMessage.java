@@ -172,7 +172,7 @@ public class WsaSoapMessage {
 	while (it.hasNext()) {
 	    SOAPHeaderElement she = (SOAPHeaderElement) it.next();
 
-	    // read wsa headers
+	    // parse wsa headers
 	    if (she.getElementQName().getNamespaceURI().equals(SoapConstants.WSA_URI)) {
 		String headerName = she.getElementQName().getLocalPart();
 		switch (headerName) {
@@ -246,8 +246,11 @@ public class WsaSoapMessage {
 	    // other wsa:replyTo headers are not parsed. Prefix can be ignored
 	    // in this case
 	    if (current.getNodeName().endsWith("Address")) {
-		wsaReplyTo = new URL(current.getChildNodes().item(0).getNodeValue());
-		System.out.println("Address: " + wsaReplyTo);
+		String parsedAddress = current.getChildNodes().item(0).getNodeValue();
+		if (!parsedAddress.equals(SoapConstants.NO_REPLY_URI)){
+			wsaReplyTo = new URL(current.getChildNodes().item(0).getNodeValue());
+			System.out.println("Address: " + wsaReplyTo);
+		}
 	    }
 	}
 
