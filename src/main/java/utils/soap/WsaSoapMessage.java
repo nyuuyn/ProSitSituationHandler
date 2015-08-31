@@ -164,36 +164,37 @@ public class WsaSoapMessage {
     private void parseWsaHeaders() throws SOAPException, MalformedURLException {
 
 	SOAPHeader sh = soapMessage.getSOAPHeader();
-	if (sh == null){
+	if (sh == null) {
 	    throw new SOAPException("Message does not contain required Headers.");
 	}
+
 	Iterator it = sh.examineAllHeaderElements();
-	while (it.hasNext()) {// TODO: Hier noch den prefix von wsa parsen und
-			      // nicht einfach annehmen, dass wsa verwendet
-			      // wird
+	while (it.hasNext()) {
 	    SOAPHeaderElement she = (SOAPHeaderElement) it.next();
-	    String headerName = she.getTagName();
-	    switch (headerName) {
-	    case "wsa:Action":
-		this.wsaAction = she.getValue();
-		break;
-	    case "wsa:MessageID":
-		this.wsaMessageID = she.getValue();
-		break;
-	    case "wsa:To":
-		this.wsaTo = new URL(she.getValue());
-		break;
-	    case "wsa:ReplyTo":
-		parseReplyToHeader(she.getChildNodes());
-		break;
-	    case "wsa:RelatesTo":
-		this.wsaRelatesTo = she.getValue();
-		this.wsaRelationshipType = she.getAttributeValue(new QName("RelationshipType"));
-		break;
-	    case "MaxRetries":
-		break;
-	    default:
-		break;
+
+	    // read wsa headers
+	    if (she.getElementQName().getNamespaceURI().equals(SoapConstants.WSA_URI)) {
+		String headerName = she.getElementQName().getLocalPart();
+		switch (headerName) {
+		case "Action":
+		    this.wsaAction = she.getValue();
+		    break;
+		case "MessageID":
+		    this.wsaMessageID = she.getValue();
+		    break;
+		case "To":
+		    this.wsaTo = new URL(she.getValue());
+		    break;
+		case "ReplyTo":
+		    parseReplyToHeader(she.getChildNodes());
+		    break;
+		case "RelatesTo":
+		    this.wsaRelatesTo = she.getValue();
+		    this.wsaRelationshipType = she.getAttributeValue(new QName("RelationshipType"));
+		    break;
+		default:
+		    break;
+		}
 	    }
 	}
     }
@@ -230,7 +231,8 @@ public class WsaSoapMessage {
     }
 
     /**
-     * Parses the wsa:ReplyToHeader and sets the contained address.
+     * Parses the wsa:ReplyToHeader and the contained address. Special method
+     * because it is a nested element.
      *
      * @param replyToElements
      *            the child elements of the wsa:replyTo header node.
@@ -239,11 +241,13 @@ public class WsaSoapMessage {
      */
     private void parseReplyToHeader(NodeList replyToElements) throws MalformedURLException {
 	for (int i = 0; i < replyToElements.getLength(); i++) {
+
 	    Node current = replyToElements.item(i);
-	    // other wsa:replyTo headers are not parsed
-	    if (current.getNodeName().equalsIgnoreCase("wsa:Address")) {// TODO:
-									// PRefix
+	    // other wsa:replyTo headers are not parsed. Prefix can be ignored
+	    // in this case
+	    if (current.getNodeName().endsWith("Address")) {
 		wsaReplyTo = new URL(current.getChildNodes().item(0).getNodeValue());
+		System.out.println("Address: " + wsaReplyTo);
 	    }
 	}
 
@@ -282,21 +286,20 @@ public class WsaSoapMessage {
     public void setWsaReplyTo(URL replyAddress) {
 	try {
 	    SOAPHeader sh = soapMessage.getSOAPHeader();
-
 	    Iterator it = sh.examineAllHeaderElements();
 	    boolean updated = false;
 	    // look for the wsa:replyTo header
 	    while (it.hasNext() && !updated) {
 		SOAPHeaderElement she = (SOAPHeaderElement) it.next();
-		String headerName = she.getTagName();
-		if (headerName.equals("wsa:ReplyTo")) {// TODO: PRefix
+
+		if (she.getElementQName().getNamespaceURI().equals(SoapConstants.WSA_URI)
+			&& she.getElementQName().getLocalPart().equals("ReplyTo")) {
 		    NodeList childs = she.getChildNodes();
 		    // look for the address element
 		    for (int i = 0; i < childs.getLength(); i++) {
 			Node current = childs.item(i);
 			// other wsa:replyTo headers are ignored
-			if (current.getNodeName().equalsIgnoreCase("wsa:Address")) {// TODO:
-										    // PRefix
+			if (current.getNodeName().endsWith("Address")) {
 			    // set value of only child
 			    wsaReplyTo = replyAddress;
 			    current.getChildNodes().item(0).setNodeValue(replyAddress.toString());
@@ -319,8 +322,7 @@ public class WsaSoapMessage {
      *            the new address
      */
     public void setWsaTo(URL receiverAddress) {
-	if (setStandardWsaHeader("wsa:To", receiverAddress.toString())) {// TODO:
-									 // PRefix
+	if (setStandardWsaHeader("To", receiverAddress.toString())) {					   
 	    this.wsaTo = receiverAddress;
 	}
     }
@@ -332,7 +334,7 @@ public class WsaSoapMessage {
      *            the new message id
      */
     public void setWsaMessageId(String messageId) {
-	if (setStandardWsaHeader("wsa:MessageID", messageId)) {// TODO: PRefix
+	if (setStandardWsaHeader("MessageID", messageId)) {
 	    this.wsaMessageID = messageId;
 	}
 
@@ -345,7 +347,7 @@ public class WsaSoapMessage {
      *            the id of the related message.
      */
     public void setWsaRelatesTo(String messageId) {
-	if (setStandardWsaHeader("wsa:RelatesTo", messageId)) {// TODO: PRefix
+	if (setStandardWsaHeader("RelatesTo", messageId)) {
 	    this.wsaRelatesTo = messageId;
 	}
     }
@@ -355,7 +357,7 @@ public class WsaSoapMessage {
      * further.
      *
      * @param headerName
-     *            the header to set
+     *            the header to set (local name)
      * @param headerValue
      *            the header value
      * @return true, if successful, false if the header was not found
@@ -368,16 +370,23 @@ public class WsaSoapMessage {
 	    Iterator it = sh.examineAllHeaderElements();
 	    while (it.hasNext()) {
 		SOAPHeaderElement she = (SOAPHeaderElement) it.next();
-		String currentHeaderName = she.getTagName();
-		if (currentHeaderName.equals(headerName)) {
+		// String currentHeaderName = she.getTagName();
+		// if (currentHeaderName.equals(headerName)) {
+		if (she.getElementQName().getNamespaceURI().equals(SoapConstants.WSA_URI)
+			&& she.getElementQName().getLocalPart().equals(headerName)) {
 		    she.setValue(headerValue);
 		    return true;
 		}
 	    }
-	} catch (SOAPException e) {
+	} catch (
+
+	SOAPException e)
+
+	{
 	    logger.error("Error setting header: " + headerName, e);
 	}
 	return false;
+
     }
 
     /**

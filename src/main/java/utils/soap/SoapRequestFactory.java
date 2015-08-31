@@ -181,37 +181,37 @@ public class SoapRequestFactory {
 		    throws SOAPException {
 
 	SOAPHeader header = env.getHeader();
-	header = (SOAPHeader) header.addNamespaceDeclaration(SoapConstants.WSA_PREFIX,
-		"http://www.w3.org/2005/08/addressing");
+	header = (SOAPHeader) header.addNamespaceDeclaration(SoapConstants.DEFAULT_WSA_PREFIX,
+		SoapConstants.WSA_URI);
 
 	// to
 	SOAPHeaderElement to = header
-		.addHeaderElement(header.createQName("To", SoapConstants.WSA_PREFIX));
+		.addHeaderElement(header.createQName("To", SoapConstants.DEFAULT_WSA_PREFIX));
 	to.setValue(receiver);
 
 	// action
 	SOAPHeaderElement action = header
-		.addHeaderElement(header.createQName("Action", SoapConstants.WSA_PREFIX));
+		.addHeaderElement(header.createQName("Action", SoapConstants.DEFAULT_WSA_PREFIX));
 	action.setValue(actionHeader);
 
 	// id
 	if (idRequired) {
 	    SOAPHeaderElement messageID = header
-		    .addHeaderElement(header.createQName("MessageID", SoapConstants.WSA_PREFIX));
+		    .addHeaderElement(header.createQName("MessageID", SoapConstants.DEFAULT_WSA_PREFIX));
 	    messageID.setValue(UUID.randomUUID().toString());
 	}
 
 	// reply to
 	if (replyToAddress != null) {
 	    SOAPHeaderElement replyTo = header
-		    .addHeaderElement(header.createQName("ReplyTo", SoapConstants.WSA_PREFIX));
-	    replyTo.addChildElement("Address", SoapConstants.WSA_PREFIX).setValue(replyToAddress);
+		    .addHeaderElement(header.createQName("ReplyTo", SoapConstants.DEFAULT_WSA_PREFIX));
+	    replyTo.addChildElement("Address", SoapConstants.DEFAULT_WSA_PREFIX).setValue(replyToAddress);
 	}
 
 	if (relatesToType != null && releatesToId != null) {
 	    // relates to
 	    SOAPHeaderElement relates = header
-		    .addHeaderElement(header.createQName("RelatesTo", SoapConstants.WSA_PREFIX));
+		    .addHeaderElement(header.createQName("RelatesTo", SoapConstants.DEFAULT_WSA_PREFIX));
 
 	    relates.setValue(releatesToId);
 	    relates.addAttribute(env.createName("RelationshipType"), relatesToType);

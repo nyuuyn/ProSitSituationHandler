@@ -7,7 +7,18 @@ package utils.soap;
 class SoapConstants {
 
     /** The namespace-prefix used for web service addressing headers. */
-    static final String WSA_PREFIX = "wsa";
+    static final String DEFAULT_WSA_PREFIX = "wsa";
+
+    /**
+     * The URI used in soap messages to declare the wsa namespace.
+     */
+    static final String WSA_URI = "http://www.w3.org/2005/08/addressing";
+
+    /**
+     * The Uri used in wsa:ReplyTo headers to declare that there is no answer
+     * required.
+     */
+    static final String NO_REPLY_URI = "http://www.w3.org/2005/08/addressing/none";
 
     /**
      * The relationship type for rollback requests. The relationship type is an
@@ -20,7 +31,7 @@ class SoapConstants {
      * the WSA-Standard. The relationship type is an attribute of the wsa header
      * "relates to"
      */
-    static final String RELATIONSHIP_TYPE_RESPONSE = WSA_PREFIX + ":Reply";
+    static final String RELATIONSHIP_TYPE_RESPONSE = DEFAULT_WSA_PREFIX + ":Reply";
 
     /**
      * The relationship type for rollback responses. The relationship type is an
