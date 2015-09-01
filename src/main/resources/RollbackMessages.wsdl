@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<wsdl:definitions xmlns:sit="SituationHandler/RollbackMessages/"
+	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="RollbackMessages"
+	targetNamespace="SituationHandler/RollbackMessages/">
+	<wsdl:types>
+		<xsd:schema targetNamespace="SituationHandler/RollbackMessages/">
+			<xsd:element name="RollbackRequestElement">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="RelatedRequestId" type="xsd:string" />
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="RollbackResponseELement">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="RelatedRequestId" type="xsd:string" />
+						<xsd:element name="RollbackResult" type="xsd:string" />
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:schema>
+	</wsdl:types>
+	<wsdl:message name="RollbackRequest">
+		<wsdl:part element="sit:RollbackRequestElement" name="parameters" />
+	</wsdl:message>
+	<wsdl:message name="RollbackResponse">
+		<wsdl:part element="sit:RollbackResponseELement" name="parameters" />
+	</wsdl:message>
+
+
+</wsdl:definitions>

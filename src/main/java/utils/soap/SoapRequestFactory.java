@@ -160,21 +160,21 @@ public class SoapRequestFactory {
      * Adds the wsa headers.
      *
      * @param env
-     *            the env
+     *            the soap envelope element
      * @param receiver
-     *            the receiver
+     *            the receiver (URL) of the message
      * @param idRequired
-     *            the id required
+     *            true, if a new id for the message is required
      * @param releatesToId
-     *            the releates to id
+     *            the relatesTo id
      * @param relatesToType
-     *            the relates to type
+     *            the relatesTo type
      * @param replyToAddress
      *            the reply to address
      * @param actionHeader
-     *            the action header
+     *            the action header (wsa:Action)
      * @throws SOAPException
-     *             the SOAP exception
+     *             
      */
     private static void addWsaHeaders(SOAPEnvelope env, String receiver, boolean idRequired,
 	    String releatesToId, String relatesToType, String replyToAddress, String actionHeader)
