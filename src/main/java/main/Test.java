@@ -2,10 +2,6 @@ package main;
 
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
@@ -15,16 +11,17 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import utils.soap.SoapRequestFactory;
+import utils.soap.WsaSoapMessage;
 
 public class Test {
 
     public static void main(String[] args) {
 
-	prettyPrintMessage(SoapRequestFactory
-		.createRollbackRequest(
-			"http://localhost:8080/ode/processes/TargetWorkflow1.TargetWorkflow1Port/",
-			"123", "situationHandler.bpelDemo.targetWorkflow1Artifacts")
-		.getSoapMessage(), 3);
+	WsaSoapMessage message = SoapRequestFactory.createRollbackRequest(
+		"http://localhost:8080/ode/processes/TargetWorkflow1.TargetWorkflow1Port/", "123",
+		"situationHandler.bpelDemo.targetWorkflow1Artifacts");
+	prettyPrintMessage(message.getSoapMessage(), 3);
+	System.out.println(message.toString());
 
     }
 

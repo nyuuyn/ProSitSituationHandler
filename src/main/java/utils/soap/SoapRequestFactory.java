@@ -45,7 +45,6 @@ public class SoapRequestFactory {
      */
     private static final String ROLLBACK_START_OPERATION_ELEMENT = "RollbackRequestElement";
 
-
     /**
      * The prefix used for {@code ROLLBACK_MESSAGE_NAMESPACE}.
      */
@@ -60,6 +59,10 @@ public class SoapRequestFactory {
      * @param relatedMessageId
      *            the id of the related message. The rollback request will
      *            relate to this id.
+     * @param recipentNS
+     *            the namespace of the recipent in a form that can be used for
+     *            the soap action, i.e. the prefix for the
+     *            soap action.
      * @return the rollback request
      */
     public static WsaSoapMessage createRollbackRequest(String receiver, String relatedMessageId,
@@ -94,7 +97,7 @@ public class SoapRequestFactory {
 	    SOAPElement releatedRequestIdElement = startRollbackElement.addChildElement(
 		    envelope.createQName(SoapConstants.ROLLBACK_MESSAGE_RELATED_ID_ELEMENT,
 			    ROLLBACK_MESSAGE_NAMESPACE_PREFIX));
-	    
+
 	    releatedRequestIdElement.addTextNode(relatedMessageId);
 
 	    return createTheMessage(msg);

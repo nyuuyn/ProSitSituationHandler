@@ -153,6 +153,11 @@ class RollbackManager {
      * @return true, if the answer was a rollback answer, false else
      */
     boolean onRollbackAnswered(WsaSoapMessage answerMessage) {
+	// TODO: Das könnte man auch anders machen: Die Identifikation bezieht
+	// sich auf die ID der Nachricht, auf die sich der Rollback bezieht. Das
+	// würde es unabhängig vom Header machen und man könnte (auch) über das
+	// Feld identfizieren.
+
 	// check if there is a running rollback handler for this message
 	RollbackHandler handler = runningRollbacks.remove(answerMessage.getWsaRelatesTo());
 	if (handler == null) {

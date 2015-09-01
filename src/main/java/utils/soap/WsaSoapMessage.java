@@ -73,12 +73,13 @@ public class WsaSoapMessage {
 
     /**
      * 
-     * The result message of the rollback.
+     * The result of the rollback. True, if rollback successful
      */
-    private String rollbackResult = null;
+    private boolean rollbackResult = false;
 
     /**
-     * Contains the id of the message the rollback request is related to.
+     * Contains the id of the message the rollback request/response is related
+     * to.
      */
     private String relatedRollbackRequestId = null;
 
@@ -106,6 +107,7 @@ public class WsaSoapMessage {
 
 	    this.soapMessage = MessageFactory.newInstance().createMessage(null, inputStream);
 	    parseWsaHeaders();
+	    parseWsaActionNS();
 	    parseActorSpecificHeaders();
 	    setRollbackResponse();
 	    setRollbackRequest();
@@ -172,11 +174,14 @@ public class WsaSoapMessage {
 	NodeList nl = soapMessage.getSOAPPart().getEnvelope().getBody().getElementsByTagNameNS(
 		SoapConstants.ROLLBACK_MESSAGE_NAMESPACE,
 		SoapConstants.ROLLBACK_MESSAGE_SUCCESS_ELEMENT);
+	if (nl == null) {
+	    throw new SOAPException();
+	}
 
 	// only one element that contains a text node
 	String resultString = nl.item(0).getChildNodes().item(0).getNodeValue();
 
-	rollbackResult = resultString != null ? resultString : "No Result Submitted";
+	rollbackResult = Boolean.parseBoolean(resultString);
     }
 
     /**
@@ -189,6 +194,10 @@ public class WsaSoapMessage {
 	NodeList nl = soapMessage.getSOAPPart().getEnvelope().getBody().getElementsByTagNameNS(
 		SoapConstants.ROLLBACK_MESSAGE_NAMESPACE,
 		SoapConstants.ROLLBACK_MESSAGE_RELATED_ID_ELEMENT);
+	if (nl == null) {
+	    throw new SOAPException();
+	}
+
 	// only one element that contains a text node
 	relatedRollbackRequestId = nl.item(0).getChildNodes().item(0).getNodeValue();
     }
@@ -250,6 +259,8 @@ public class WsaSoapMessage {
      */
     @SuppressWarnings({ "rawtypes" })
     private void parseActorSpecificHeaders() throws SOAPException {
+	// TODO: Den Max Retries Header muss man danach eigentlich aus der
+	// Nachricht rausschmeissen! (das it.remove scheint es nicht zu tun...
 	SOAPHeader sh = soapMessage.getSOAPHeader();
 	Iterator it = sh.examineHeaderElements(SoapConstants.SITUATION_HANDLER_ROLE);
 	while (it.hasNext()) {
@@ -316,6 +327,19 @@ public class WsaSoapMessage {
 	if (wsaRelationshipType != null
 		&& wsaRelationshipType.equals(SoapConstants.RELATIONSHIP_TYPE_ROLLBACK)) {
 	    rollbackRequest = true;
+	}
+    }
+
+    private void parseWsaActionNS() {
+	if (wsaAction != null) {
+	    String[] parts = wsaAction.split("/");
+	    StringBuilder prefix = new StringBuilder();
+	    // add all elements except the last (which is considererd to be the
+	    // operation name)
+	    for (int i = 0; i < parts.length - 1; i++) {
+		prefix.append(parts[i]);
+	    }
+	    wsaActionNamespace = prefix.toString();
 	}
     }
 
@@ -574,19 +598,24 @@ public class WsaSoapMessage {
 	return maxRetries;
     }
 
-    /*
-     * (non-Javadoc)
+    /**
      * 
-     * @see java.lang.Object#toString()
+     * @return the id of the message the rollback request/response is related
+     *         to.
      */
+    public String getRelatedRollbackRequestId() {
+	return relatedRollbackRequestId;
+    }
+
     @Override
     public String toString() {
 	return "WsaSoapMessage [operationName=" + operationName + ", namespace=" + namespace
-		+ ", wsaMessageID=" + wsaMessageID + ", wsaTo=" + wsaTo + ", wsaAction=" + wsaAction
-		+ ", wsaRelatesTo=" + wsaRelatesTo + ", wsaRelationshipType=" + wsaRelationshipType
-		+ ", wsaReplyTo=" + wsaReplyTo + ", rollbackResponse=" + rollbackResponse
-		+ ", rollbackRequest=" + rollbackRequest + ", rollbackResult=" + rollbackResult
-		+ ", maxRetries=" + maxRetries + "]";
+		+ ", wsaActionNamespace=" + wsaActionNamespace + ", wsaMessageID=" + wsaMessageID
+		+ ", wsaReplyTo=" + wsaReplyTo + ", wsaRelationshipType=" + wsaRelationshipType
+		+ ", wsaTo=" + wsaTo + ", wsaAction=" + wsaAction + ", wsaRelatesTo=" + wsaRelatesTo
+		+ ", rollbackResponse=" + rollbackResponse + ", rollbackRequest=" + rollbackRequest
+		+ ", rollbackResult=" + rollbackResult + ", relatedRollbackRequestId="
+		+ relatedRollbackRequestId + ", maxRetries=" + maxRetries + "]";
     }
 
     /**
@@ -596,17 +625,22 @@ public class WsaSoapMessage {
      * @return the string
      */
     public String toStringCompact() {
-	return "WsaSoapMessage [" + (namespace != null ? "namespace=" + namespace + ", " : "")
+	return "WsaSoapMessage ["
 		+ (operationName != null ? "operationName=" + operationName + ", " : "")
+		+ (namespace != null ? "namespace=" + namespace + ", " : "")
+		+ (wsaActionNamespace != null ? "wsaActionNamespace=" + wsaActionNamespace + ", "
+			: "")
 		+ (wsaMessageID != null ? "wsaMessageID=" + wsaMessageID + ", " : "")
-		+ (wsaTo != null ? "wsaTo=" + wsaTo + ", " : "")
-		+ (wsaAction != null ? "wsaAction=" + wsaAction + ", " : "")
 		+ (wsaReplyTo != null ? "wsaReplyTo=" + wsaReplyTo + ", " : "")
-		+ (wsaRelatesTo != null ? "wsaRelatesTo=" + wsaRelatesTo + ", " : "")
 		+ (wsaRelationshipType != null ? "wsaRelationshipType=" + wsaRelationshipType + ", "
 			: "")
+		+ (wsaTo != null ? "wsaTo=" + wsaTo + ", " : "")
+		+ (wsaAction != null ? "wsaAction=" + wsaAction + ", " : "")
+		+ (wsaRelatesTo != null ? "wsaRelatesTo=" + wsaRelatesTo + ", " : "")
 		+ "rollbackResponse=" + rollbackResponse + ", rollbackRequest=" + rollbackRequest
-		+ ", " + "rollbackResult=" + rollbackResult + ", "
+		+ ", rollbackResult=" + rollbackResult + ", "
+		+ (relatedRollbackRequestId != null
+			? "relatedRollbackRequestId=" + relatedRollbackRequestId + ", " : "")
 		+ (maxRetries != null ? "maxRetries=" + maxRetries : "") + "]";
     }
 
