@@ -40,10 +40,22 @@ class SoapConstants {
     static final String ROLLBACK_RESPONSE_RELATIONSHIP_TYPE = "RollbackResponse";
 
     /**
-     * The name of the operation to start a rollback of a workflow operation.
-     * The operation does not have any parameters.
+     * The element in rollback messages that contains the id of the request that
+     * rollback message relates to.
      */
-    static final String ROLLBACK_START_OPERATION = "StartRollback";
+    static final String ROLLBACK_MESSAGE_RELATED_ID_ELEMENT = "RelatedRequestId";
+
+    /**
+     * The element in a Rollback response message that contains the result of
+     * the rollback.
+     */
+    static final String ROLLBACK_MESSAGE_SUCCESS_ELEMENT = "RollbackResult";
+    
+    /**
+     * The namespace that was used to define the rollback messages.
+     * 
+     */
+    static final String ROLLBACK_MESSAGE_NAMESPACE = "SituationHandler/RollbackMessages/";
 
     /**
      * The role of the situation handler as stated in soap requests. The

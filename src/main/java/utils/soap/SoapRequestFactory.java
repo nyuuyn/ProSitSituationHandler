@@ -9,7 +9,9 @@ import java.util.UUID;
 import javax.xml.namespace.QName;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPBody;
+import javax.xml.soap.SOAPBodyElement;
 import javax.xml.soap.SOAPConstants;
+import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPEnvelope;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPHeader;
@@ -33,6 +35,23 @@ public class SoapRequestFactory {
     private static final Logger logger = Logger.getLogger(SoapRequestFactory.class);
 
     /**
+     * The name of the operation to start a rollback of a workflow operation.
+     * The operation does not have any parameters.
+     */
+    private static final String ROLLBACK_START_OPERATION = "startRollback";
+
+    /**
+     * The name of the "main-element" in a rollback request.
+     */
+    private static final String ROLLBACK_START_OPERATION_ELEMENT = "RollbackRequestElement";
+
+
+    /**
+     * The prefix used for {@code ROLLBACK_MESSAGE_NAMESPACE}.
+     */
+    private static final String ROLLBACK_MESSAGE_NAMESPACE_PREFIX = "rol";
+
+    /**
      * Creates a new rollback request that relates to a certain message. Sets
      * all required WSA headers.
      *
@@ -43,11 +62,15 @@ public class SoapRequestFactory {
      *            relate to this id.
      * @return the rollback request
      */
-    public static WsaSoapMessage createRollbackRequest(String receiver, String relatedMessageId) {
+    public static WsaSoapMessage createRollbackRequest(String receiver, String relatedMessageId,
+	    String recipentNS) {
 	try {
 	    SOAPMessage msg = MessageFactory.newInstance().createMessage();
 	    SOAPPart part = msg.getSOAPPart();
 	    SOAPEnvelope envelope = part.getEnvelope();
+
+	    envelope.addNamespaceDeclaration(ROLLBACK_MESSAGE_NAMESPACE_PREFIX,
+		    SoapConstants.ROLLBACK_MESSAGE_NAMESPACE);
 
 	    // create reply address
 	    String ownIPAdress = InetAddress.getLocalHost().getHostAddress();
@@ -56,11 +79,23 @@ public class SoapRequestFactory {
 
 	    addWsaHeaders(envelope, receiver, true, relatedMessageId,
 		    SoapConstants.RELATIONSHIP_TYPE_ROLLBACK, replyToAddress,
-		    SoapConstants.ROLLBACK_START_OPERATION);
+		    recipentNS + "/" + ROLLBACK_START_OPERATION);
+
+	    // TODO: Bei der Action muss der komplette Namespace stehen!
+	    // (genauso wie vermutlich noch in der SOAP Nachricht selbst eine
+	    // Deklaration des NS nötig ist. Den NS kann man vermutlich aus der
+	    // originalen Request Rausparsen!)
 
 	    // body
 	    SOAPBody body = envelope.getBody();
-	    body.addBodyElement(envelope.createName(SoapConstants.ROLLBACK_START_OPERATION));
+	    SOAPBodyElement startRollbackElement = body.addBodyElement(envelope.createQName(
+		    ROLLBACK_START_OPERATION_ELEMENT, ROLLBACK_MESSAGE_NAMESPACE_PREFIX));
+
+	    SOAPElement releatedRequestIdElement = startRollbackElement.addChildElement(
+		    envelope.createQName(SoapConstants.ROLLBACK_MESSAGE_RELATED_ID_ELEMENT,
+			    ROLLBACK_MESSAGE_NAMESPACE_PREFIX));
+	    
+	    releatedRequestIdElement.addTextNode(relatedMessageId);
 
 	    return createTheMessage(msg);
 	} catch (SOAPException | UnknownHostException e) {
@@ -174,7 +209,7 @@ public class SoapRequestFactory {
      * @param actionHeader
      *            the action header (wsa:Action)
      * @throws SOAPException
-     *             
+     * 
      */
     private static void addWsaHeaders(SOAPEnvelope env, String receiver, boolean idRequired,
 	    String releatesToId, String relatesToType, String replyToAddress, String actionHeader)
@@ -196,22 +231,23 @@ public class SoapRequestFactory {
 
 	// id
 	if (idRequired) {
-	    SOAPHeaderElement messageID = header
-		    .addHeaderElement(header.createQName("MessageID", SoapConstants.DEFAULT_WSA_PREFIX));
+	    SOAPHeaderElement messageID = header.addHeaderElement(
+		    header.createQName("MessageID", SoapConstants.DEFAULT_WSA_PREFIX));
 	    messageID.setValue(UUID.randomUUID().toString());
 	}
 
 	// reply to
 	if (replyToAddress != null) {
-	    SOAPHeaderElement replyTo = header
-		    .addHeaderElement(header.createQName("ReplyTo", SoapConstants.DEFAULT_WSA_PREFIX));
-	    replyTo.addChildElement("Address", SoapConstants.DEFAULT_WSA_PREFIX).setValue(replyToAddress);
+	    SOAPHeaderElement replyTo = header.addHeaderElement(
+		    header.createQName("ReplyTo", SoapConstants.DEFAULT_WSA_PREFIX));
+	    replyTo.addChildElement("Address", SoapConstants.DEFAULT_WSA_PREFIX)
+		    .setValue(replyToAddress);
 	}
 
 	if (relatesToType != null && releatesToId != null) {
 	    // relates to
-	    SOAPHeaderElement relates = header
-		    .addHeaderElement(header.createQName("RelatesTo", SoapConstants.DEFAULT_WSA_PREFIX));
+	    SOAPHeaderElement relates = header.addHeaderElement(
+		    header.createQName("RelatesTo", SoapConstants.DEFAULT_WSA_PREFIX));
 
 	    relates.setValue(releatesToId);
 	    relates.addAttribute(env.createName("RelationshipType"), relatesToType);

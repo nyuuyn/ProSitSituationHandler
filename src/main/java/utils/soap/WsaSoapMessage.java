@@ -39,6 +39,14 @@ public class WsaSoapMessage {
     /** The namespace (of the operation). */
     private String namespace = null;
 
+    /**
+     * The namespace/prefix of wsa:action. For example when wsa:action =
+     * "situationHandler.bpelDemo.targetWorkflow1Artifacts/startRollback", the
+     * this field will be equal to
+     * "situationHandler.bpelDemo.targetWorkflow1Artifacts".
+     */
+    private String wsaActionNamespace = null;
+
     /** The value of the wsa:messageId header. */
     private String wsaMessageID = null;
 
@@ -64,10 +72,15 @@ public class WsaSoapMessage {
     private boolean rollbackRequest = false;
 
     /**
-     * In case this message is the response to a rollback message,
-     * {@code rollbackResult} states wheter the rollback was successful or not.
+     * 
+     * The result message of the rollback.
      */
-    private boolean rollbackResult = false;
+    private String rollbackResult = null;
+
+    /**
+     * Contains the id of the message the rollback request is related to.
+     */
+    private String relatedRollbackRequestId = null;
 
     /**
      * If this message is a request for a workflow operation, {@code maxRetries}
@@ -97,6 +110,12 @@ public class WsaSoapMessage {
 	    setRollbackResponse();
 	    setRollbackRequest();
 	    parseOperationName();
+	    if (rollbackResponse) {
+		parseRollbackResult();
+	    }
+	    if (rollbackResponse || rollbackRequest) {
+		parseRollbackRelatedMessageId();
+	    }
 	    inputStream.close();
 	} catch (SOAPException | IOException e) {
 	    throw new SOAPException(e);
@@ -139,17 +158,39 @@ public class WsaSoapMessage {
 	} else {// invalid operation
 	    throw new SOAPException("Invalid operation.");
 	}
-	if (rollbackResponse) {// parse result of rollback
-	    NodeList returnValues = operationNode.getChildNodes();
-	    Node returnValue = null;
-	    for (int i = 0; i < returnValues.getLength(); i++) {
-		returnValue = returnValues.item(i);
-		if (returnValue.getNodeType() == Node.ELEMENT_NODE) {
-		    break; // return value found
-		}
-	    }
-	    rollbackResult = Boolean.parseBoolean(returnValue.getFirstChild().getNodeValue());
-	}
+
+    }
+
+    /**
+     * Parses the result of a rollback operation. Use only when the message is
+     * the response message to a rollback message.
+     * 
+     * @throws SOAPException
+     *             invalid soap message
+     */
+    private void parseRollbackResult() throws SOAPException {
+	NodeList nl = soapMessage.getSOAPPart().getEnvelope().getBody().getElementsByTagNameNS(
+		SoapConstants.ROLLBACK_MESSAGE_NAMESPACE,
+		SoapConstants.ROLLBACK_MESSAGE_SUCCESS_ELEMENT);
+
+	// only one element that contains a text node
+	String resultString = nl.item(0).getChildNodes().item(0).getNodeValue();
+
+	rollbackResult = resultString != null ? resultString : "No Result Submitted";
+    }
+
+    /**
+     * Determines the id of the message this rollback message relates to.
+     * 
+     * @throws SOAPException
+     *             invalid soap message
+     */
+    private void parseRollbackRelatedMessageId() throws SOAPException {
+	NodeList nl = soapMessage.getSOAPPart().getEnvelope().getBody().getElementsByTagNameNS(
+		SoapConstants.ROLLBACK_MESSAGE_NAMESPACE,
+		SoapConstants.ROLLBACK_MESSAGE_RELATED_ID_ELEMENT);
+	// only one element that contains a text node
+	relatedRollbackRequestId = nl.item(0).getChildNodes().item(0).getNodeValue();
     }
 
     /**
@@ -247,9 +288,9 @@ public class WsaSoapMessage {
 	    // in this case
 	    if (current.getNodeName().endsWith("Address")) {
 		String parsedAddress = current.getChildNodes().item(0).getNodeValue();
-		if (!parsedAddress.equals(SoapConstants.NO_REPLY_URI)){
-			wsaReplyTo = new URL(current.getChildNodes().item(0).getNodeValue());
-			System.out.println("Address: " + wsaReplyTo);
+		if (!parsedAddress.equals(SoapConstants.NO_REPLY_URI)) {
+		    wsaReplyTo = new URL(current.getChildNodes().item(0).getNodeValue());
+		    System.out.println("Address: " + wsaReplyTo);
 		}
 	    }
 	}
@@ -325,7 +366,7 @@ public class WsaSoapMessage {
      *            the new address
      */
     public void setWsaTo(URL receiverAddress) {
-	if (setStandardWsaHeader("To", receiverAddress.toString())) {					   
+	if (setStandardWsaHeader("To", receiverAddress.toString())) {
 	    this.wsaTo = receiverAddress;
 	}
     }
@@ -507,6 +548,19 @@ public class WsaSoapMessage {
      */
     public boolean getRollbackResult() {
 	return rollbackResult;
+    }
+
+    /**
+     * 
+     * Get the wsa:Action namespace.
+     * 
+     * @return The namespace/prefix of wsa:action. For example when wsa:action =
+     *         "situationHandler.bpelDemo.targetWorkflow1Artifacts/startRollback",
+     *         the this field will be equal to
+     *         "situationHandler.bpelDemo.targetWorkflow1Artifacts".
+     */
+    public String getWsaActionNamespace() {
+	return wsaActionNamespace;
     }
 
     /**
