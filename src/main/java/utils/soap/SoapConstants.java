@@ -44,6 +44,11 @@ class SoapConstants {
      * rollback message relates to.
      */
     static final String ROLLBACK_MESSAGE_RELATED_ID_ELEMENT = "RelatedRequestId";
+    
+	/**
+	 * The name of the "main-element" in a rollback request.
+	 */
+	static final String ROLLBACK_START_OPERATION_ELEMENT = "RollbackRequestElement";
 
     /**
      * The element in a Rollback response message that contains the result of
