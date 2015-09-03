@@ -116,10 +116,10 @@ public class WsaSoapMessage {
 	    if (rollbackResponse) {
 		parseRollbackResult();
 	    }
-	    //TODO: weg?
-//	    if (rollbackResponse || rollbackRequest) {
-//		parseRollbackRelatedMessageId();
-//	    }
+	    // TODO: weg?
+	    // if (rollbackResponse || rollbackRequest) {
+	    // parseRollbackRelatedMessageId();
+	    // }
 	    inputStream.close();
 	} catch (SOAPException | IOException e) {
 	    throw new SOAPException(e);
@@ -200,30 +200,32 @@ public class WsaSoapMessage {
     }
 
     /**
-     * TODO: weg?
-     * Determines the id of the message this rollback message relates to.
+     * TODO: weg? Determines the id of the message this rollback message relates
+     * to.
      * 
      * @throws SOAPException
      *             invalid soap message
      */
-//    private void parseRollbackRelatedMessageId() throws SOAPException {
-//	NodeList containingElement = soapMessage.getSOAPPart().getEnvelope().getBody()
-//		.getElementsByTagNameNS(SoapConstants.ROLLBACK_MESSAGE_NAMESPACE,
-//			SoapConstants.ROLLBACK_START_OPERATION_ELEMENT);
-//	if (containingElement == null) {
-//	    throw new SOAPException();
-//	}
-//
-//	NodeList nl = containingElement.item(0).getChildNodes();
-//	if (nl == null) {
-//	    throw new SOAPException();
-//	}
-//	// TODO: Wird nicht funktionieren -->nullpointer; Wozu brauche ich die
-//	// Methode überhaupt?
-//
-//	// only one element that contains a text node
-//	relatedRollbackRequestId = nl.item(0).getChildNodes().item(0).getNodeValue();
-//    }
+    // private void parseRollbackRelatedMessageId() throws SOAPException {
+    // NodeList containingElement =
+    // soapMessage.getSOAPPart().getEnvelope().getBody()
+    // .getElementsByTagNameNS(SoapConstants.ROLLBACK_MESSAGE_NAMESPACE,
+    // SoapConstants.ROLLBACK_START_OPERATION_ELEMENT);
+    // if (containingElement == null) {
+    // throw new SOAPException();
+    // }
+    //
+    // NodeList nl = containingElement.item(0).getChildNodes();
+    // if (nl == null) {
+    // throw new SOAPException();
+    // }
+    // // TODO: Wird nicht funktionieren -->nullpointer; Wozu brauche ich die
+    // // Methode überhaupt?
+    //
+    // // only one element that contains a text node
+    // relatedRollbackRequestId =
+    // nl.item(0).getChildNodes().item(0).getNodeValue();
+    // }
 
     /**
      * Parses all wsa headers contained in the message.
@@ -282,13 +284,12 @@ public class WsaSoapMessage {
      */
     @SuppressWarnings({ "rawtypes" })
     private void parseActorSpecificHeaders() throws SOAPException {
-	// TODO: Den Max Retries Header muss man danach eigentlich aus der
-	// Nachricht rausschmeissen! (das it.remove scheint es nicht zu tun...
 	SOAPHeader sh = soapMessage.getSOAPHeader();
 	Iterator it = sh.examineHeaderElements(SoapConstants.SITUATION_HANDLER_ROLE);
+	SOAPHeaderElement toRemove = null;
 	while (it.hasNext()) {
 	    SOAPHeaderElement she = (SOAPHeaderElement) it.next();
-	    String headerName = she.getTagName();
+	    String headerName = she.getLocalName();
 	    // maxRetries header
 	    if (headerName.equals(SoapConstants.HEADER_MAX_RETRIES)) {
 		try {
@@ -299,9 +300,13 @@ public class WsaSoapMessage {
 		} catch (NumberFormatException e) {
 		    throw new SOAPException("Invalid Number of retries", e);
 		}
-		it.remove();
+		toRemove = she;
 	    }
-
+	}
+	// remove max retries header after processing..
+	if (toRemove != null) {
+	    System.out.println("Removing header...");
+	    sh.removeChild(toRemove);
 	}
     }
 
