@@ -6,7 +6,6 @@
 
 	<wsdl:portType name="Request"></wsdl:portType>
 	<wsdl:portType name="Response"></wsdl:portType>
-
 	<wsdl:binding name="RequestServiceBinding" type="tns:Request">
 		<soap:binding style="document"
 			transport="http://schemas.xmlsoap.org/soap/http" />
@@ -15,7 +14,6 @@
 		<soap:binding style="document"
 			transport="http://schemas.xmlsoap.org/soap/http" />
 	</wsdl:binding>
-
 	<wsdl:service name="RequestService">
 		<wsdl:port name="RequestServicePort" binding="tns:RequestServiceBinding">
 			<soap:address location="http://localhost:8081/RequestEndpoint" />
@@ -26,7 +24,6 @@
 			<soap:address location="http://localhost:8081/AnswerEndpoint" />
 		</wsdl:port>
 	</wsdl:service>
-
 </wsdl:definitions>
 
 	

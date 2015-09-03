@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<wsdl:definitions xmlns:tns="SituationHandler/SituationHandlerFaults/"
+	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	name="SituationHandlerFaults" targetNamespace="SituationHandler/SituationHandlerFaults/">
+
+	<!-- This file defines fault messages sent by the situation handler. -->
+	<wsdl:types>
+		<xsd:schema targetNamespace="SituationHandler/SituationHandlerFaults/">
+			<xsd:element name="SituationHandlerFaultElement">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="ErrorMessage" type="xsd:string" />
+						<xsd:element name="RequestId" type="xsd:string" />
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:schema>
+	</wsdl:types>
+
+
+	<wsdl:message name="SituationHandlerFault">
+		<wsdl:part element="tns:SituationHandlerFaultElement" name="parameters" />
+	</wsdl:message>
+</wsdl:definitions>
