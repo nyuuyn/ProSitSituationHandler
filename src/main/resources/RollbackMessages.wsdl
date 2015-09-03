@@ -3,6 +3,8 @@
 	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="RollbackMessages"
 	targetNamespace="SituationHandler/RollbackMessages/">
+
+	<!-- In this file, the messages for a rollback are defined. -->
 	<wsdl:types>
 		<xsd:schema targetNamespace="SituationHandler/RollbackMessages/">
 			<xsd:element name="RollbackRequestElement">
