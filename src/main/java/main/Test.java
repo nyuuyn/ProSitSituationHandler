@@ -4,7 +4,6 @@ import java.io.StringReader;
 import java.io.StringWriter;
 
 import javax.xml.soap.SOAPConstants;
-import javax.xml.soap.SOAPException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;

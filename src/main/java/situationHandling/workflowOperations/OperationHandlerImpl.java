@@ -122,13 +122,14 @@ class OperationHandlerImpl implements OperationHandlerForRollback {
      *            the message that caused the error
      */
     private void sendErrorMessage(String error, WsaSoapMessage request) {
+	// use the correlation id if specified or the message id else
+	String correlationId = request.getFaultCorrelationId() == null ? request.getWsaMessageID()
+		: request.getFaultCorrelationId();
 	WsaSoapMessage rollbackMessage = SoapRequestFactory.createFaultMessageWsa(
-		request.getWsaReplyTo().toString(), request.getWsaMessageID(),
-		request.getWsaActionNamespace(), error,
-		SOAPConstants.SOAP_RECEIVER_FAULT);
+		request.getWsaReplyTo().toString(), correlationId, request.getWsaActionNamespace(),
+		error, SOAPConstants.SOAP_RECEIVER_FAULT);
 
 	new MessageRouter(rollbackMessage).forwardFaultMessage(null);
-	;
     }
 
     /**

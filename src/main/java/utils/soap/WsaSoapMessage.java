@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
+import java.util.LinkedList;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.MessageFactory;
@@ -72,6 +73,12 @@ public class WsaSoapMessage {
      * The value of the wsa:FaultTo header.
      */
     private URL wsaFaultTo = null;
+
+    /**
+     * The id to use when sending a fault message. Has to be specified by the
+     * first request.
+     */
+    private String faultCorrelationId = null;
 
     /** States whether this message is a response to a rollback or not. */
     private boolean rollbackResponse = false;
@@ -296,7 +303,7 @@ public class WsaSoapMessage {
     private void parseActorSpecificHeaders() throws SOAPException {
 	SOAPHeader sh = soapMessage.getSOAPHeader();
 	Iterator it = sh.examineHeaderElements(SoapConstants.SITUATION_HANDLER_ROLE);
-	SOAPHeaderElement toRemove = null;
+	LinkedList<SOAPHeaderElement> toRemove = new LinkedList<>();
 	while (it.hasNext()) {
 	    SOAPHeaderElement she = (SOAPHeaderElement) it.next();
 	    String headerName = she.getLocalName();
@@ -310,14 +317,19 @@ public class WsaSoapMessage {
 		} catch (NumberFormatException e) {
 		    throw new SOAPException("Invalid Number of retries", e);
 		}
-		toRemove = she;
+		toRemove.add(she);
+	    } else if (headerName.equals(SoapConstants.FAULT_CORRELATION_HEADER_NAME)) {
+		// correlation info header
+		faultCorrelationId = she.getValue();
+		toRemove.add(she);
 	    }
 	}
-	// remove max retries header after processing..
-	if (toRemove != null) {
-	    System.out.println("Removing header...");
-	    sh.removeChild(toRemove);
+	// remove headers after processing.. (to avoid modification of list
+	// while iterating)
+	for (SOAPHeaderElement she : toRemove) {
+	    sh.removeChild(she);
 	}
+
     }
 
     /**
@@ -597,6 +609,17 @@ public class WsaSoapMessage {
      */
     public URL getWsaFaultTo() {
 	return wsaFaultTo;
+    }
+
+    /**
+     * 
+     * Gets the correlation id that was specified by a request to use for fault
+     * messages.
+     * 
+     * @return the correlation id or Null, if no id was specififed.
+     */
+    public String getFaultCorrelationId() {
+	return faultCorrelationId;
     }
 
     /**

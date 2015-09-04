@@ -123,10 +123,14 @@ class RollbackHandler {
      *            the rollback failed.
      */
     private void sendRollbackFailedMessage(String errorText) {
+	//use the correlation id if specified or the message id else
+	String correlationId = originalMessage.getFaultCorrelationId() == null ? originalMessage.getWsaMessageID()
+		: originalMessage.getFaultCorrelationId();
 	WsaSoapMessage errorMessage = SoapRequestFactory.createFaultMessageWsa(
-		originalMessage.getWsaFaultTo().toString(), originalMessage.getWsaMessageID(),
+		originalMessage.getWsaFaultTo().toString(), correlationId,
 		originalMessage.getWsaActionNamespace(), errorText,
 		SOAPConstants.SOAP_SENDER_FAULT);
+	
 
 	new MessageRouter(errorMessage).forwardFaultMessage(surrogateId);
     }
