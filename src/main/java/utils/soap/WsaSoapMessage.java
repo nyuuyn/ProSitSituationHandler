@@ -21,6 +21,8 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+//TODO: Diese Klasse ist eine Schande --> viel zu gross und universal...
+
 /**
  * The Class WsaSoapMessage is a wrapper class for soap messages. It provides
  * means to directly access and set relevant headers, especially WSA headers and
@@ -65,6 +67,11 @@ public class WsaSoapMessage {
 
     /** The value of the wsa:relatesTo header. */
     private String wsaRelatesTo = null;
+
+    /**
+     * The value of the wsa:FaultTo header.
+     */
+    private URL wsaFaultTo = null;
 
     /** States whether this message is a response to a rollback or not. */
     private boolean rollbackResponse = false;
@@ -261,11 +268,14 @@ public class WsaSoapMessage {
 		    this.wsaTo = new URL(she.getValue());
 		    break;
 		case "ReplyTo":
-		    parseReplyToHeader(she.getChildNodes());
+		    this.wsaReplyTo = parseWsaAddress(she.getChildNodes());
 		    break;
 		case "RelatesTo":
 		    this.wsaRelatesTo = she.getValue();
 		    this.wsaRelationshipType = she.getAttributeValue(new QName("RelationshipType"));
+		    break;
+		case "FaultTo":
+		    this.wsaFaultTo = parseWsaAddress(she.getChildNodes());
 		    break;
 		default:
 		    break;
@@ -311,29 +321,32 @@ public class WsaSoapMessage {
     }
 
     /**
-     * Parses the wsa:ReplyToHeader and the contained address. Special method
-     * because it is a nested element.
+     * Parses a wsa address header and the contained address that is nested
+     * within another element. (For example To parse the address in the replyTo
+     * header)
      *
-     * @param replyToElements
-     *            the child elements of the wsa:replyTo header node.
+     * @param addressElements
+     *            the child elements of the header node that contains the
+     *            address element.
+     * @return the value contained in the address element as URL. Null, if no
+     *         address element found.
      * @throws MalformedURLException
      *             if the address is malformed
      */
-    private void parseReplyToHeader(NodeList replyToElements) throws MalformedURLException {
-	for (int i = 0; i < replyToElements.getLength(); i++) {
+    private URL parseWsaAddress(NodeList addressElements) throws MalformedURLException {
+	for (int i = 0; i < addressElements.getLength(); i++) {
 
-	    Node current = replyToElements.item(i);
-	    // other wsa:replyTo headers are not parsed. Prefix can be ignored
+	    Node current = addressElements.item(i);
+	    // only address is parsed. Prefix can be ignored
 	    // in this case
 	    if (current.getNodeName().endsWith("Address")) {
 		String parsedAddress = current.getChildNodes().item(0).getNodeValue();
 		if (!parsedAddress.equals(SoapConstants.NO_REPLY_URI)) {
-		    wsaReplyTo = new URL(current.getChildNodes().item(0).getNodeValue());
-		    System.out.println("Address: " + wsaReplyTo);
+		    return new URL(current.getChildNodes().item(0).getNodeValue());
 		}
 	    }
 	}
-
+	return null;
     }
 
     /**
@@ -576,6 +589,17 @@ public class WsaSoapMessage {
     }
 
     /**
+     * Gets the address value of the wsa:FaultTo header contained in this
+     * message.
+     * 
+     * @return the address contained in the header or null if this message does
+     *         not contain that header.
+     */
+    public URL getWsaFaultTo() {
+	return wsaFaultTo;
+    }
+
+    /**
      * Checks if the message is a rollback response.
      *
      * @return true, if it is a rollback response
@@ -641,9 +665,10 @@ public class WsaSoapMessage {
 		+ ", wsaActionNamespace=" + wsaActionNamespace + ", wsaMessageID=" + wsaMessageID
 		+ ", wsaReplyTo=" + wsaReplyTo + ", wsaRelationshipType=" + wsaRelationshipType
 		+ ", wsaTo=" + wsaTo + ", wsaAction=" + wsaAction + ", wsaRelatesTo=" + wsaRelatesTo
-		+ ", rollbackResponse=" + rollbackResponse + ", rollbackRequest=" + rollbackRequest
-		+ ", rollbackResult=" + rollbackResult + ", relatedRollbackRequestId="
-		+ relatedRollbackRequestId + ", maxRetries=" + maxRetries + "]";
+		+ ", wsaFaultTo=" + wsaFaultTo + ", rollbackResponse=" + rollbackResponse
+		+ ", rollbackRequest=" + rollbackRequest + ", rollbackResult=" + rollbackResult
+		+ ", relatedRollbackRequestId=" + relatedRollbackRequestId + ", maxRetries="
+		+ maxRetries + "]";
     }
 
     /**
@@ -665,6 +690,7 @@ public class WsaSoapMessage {
 		+ (wsaTo != null ? "wsaTo=" + wsaTo + ", " : "")
 		+ (wsaAction != null ? "wsaAction=" + wsaAction + ", " : "")
 		+ (wsaRelatesTo != null ? "wsaRelatesTo=" + wsaRelatesTo + ", " : "")
+		+ (wsaFaultTo != null ? "wsaFaultTo=" + wsaFaultTo + ", " : "")
 		+ "rollbackResponse=" + rollbackResponse + ", rollbackRequest=" + rollbackRequest
 		+ ", rollbackResult=" + rollbackResult + ", "
 		+ (relatedRollbackRequestId != null

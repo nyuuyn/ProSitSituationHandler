@@ -8,7 +8,6 @@ import org.apache.log4j.Logger;
 
 import situationHandling.storage.StorageAccessFactory;
 import situationHandling.storage.datatypes.Endpoint;
-import situationHandling.storage.datatypes.Operation;
 import situationHandling.storage.datatypes.Situation;
 import utils.soap.SoapRequestFactory;
 import utils.soap.WsaSoapMessage;
@@ -125,9 +124,9 @@ class RollbackHandler {
      */
     private void sendRollbackFailedMessage(String errorText) {
 	WsaSoapMessage errorMessage = SoapRequestFactory.createFaultMessageWsa(
-		originalMessage.getWsaReplyTo().toString(), originalMessage.getWsaMessageID(),
-		new Operation(originalMessage.getOperationName(), originalMessage.getNamespace()),
-		errorText, SOAPConstants.SOAP_SENDER_FAULT);
+		originalMessage.getWsaFaultTo().toString(), originalMessage.getWsaMessageID(),
+		originalMessage.getWsaActionNamespace(), errorText,
+		SOAPConstants.SOAP_SENDER_FAULT);
 
 	new MessageRouter(errorMessage).forwardFaultMessage(surrogateId);
     }

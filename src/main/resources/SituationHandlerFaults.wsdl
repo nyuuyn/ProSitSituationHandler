@@ -9,8 +9,9 @@
 			<xsd:element name="SituationHandlerFaultElement">
 				<xsd:complexType>
 					<xsd:sequence>
-						<xsd:element name="ErrorMessage" type="xsd:string" />
 						<xsd:element name="RequestId" type="xsd:string" />
+						<xsd:element name="FaultCode" type="xsd:string"/>
+						<xsd:element name="ErrorMessage" type="xsd:string" />
 					</xsd:sequence>
 				</xsd:complexType>
 			</xsd:element>
