@@ -391,6 +391,8 @@ public class WsaSoapMessage {
 	    // operation name)
 	    for (int i = 0; i < parts.length - 1; i++) {
 		prefix.append(parts[i]);
+		// TODO: DIe slashes sollte man eigentlich wieder einfügen!
+		// (Sonst werden Namespaces zerstört, die slashes haben!)
 	    }
 	    wsaActionNamespace = prefix.toString();
 	}

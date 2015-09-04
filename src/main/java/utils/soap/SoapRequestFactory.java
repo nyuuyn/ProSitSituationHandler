@@ -144,9 +144,11 @@ public class SoapRequestFactory {
 
 	    envelope.addNamespaceDeclaration(FAULT_MESSAGE_NS_PREFIX, FAULT_MESSAGE_NS);
 
+	    // TODO: Momentan passt das mit Action eigentlich nicht, das
+	    // funktioniert nur wegen der Correlation!
 	    addWsaHeaders(envelope, receiver, true, relatedMessageId,
 		    SoapConstants.RELATIONSHIP_TYPE_RESPONSE, SoapConstants.NO_REPLY_URI,
-		    receiverNS + "/" + FAULT_OPERATION_NAME);
+		    FAULT_OPERATION_NAME);
 
 	    // add body
 	    SOAPBody body = envelope.getBody();
