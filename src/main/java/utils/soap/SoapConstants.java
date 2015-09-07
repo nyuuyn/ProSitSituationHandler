@@ -79,7 +79,11 @@ class SoapConstants {
      * retries for a workflow operation.
      */
     static final String HEADER_MAX_RETRIES = "MaxRetries";
-    
+
+    /**
+     * The name of the header in a request message, that specifies the
+     * correlation id of the fault message.
+     */
     static final String FAULT_CORRELATION_HEADER_NAME = "FaultCorrelationInfo";
 
 }

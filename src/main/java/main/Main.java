@@ -58,7 +58,7 @@ public class Main {
 
 	try {
 	    webapp.setBaseResource(Resource.newResource(new File(
-		    "C:\\Users\\Stefan\\workspace_Masterarbeit\\SituationHandler_WebApp\\app")));
+		    GlobalProperties.WEB_APP_PATH)));
 	} catch (MalformedURLException e1) {
 	    e1.printStackTrace();
 	} catch (IOException e1) {

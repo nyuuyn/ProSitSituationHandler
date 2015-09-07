@@ -119,10 +119,11 @@ public class RestApiRoutes extends RouteBuilder {
 
 	// base route
 	// TODO: Was ist mit den Consumes/Produces dinger?
-	rest("/config").description("Situation Handler RestAPI").consumes("application/json")
-		.produces("application/json");
-
+	rest("/config").description("Situation Handler RestAPI")
+		.consumes("application/json").produces("application/json").enableCORS(true);
     }
+
+
 
     /**
      * sets up the routes for the endpoint Api
@@ -235,7 +236,7 @@ public class RestApiRoutes extends RouteBuilder {
 	// ../plugins/<ID> --> GET information about the plugin with <ID>
 	rest("/config/plugins/{pluginID}").get().outType(PluginInfo.class)
 		.to("bean:pluginApi?method=getPluginByID(${header.pluginID})");
-	
+
 	// ../plugins/<ID>/manual --> GET the manual of the plugin with <ID>
 	rest("/config/plugins/{pluginID}/manual").get()
 		.to("bean:pluginApi?method=getPluginManual(${header.pluginID})");
@@ -259,6 +260,7 @@ public class RestApiRoutes extends RouteBuilder {
      * provides the documentation (as swagger file) for the rest api
      */
     private void provideDocumentation() {
+
 	from(component + ":http://" + host + ":" + port
 		+ "/config/api-docs?chunked=false&enableCORS=true").process(new Processor() {
 

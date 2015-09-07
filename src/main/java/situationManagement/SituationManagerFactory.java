@@ -35,10 +35,7 @@ public class SituationManagerFactory {
 	 */
 	private static SubscriptionHandler subscriptionHandler;
 
-	/**
-	 * The address of the srs.
-	 */
-	private static final String srsAddress = "http://192.168.209.200:10010";
+
 
 	/** The url of the srs (used for communication). */
 	private static URL srsUrl;
@@ -59,7 +56,7 @@ public class SituationManagerFactory {
 			/*
 			 * Init the components managed by the factory.
 			 */
-			srsUrl = new URL(srsAddress);
+			srsUrl = new URL(GlobalProperties.SRS_ADDRESS);
 
 			String ownIPAdress = InetAddress.getLocalHost().getHostAddress();
 
