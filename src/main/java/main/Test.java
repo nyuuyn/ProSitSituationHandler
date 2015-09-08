@@ -21,7 +21,7 @@ public class Test {
 	WsaSoapMessage message;
 
 	message = SoapRequestFactory.createFaultMessageWsa("http://lcoashta", "123",
-		"receiverNS.faults", "Unknownk error", SOAPConstants.SOAP_SENDER_FAULT);
+		"Unknownk error", SOAPConstants.SOAP_SENDER_FAULT);
 	prettyPrintMessage(message.getSoapMessage(), 3);
 	System.out.println(message.toString());
 

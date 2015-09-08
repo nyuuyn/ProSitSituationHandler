@@ -72,7 +72,7 @@ class RollbackHandler {
 		+ " " + endpoint.toString());
 
 	WsaSoapMessage rollbackRequest = SoapRequestFactory.createRollbackRequest(
-		endpoint.getEndpointURL(), surrogateId, originalMessage.getWsaActionNamespace());
+		endpoint.getEndpointURL(), surrogateId);
 	new MessageRouter(rollbackRequest).forwardRollbackRequest();
 
 	// TODO: Den fall abdecken, wenn der Endpunkt plötzlich nicht mehr
@@ -128,7 +128,7 @@ class RollbackHandler {
 		: originalMessage.getFaultCorrelationId();
 	WsaSoapMessage errorMessage = SoapRequestFactory.createFaultMessageWsa(
 		originalMessage.getWsaFaultTo().toString(), correlationId,
-		originalMessage.getWsaActionNamespace(), errorText,
+		 errorText,
 		SOAPConstants.SOAP_SENDER_FAULT);
 	
 

@@ -54,6 +54,11 @@ public class SoapRequestFactory {
     private static final String FAULT_MESSAGE_NS_PREFIX = "flt";
 
     /**
+     * The namespace used for operations defined by the situation handler.
+     */
+    private static final String SITUATION_HANDLER_OPERATION_NS = "situationHandler";
+
+    /**
      * Creates a new rollback request that relates to a certain message. Sets
      * all required WSA headers.
      *
@@ -62,13 +67,9 @@ public class SoapRequestFactory {
      * @param relatedMessageId
      *            the id of the related message. The rollback request will
      *            relate to this id.
-     * @param recipentNS
-     *            the namespace of the recipent in a form that can be used for
-     *            the soap action, i.e. the prefix for the soap action.
      * @return the rollback request
      */
-    public static WsaSoapMessage createRollbackRequest(String receiver, String relatedMessageId,
-	    String recipentNS) {
+    public static WsaSoapMessage createRollbackRequest(String receiver, String relatedMessageId) {
 	try {
 	    SOAPMessage msg = MessageFactory.newInstance().createMessage();
 	    SOAPPart part = msg.getSOAPPart();
@@ -84,12 +85,7 @@ public class SoapRequestFactory {
 
 	    addWsaHeaders(envelope, receiver, true, relatedMessageId,
 		    SoapConstants.RELATIONSHIP_TYPE_ROLLBACK, replyToAddress,
-		    recipentNS + "/" + ROLLBACK_START_OPERATION);
-
-	    // TODO: Bei der Action muss der komplette Namespace stehen!
-	    // (genauso wie vermutlich noch in der SOAP Nachricht selbst eine
-	    // Deklaration des NS nötig ist. Den NS kann man vermutlich aus der
-	    // originalen Request Rausparsen!)
+		    SITUATION_HANDLER_OPERATION_NS + "/" + ROLLBACK_START_OPERATION);
 
 	    // body
 	    SOAPBody body = envelope.getBody();
@@ -121,9 +117,6 @@ public class SoapRequestFactory {
      *            the receiver of the fault message
      * @param relatedMessageId
      *            the id of the message this fault relates to
-     * @param receiverNS
-     *            the namespace of the receiver that is used to provide the
-     *            fault operation
      * @param errorMessage
      *            the error message
      * @param faultCode
@@ -135,7 +128,7 @@ public class SoapRequestFactory {
      * @see SOAPConstants
      */
     public static WsaSoapMessage createFaultMessageWsa(String receiver, String relatedMessageId,
-	    String receiverNS, String errorMessage, QName faultCode) {
+	    String errorMessage, QName faultCode) {
 	SOAPMessage msg;
 	try {
 	    msg = MessageFactory.newInstance().createMessage();
@@ -144,11 +137,9 @@ public class SoapRequestFactory {
 
 	    envelope.addNamespaceDeclaration(FAULT_MESSAGE_NS_PREFIX, FAULT_MESSAGE_NS);
 
-	    // TODO: Momentan passt das mit Action eigentlich nicht, das
-	    // funktioniert nur wegen der Correlation!
 	    addWsaHeaders(envelope, receiver, true, relatedMessageId,
 		    SoapConstants.RELATIONSHIP_TYPE_RESPONSE, SoapConstants.NO_REPLY_URI,
-		    FAULT_OPERATION_NAME);
+		    SITUATION_HANDLER_OPERATION_NS + "/" + FAULT_OPERATION_NAME);
 
 	    // add body
 	    SOAPBody body = envelope.getBody();

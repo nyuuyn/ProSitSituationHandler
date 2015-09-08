@@ -43,14 +43,6 @@ public class WsaSoapMessage {
     /** The namespace (of the operation). */
     private String namespace = null;
 
-    /**
-     * The namespace/prefix of wsa:action. For example when wsa:action =
-     * "situationHandler.bpelDemo.targetWorkflow1Artifacts/startRollback", the
-     * this field will be equal to
-     * "situationHandler.bpelDemo.targetWorkflow1Artifacts".
-     */
-    private String wsaActionNamespace = null;
-
     /** The value of the wsa:messageId header. */
     private String wsaMessageID = null;
 
@@ -122,7 +114,6 @@ public class WsaSoapMessage {
 
 	    this.soapMessage = MessageFactory.newInstance().createMessage(null, inputStream);
 	    parseWsaHeaders();
-	    parseWsaActionNS();
 	    parseActorSpecificHeaders();
 	    setRollbackResponse();
 	    setRollbackRequest();
@@ -383,21 +374,6 @@ public class WsaSoapMessage {
 	}
     }
 
-    private void parseWsaActionNS() {
-	if (wsaAction != null) {
-	    String[] parts = wsaAction.split("/");
-	    StringBuilder prefix = new StringBuilder();
-	    // add all elements except the last (which is considererd to be the
-	    // operation name)
-	    for (int i = 0; i < parts.length - 1; i++) {
-		prefix.append(parts[i]);
-		// TODO: DIe slashes sollte man eigentlich wieder einfügen!
-		// (Sonst werden Namespaces zerstört, die slashes haben!)
-	    }
-	    wsaActionNamespace = prefix.toString();
-	}
-    }
-
     /**
      * Sets the value of the address element of the wsa:ReplyTo header to the
      * specified value.
@@ -652,19 +628,6 @@ public class WsaSoapMessage {
     }
 
     /**
-     * 
-     * Get the wsa:Action namespace.
-     * 
-     * @return The namespace/prefix of wsa:action. For example when wsa:action =
-     *         "situationHandler.bpelDemo.targetWorkflow1Artifacts/startRollback",
-     *         the this field will be equal to
-     *         "situationHandler.bpelDemo.targetWorkflow1Artifacts".
-     */
-    public String getWsaActionNamespace() {
-	return wsaActionNamespace;
-    }
-
-    /**
      * Gets the max retries. If this message is a request for a workflow
      * operation, {@code maxRetries} states the maximum number of retries when a
      * rollback is required due to situation change.
@@ -687,11 +650,11 @@ public class WsaSoapMessage {
     @Override
     public String toString() {
 	return "WsaSoapMessage [operationName=" + operationName + ", namespace=" + namespace
-		+ ", wsaActionNamespace=" + wsaActionNamespace + ", wsaMessageID=" + wsaMessageID
-		+ ", wsaReplyTo=" + wsaReplyTo + ", wsaRelationshipType=" + wsaRelationshipType
-		+ ", wsaTo=" + wsaTo + ", wsaAction=" + wsaAction + ", wsaRelatesTo=" + wsaRelatesTo
-		+ ", wsaFaultTo=" + wsaFaultTo + ", rollbackResponse=" + rollbackResponse
-		+ ", rollbackRequest=" + rollbackRequest + ", rollbackResult=" + rollbackResult
+		+ ", wsaMessageID=" + wsaMessageID + ", wsaReplyTo=" + wsaReplyTo
+		+ ", wsaRelationshipType=" + wsaRelationshipType + ", wsaTo=" + wsaTo
+		+ ", wsaAction=" + wsaAction + ", wsaRelatesTo=" + wsaRelatesTo + ", wsaFaultTo="
+		+ wsaFaultTo + ", rollbackResponse=" + rollbackResponse + ", rollbackRequest="
+		+ rollbackRequest + ", rollbackResult=" + rollbackResult
 		+ ", relatedRollbackRequestId=" + relatedRollbackRequestId + ", maxRetries="
 		+ maxRetries + "]";
     }
@@ -706,8 +669,6 @@ public class WsaSoapMessage {
 	return "WsaSoapMessage ["
 		+ (operationName != null ? "operationName=" + operationName + ", " : "")
 		+ (namespace != null ? "namespace=" + namespace + ", " : "")
-		+ (wsaActionNamespace != null ? "wsaActionNamespace=" + wsaActionNamespace + ", "
-			: "")
 		+ (wsaMessageID != null ? "wsaMessageID=" + wsaMessageID + ", " : "")
 		+ (wsaReplyTo != null ? "wsaReplyTo=" + wsaReplyTo + ", " : "")
 		+ (wsaRelationshipType != null ? "wsaRelationshipType=" + wsaRelationshipType + ", "

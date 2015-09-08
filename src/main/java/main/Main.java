@@ -69,7 +69,6 @@ public class Main {
 
 	try {
 	    // add routes
-
 	    context.addRoutes(
 		    new SituationHandlerRouteBuilder("0.0.0.0", GlobalProperties.NETWORK_PORT));
 
