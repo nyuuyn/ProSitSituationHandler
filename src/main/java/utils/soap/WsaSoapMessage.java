@@ -12,6 +12,7 @@ import java.util.LinkedList;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.MessageFactory;
+import javax.xml.soap.SOAPBody;
 import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPHeader;
@@ -141,17 +142,18 @@ public class WsaSoapMessage {
     private void parseOperationName() throws SOAPException {
 	String qualifiedOperation;
 
+	SOAPBody body = soapMessage.getSOAPPart().getEnvelope().getBody();
+	
 	// look for the element that represents the operation (there might be
 	// empty text elements)
-	NodeList operations = soapMessage.getSOAPPart().getEnvelope().getBody().getChildNodes();
+	NodeList topLevelElements = body.getChildNodes();
 
 	Node operationNode = null;
-	for (int i = 0; i < operations.getLength(); i++) {
-	    operationNode = operations.item(i);
+	for (int i = 0; i < topLevelElements.getLength(); i++) {
+	    operationNode = topLevelElements.item(i);
 	    if (operationNode.getNodeType() == Node.ELEMENT_NODE) {
 		break; // operation element found
 	    }
-
 	}
 
 	qualifiedOperation = operationNode.getNodeName();
@@ -160,7 +162,9 @@ public class WsaSoapMessage {
 	    this.operationName = temp[0];
 	} else if (temp.length == 2) {// namespace specified
 	    this.operationName = temp[1];
-	    this.namespace = temp[0];
+	    //parse namespaceprefix and get uri
+	    String namespacePrefix = temp[0];
+	    this.namespace = body.getNamespaceURI(namespacePrefix);
 	} else {// invalid operation
 	    throw new SOAPException("Invalid operation.");
 	}
@@ -444,10 +448,10 @@ public class WsaSoapMessage {
 		    return true;
 		}
 	    }
-	} catch (SOAPException e){
+	} catch (SOAPException e) {
 	    logger.error("Error setting header: " + headerName, e);
 	}
-	
+
 	return false;
     }
 

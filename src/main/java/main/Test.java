@@ -3,7 +3,7 @@ package main;
 import java.io.StringReader;
 import java.io.StringWriter;
 
-import javax.xml.soap.SOAPConstants;
+import javax.xml.soap.SOAPException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -11,7 +11,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-import utils.soap.SoapRequestFactory;
 import utils.soap.WsaSoapMessage;
 
 public class Test {
@@ -20,11 +19,15 @@ public class Test {
 
 	WsaSoapMessage message;
 
-	message = SoapRequestFactory.createFaultMessageWsa("http://lcoashta", "123",
-		"Unknownk error", SOAPConstants.SOAP_SENDER_FAULT);
-	prettyPrintMessage(message.getSoapMessage(), 3);
-	System.out.println(message.toString());
-
+	try {
+	    message = new WsaSoapMessage("<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:sit=\"situationHandler.bpelDemo.Common\">\r\n   <soapenv:Header/>\r\n   <soapenv:Body>\r\n      <sit:doSomething>\r\n         <sit:in>?</sit:in>\r\n      </sit:doSomething>\r\n   </soapenv:Body>\r\n</soapenv:Envelope>");
+	System.out.println("Message: " + message.toString());
+	} catch (SOAPException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	}
+	
+	
     }
 
     private static void prettyPrintMessage(String message, int indent) {
