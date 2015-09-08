@@ -31,7 +31,7 @@ public class SoapProcessor implements Processor {
     public void process(Exchange exchange) throws Exception {
 
 	String body = exchange.getIn().getBody(String.class);
-	logger.trace("Received Message:\n" + XMLPrinter.getPrettyXMLString(body, 2));
+	logger.debug("Received Message:\n" + XMLPrinter.getPrettyXMLString(body, 2));
 	WsaSoapMessage wsaSoapMessage;
 
 	try {

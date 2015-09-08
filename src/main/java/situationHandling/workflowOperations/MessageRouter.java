@@ -250,7 +250,7 @@ class MessageRouter {
 
 	Map<String, String> results = null;
 
-	logger.trace("Sending message:\n" + XMLPrinter.getPrettyXMLString(payload, 2));
+	logger.debug("Sending message:\n" + XMLPrinter.getPrettyXMLString(payload, 2));
 
 	try {
 	    results = EXECUTOR_SERVICE.submit(
