@@ -23,6 +23,7 @@ import pluginManagement.PluginManager;
 import pluginManagement.PluginManagerFactory;
 import situationHandler.plugin.PluginParams;
 import utils.soap.WsaSoapMessage;
+import utils.soap.XMLPrinter;
 
 /**
  * The Class MessageRouter is used to forward different requests and answers.
@@ -249,7 +250,7 @@ class MessageRouter {
 
 	Map<String, String> results = null;
 
-	System.out.println("Sending message:\n" + payload);
+	logger.trace("Sending message:\n" + XMLPrinter.getPrettyXMLString(payload, 2));
 
 	try {
 	    results = EXECUTOR_SERVICE.submit(

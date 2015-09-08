@@ -1,19 +1,11 @@
 package utils.soap;
 
-import java.io.StringReader;
-import java.io.StringWriter;
-
 import javax.xml.soap.SOAPConstants;
 import javax.xml.soap.SOAPException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.apache.log4j.Logger;
 
 /**
  * The Class SoapProcessor can be used as processor on a camel route and checks
@@ -28,6 +20,8 @@ import org.apache.camel.Processor;
  */
 public class SoapProcessor implements Processor {
 
+    private static Logger logger = Logger.getLogger(SoapProcessor.class);
+
     /*
      * (non-Javadoc)
      * 
@@ -36,11 +30,8 @@ public class SoapProcessor implements Processor {
     @Override
     public void process(Exchange exchange) throws Exception {
 
-	// System.out.println("Received message Headers:\n" +
-	// exchange.getIn().getHeaders().toString());
-
 	String body = exchange.getIn().getBody(String.class);
-	prettyPrintMessage(body, 2);
+	logger.trace("Received Message:\n" + XMLPrinter.getPrettyXMLString(body, 2));
 	WsaSoapMessage wsaSoapMessage;
 
 	try {
@@ -57,27 +48,4 @@ public class SoapProcessor implements Processor {
 
     }
 
-    /**
-     * Helper mehtod to pretty print xml.
-     * 
-     * @param message
-     *            the xml message as string
-     * @param indent
-     *            the number of indent spaces
-     */
-    private void prettyPrintMessage(String message, int indent) {
-	try {
-	    Source xmlInput = new StreamSource(new StringReader(message));
-	    StringWriter stringWriter = new StringWriter();
-	    StreamResult xmlOutput = new StreamResult(stringWriter);
-	    TransformerFactory transformerFactory = TransformerFactory.newInstance();
-	    transformerFactory.setAttribute("indent-number", indent);
-	    Transformer transformer = transformerFactory.newTransformer();
-	    transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-	    transformer.transform(xmlInput, xmlOutput);
-	    System.out.println("Received message:\n" + xmlOutput.getWriter().toString());
-	} catch (Exception e) {
-	    e.printStackTrace();
-	}
-    }
 }
