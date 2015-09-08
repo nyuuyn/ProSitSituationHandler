@@ -3,12 +3,14 @@ package situationHandling.workflowOperations;
 import java.util.List;
 
 import javax.xml.soap.SOAPConstants;
+import javax.xml.soap.SOAPException;
 
 import org.apache.log4j.Logger;
 
 import situationHandling.storage.StorageAccessFactory;
 import situationHandling.storage.datatypes.Endpoint;
 import situationHandling.storage.datatypes.Situation;
+import utils.soap.RollbackResponse;
 import utils.soap.SoapRequestFactory;
 import utils.soap.WsaSoapMessage;
 
@@ -71,8 +73,8 @@ class RollbackHandler {
 	logger.debug("Initiating Rollback number " + rollbackCount + ": Message " + surrogateId
 		+ " " + endpoint.toString());
 
-	WsaSoapMessage rollbackRequest = SoapRequestFactory.createRollbackRequest(
-		endpoint.getEndpointURL(), surrogateId);
+	WsaSoapMessage rollbackRequest = SoapRequestFactory
+		.createRollbackRequest(endpoint.getEndpointURL(), surrogateId);
 	new MessageRouter(rollbackRequest).forwardRollbackRequest();
 
 	// TODO: Den fall abdecken, wenn der Endpunkt plötzlich nicht mehr
@@ -90,8 +92,13 @@ class RollbackHandler {
      *            the answer
      */
     void onRollbackCompleted(WsaSoapMessage rollbackAnswer) {
-	if (rollbackAnswer.getRollbackResult()) {// rollback success
-
+	RollbackResponse responseMessage = null;
+	try {
+	    responseMessage = new RollbackResponse(rollbackAnswer);
+	} catch (SOAPException e) {
+	    rollbackFailed();
+	}
+	if (responseMessage.getRollbackResult()) {// rollback success
 	    logger.debug("Rollback completed: Message " + surrogateId + " " + endpoint.toString());
 	    if (rollbackCount > maxRollbacks) {
 		String resultMessage = "Maximum number of retries reached for: "
@@ -106,13 +113,18 @@ class RollbackHandler {
 			.handleOperation(originalMessage, this);
 	    }
 	} else {// rollback failed
-	    String resultMessage = "Problems occured due to situation change. Tried rollback, but the endpoint failed in the process. "
-		    + endpoint.toString();
-	    sendRollbackFailedMessage(resultMessage);
-	    logger.info(resultMessage);
-	    StorageAccessFactory.getHistoryAccess().appendWorkflowRollbackAnswer(endpoint, false,
-		    resultMessage);
+	    rollbackFailed();
 	}
+    }
+    
+    private void rollbackFailed() {
+	String resultMessage = "Problems occured due to situation change. Tried rollback, but the endpoint failed in the process. "
+		+ endpoint.toString();
+	sendRollbackFailedMessage(resultMessage);
+	logger.info(resultMessage);
+	StorageAccessFactory.getHistoryAccess().appendWorkflowRollbackAnswer(endpoint, false,
+		resultMessage);
+	return;
     }
 
     /**
@@ -123,14 +135,12 @@ class RollbackHandler {
      *            the rollback failed.
      */
     private void sendRollbackFailedMessage(String errorText) {
-	//use the correlation id if specified or the message id else
-	String correlationId = originalMessage.getFaultCorrelationId() == null ? originalMessage.getWsaMessageID()
-		: originalMessage.getFaultCorrelationId();
+	// use the correlation id if specified or the message id else
+	String correlationId = originalMessage.getFaultCorrelationId() == null
+		? originalMessage.getWsaMessageID() : originalMessage.getFaultCorrelationId();
 	WsaSoapMessage errorMessage = SoapRequestFactory.createFaultMessageWsa(
-		originalMessage.getWsaFaultTo().toString(), correlationId,
-		 errorText,
+		originalMessage.getWsaFaultTo().toString(), correlationId, errorText,
 		SOAPConstants.SOAP_SENDER_FAULT);
-	
 
 	new MessageRouter(errorMessage).forwardFaultMessage(surrogateId);
     }

@@ -142,7 +142,7 @@ class RollbackManager {
 
     /**
      * This method must be called when an answer for a rollback or a regular
-     * answer arrives. It does the cleanup for still existing handler or
+     * answer arrives. It does the cleanup for still existing handlers or
      * initiates the handling of the request.
      * <p>
      * Furthermore, it determines if the answer was a rollback answer or a
@@ -160,14 +160,14 @@ class RollbackManager {
 
 	// check if there is a running rollback handler for this message
 	RollbackHandler handler = runningRollbacks.remove(answerMessage.getWsaRelatesTo());
-	if (handler == null) {
+	if (handler == null) {// in case that this is not a rollback response
 	    // the rollbackhandler that still exists for this message must be
 	    // removed!
 	    removeRollbackHandler(answerMessage.getWsaRelatesTo());
 	    printExistingRollbackHandlers();
 	    printRunningRollbacks();
 	    return false;
-	} else {
+	} else {//in case this is a rollback response
 	    logger.debug("Received rollback answer:" + answerMessage.toString());
 	    // in case it is a rollback answer, do the appropriate handling
 	    handler.onRollbackCompleted(answerMessage);

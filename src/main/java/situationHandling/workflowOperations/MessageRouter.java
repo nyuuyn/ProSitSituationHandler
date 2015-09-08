@@ -71,7 +71,7 @@ class MessageRouter {
      */
     MessageRouter(WsaSoapMessage wsaSoapMessage) {
 	try {
-	    this.wsaSoapMessage = new WsaSoapMessage(wsaSoapMessage.getSoapMessage());
+	    this.wsaSoapMessage = new WsaSoapMessage(wsaSoapMessage.getSoapMessageAsString());
 	} catch (SOAPException e) {
 	    logger.error("Invalid soap message submitted to router", e);
 	}
@@ -113,7 +113,7 @@ class MessageRouter {
 	headers.put("Content-Type", "text/xml");
 
 	// send message
-	if (sendMessage(receiverUrl, wsaSoapMessage.getSoapMessage(), headers)) {
+	if (sendMessage(receiverUrl, wsaSoapMessage.getSoapMessageAsString(), headers)) {
 	    routingTable.addReplyAddress(originalId, answerRecipent);
 	    routingTable.addSurrogateMessageId(originalId, surrogate.toString());
 	    routingTable.printRoutingTable();
@@ -145,7 +145,7 @@ class MessageRouter {
 
 	routingTable.printRoutingTable();
 
-	return sendMessage(receiverUrl, wsaSoapMessage.getSoapMessage(), headers);
+	return sendMessage(receiverUrl, wsaSoapMessage.getSoapMessageAsString(), headers);
     }
 
     /**
@@ -186,7 +186,7 @@ class MessageRouter {
 	routingTable.removeSurrogateId(surrogateId);
 	routingTable.printRoutingTable();
 
-	return sendMessage(receiver, wsaSoapMessage.getSoapMessage(), headers);
+	return sendMessage(receiver, wsaSoapMessage.getSoapMessageAsString(), headers);
     }
 
     /**
@@ -213,7 +213,7 @@ class MessageRouter {
 	    headers.put("SOAPAction", wsaSoapMessage.getWsaAction());
 	}
 
-	if (!sendMessage(wsaSoapMessage.getWsaTo(), wsaSoapMessage.getSoapMessage(), headers)) {
+	if (!sendMessage(wsaSoapMessage.getWsaTo(), wsaSoapMessage.getSoapMessageAsString(), headers)) {
 	    logger.error("Error sending Fault message...");
 	}
     }

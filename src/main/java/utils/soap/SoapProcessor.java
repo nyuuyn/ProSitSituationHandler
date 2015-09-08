@@ -40,7 +40,7 @@ public class SoapProcessor implements Processor {
 	} catch (SOAPException e) {
 	    WsaSoapMessage soapMessage = SoapRequestFactory.createFaultMessage(
 		    "Invalid SOAP Message. " + e.getMessage(), SOAPConstants.SOAP_SENDER_FAULT);
-	    exchange.getIn().setBody(soapMessage.getSoapMessage());
+	    exchange.getIn().setBody(soapMessage.getSoapMessageAsString());
 	    exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 400);
 	    // stop route
 	    exchange.setProperty(Exchange.ROUTE_STOP, Boolean.TRUE);

@@ -13,7 +13,6 @@ import java.util.LinkedList;
 import javax.xml.namespace.QName;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPBody;
-import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPHeader;
 import javax.xml.soap.SOAPHeaderElement;
@@ -73,23 +72,8 @@ public class WsaSoapMessage {
      */
     private String faultCorrelationId = null;
 
-    /** States whether this message is a response to a rollback or not. */
-    private boolean rollbackResponse = false;
-
     /** States whether this message is a rollback request or not */
     private boolean rollbackRequest = false;
-
-    /**
-     * 
-     * The result of the rollback. True, if rollback successful
-     */
-    private boolean rollbackResult = false;
-
-    /**
-     * Contains the id of the message the rollback request/response is related
-     * to.
-     */
-    private String relatedRollbackRequestId = null;
 
     /**
      * If this message is a request for a workflow operation, {@code maxRetries}
@@ -112,17 +96,11 @@ public class WsaSoapMessage {
 	InputStream inputStream = null;
 	try {
 	    inputStream = new ByteArrayInputStream(soapString.getBytes());
-
 	    this.soapMessage = MessageFactory.newInstance().createMessage(null, inputStream);
 	    parseWsaHeaders();
 	    parseActorSpecificHeaders();
-	    setRollbackResponse();
 	    setRollbackRequest();
 	    parseOperationName();
-	    if (rollbackResponse) {
-		parseRollbackResult();
-	    }
-
 	    inputStream.close();
 	} catch (SOAPException | IOException e) {
 	    throw new SOAPException(e);
@@ -143,7 +121,7 @@ public class WsaSoapMessage {
 	String qualifiedOperation;
 
 	SOAPBody body = soapMessage.getSOAPPart().getEnvelope().getBody();
-	
+
 	// look for the element that represents the operation (there might be
 	// empty text elements)
 	NodeList topLevelElements = body.getChildNodes();
@@ -162,45 +140,11 @@ public class WsaSoapMessage {
 	    this.operationName = temp[0];
 	} else if (temp.length == 2) {// namespace specified
 	    this.operationName = temp[1];
-	    //parse namespaceprefix and get uri
+	    // parse namespaceprefix and get uri
 	    String namespacePrefix = temp[0];
 	    this.namespace = body.getNamespaceURI(namespacePrefix);
 	} else {// invalid operation
 	    throw new SOAPException("Invalid operation.");
-	}
-
-    }
-
-    /**
-     * Parses the result of a rollback operation. Use only when the message is
-     * the response message to a rollback message.
-     * 
-     * @throws SOAPException
-     *             invalid soap message
-     */
-    private void parseRollbackResult() throws SOAPException {
-	NodeList nl = soapMessage.getSOAPPart().getEnvelope().getBody().getElementsByTagNameNS(
-		SoapConstants.ROLLBACK_MESSAGE_NAMESPACE, SoapConstants.ROLLBACK_RESPONSE_ELEMENT);
-	if (nl == null) {
-	    throw new SOAPException();
-	}
-
-	SOAPElement testEl = (SOAPElement) nl.item(0);
-
-	@SuppressWarnings("rawtypes")
-	Iterator it = testEl.getChildElements();
-	while (it.hasNext()) {
-	    Object next = it.next();
-	    if (next instanceof SOAPElement) {
-		SOAPElement childEL = (SOAPElement) next;
-		if (childEL.getNodeName()
-			.equals(SoapConstants.ROLLBACK_MESSAGE_RELATED_ID_ELEMENT)) {
-		    relatedRollbackRequestId = childEL.getValue();
-		} else if (childEL.getNodeName()
-			.equals(SoapConstants.ROLLBACK_MESSAGE_SUCCESS_ELEMENT)) {
-		    rollbackResult = Boolean.parseBoolean(childEL.getValue());
-		}
-	    }
 	}
 
     }
@@ -326,17 +270,6 @@ public class WsaSoapMessage {
     }
 
     /**
-     * Sets the rollback response value to true, if the relationshipType of the
-     * relatesTo header indicates that this is the response to a rollback.
-     */
-    private void setRollbackResponse() {
-	if (wsaRelationshipType != null
-		&& wsaRelationshipType.equals(SoapConstants.ROLLBACK_RESPONSE_RELATIONSHIP_TYPE)) {
-	    rollbackResponse = true;
-	}
-    }
-
-    /**
      * Sets the rollback request value to true, if the relationshipType of the
      * relatesTo header indicates that this is a rollback request.
      */
@@ -458,9 +391,9 @@ public class WsaSoapMessage {
     /**
      * Gets the soap message.
      *
-     * @return the soap message
+     * @return the soap message as string
      */
-    public String getSoapMessage() {
+    public String getSoapMessageAsString() {
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
 	try {
 	    soapMessage.writeTo(out);
@@ -470,6 +403,10 @@ public class WsaSoapMessage {
 	    closeQuietly(out);
 	}
 	return out.toString();
+    }
+
+    public SOAPMessage getSoapMessage() {
+	return this.soapMessage;
     }
 
     /**
@@ -568,30 +505,12 @@ public class WsaSoapMessage {
     }
 
     /**
-     * Checks if the message is a rollback response.
-     *
-     * @return true, if it is a rollback response
-     */
-    public boolean isRollbackResponse() {
-	return rollbackResponse;
-    }
-
-    /**
      * Checks if the message is rollback request message.
      *
      * @return true, if it is a rollback request
      */
     public boolean isRollbackRequest() {
 	return rollbackRequest;
-    }
-
-    /**
-     * Gets the rollback result.
-     *
-     * @return the rollbackResult. True if the rollback was successful
-     */
-    public boolean getRollbackResult() {
-	return rollbackResult;
     }
 
     /**
@@ -605,25 +524,14 @@ public class WsaSoapMessage {
 	return maxRetries;
     }
 
-    /**
-     * 
-     * @return the id of the message the rollback request/response is related
-     *         to.
-     */
-    public String getRelatedRollbackRequestId() {
-	return relatedRollbackRequestId;
-    }
-
     @Override
     public String toString() {
 	return "WsaSoapMessage [operationName=" + operationName + ", namespace=" + namespace
 		+ ", wsaMessageID=" + wsaMessageID + ", wsaReplyTo=" + wsaReplyTo
 		+ ", wsaRelationshipType=" + wsaRelationshipType + ", wsaTo=" + wsaTo
 		+ ", wsaAction=" + wsaAction + ", wsaRelatesTo=" + wsaRelatesTo + ", wsaFaultTo="
-		+ wsaFaultTo + ", rollbackResponse=" + rollbackResponse + ", rollbackRequest="
-		+ rollbackRequest + ", rollbackResult=" + rollbackResult
-		+ ", relatedRollbackRequestId=" + relatedRollbackRequestId + ", maxRetries="
-		+ maxRetries + "]";
+		+ wsaFaultTo + ", rollbackRequest=" + rollbackRequest + ", maxRetries=" + maxRetries
+		+ "]";
     }
 
     /**
@@ -644,10 +552,7 @@ public class WsaSoapMessage {
 		+ (wsaAction != null ? "wsaAction=" + wsaAction + ", " : "")
 		+ (wsaRelatesTo != null ? "wsaRelatesTo=" + wsaRelatesTo + ", " : "")
 		+ (wsaFaultTo != null ? "wsaFaultTo=" + wsaFaultTo + ", " : "")
-		+ "rollbackResponse=" + rollbackResponse + ", rollbackRequest=" + rollbackRequest
-		+ ", rollbackResult=" + rollbackResult + ", "
-		+ (relatedRollbackRequestId != null
-			? "relatedRollbackRequestId=" + relatedRollbackRequestId + ", " : "")
+		+ ", rollbackRequest=" + rollbackRequest + ", "
 		+ (maxRetries != null ? "maxRetries=" + maxRetries : "") + "]";
     }
 
