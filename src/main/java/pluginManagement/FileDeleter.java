@@ -53,7 +53,7 @@ class FileDeleter {
 			public void run() {
 				deleteFiles();
 			}
-		}, 10, 120, TimeUnit.SECONDS);// TODO: Einheit auf Minuten setzen
+		}, 10, 300, TimeUnit.SECONDS);
 	}
 
 	/**

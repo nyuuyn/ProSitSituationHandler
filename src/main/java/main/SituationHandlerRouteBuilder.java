@@ -24,10 +24,6 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 		// Es muss wieder auf netty4-http gewechselt werden (außer da, wo die
 		// webapp geserved wird)
 
-		// TODO: Jetty Componente so gut?
-
-		// TODO: bei Workflow Requests auf Validität prüfen?
-
 		createRequestEndpoint();
 		createRequestAnswerEndpoint();
 		createSubscriptionEndpoint();
@@ -41,9 +37,6 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 		// Handler. Requests are answered immediately and sent
 		// to a queue for asynchronous processing. Several threads are used to
 		// consume from the queue.
-
-		// TODO: Standard Antwort ist hier Status Code 202:
-		// http://victor-ichim.blogspot.de/2011/09/asynchronous-web-services-with-ws.html
 		from(
 				"jetty:http://" + hostname + ":" + port
 						+ "/RequestEndpoint?matchOnUriPrefix=true")
@@ -71,7 +64,7 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 				// .to("stream:out")
 				.process(new SoapProcessor())
 				.to("seda:answeredRequests?waitForTaskToComplete=Never")
-				.transform(constant("Ok"));
+				.transform(constant("")).setHeader(Exchange.HTTP_RESPONSE_CODE, constant("202"));;
 
 		from(
 				"seda:answeredRequests?concurrentConsumers="
