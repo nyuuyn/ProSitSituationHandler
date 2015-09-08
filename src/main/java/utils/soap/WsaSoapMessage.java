@@ -121,10 +121,7 @@ public class WsaSoapMessage {
 	    if (rollbackResponse) {
 		parseRollbackResult();
 	    }
-	    // TODO: weg?
-	    // if (rollbackResponse || rollbackRequest) {
-	    // parseRollbackRelatedMessageId();
-	    // }
+
 	    inputStream.close();
 	} catch (SOAPException | IOException e) {
 	    throw new SOAPException(e);
@@ -204,33 +201,6 @@ public class WsaSoapMessage {
 
     }
 
-    /**
-     * TODO: weg? Determines the id of the message this rollback message relates
-     * to.
-     * 
-     * @throws SOAPException
-     *             invalid soap message
-     */
-    // private void parseRollbackRelatedMessageId() throws SOAPException {
-    // NodeList containingElement =
-    // soapMessage.getSOAPPart().getEnvelope().getBody()
-    // .getElementsByTagNameNS(SoapConstants.ROLLBACK_MESSAGE_NAMESPACE,
-    // SoapConstants.ROLLBACK_START_OPERATION_ELEMENT);
-    // if (containingElement == null) {
-    // throw new SOAPException();
-    // }
-    //
-    // NodeList nl = containingElement.item(0).getChildNodes();
-    // if (nl == null) {
-    // throw new SOAPException();
-    // }
-    // // TODO: Wird nicht funktionieren -->nullpointer; Wozu brauche ich die
-    // // Methode überhaupt?
-    //
-    // // only one element that contains a text node
-    // relatedRollbackRequestId =
-    // nl.item(0).getChildNodes().item(0).getNodeValue();
-    // }
 
     /**
      * Parses all wsa headers contained in the message.
