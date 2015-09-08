@@ -201,7 +201,6 @@ public class WsaSoapMessage {
 
     }
 
-
     /**
      * Parses all wsa headers contained in the message.
      *
@@ -439,23 +438,17 @@ public class WsaSoapMessage {
 	    Iterator it = sh.examineAllHeaderElements();
 	    while (it.hasNext()) {
 		SOAPHeaderElement she = (SOAPHeaderElement) it.next();
-		// String currentHeaderName = she.getTagName();
-		// if (currentHeaderName.equals(headerName)) {
 		if (she.getElementQName().getNamespaceURI().equals(SoapConstants.WSA_URI)
 			&& she.getElementQName().getLocalPart().equals(headerName)) {
 		    she.setValue(headerValue);
 		    return true;
 		}
 	    }
-	} catch (
-
-	SOAPException e)
-
-	{
+	} catch (SOAPException e){
 	    logger.error("Error setting header: " + headerName, e);
 	}
+	
 	return false;
-
     }
 
     /**
