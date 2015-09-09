@@ -162,16 +162,6 @@ class MessageRouter {
 	}
 	wsaSoapMessage.setWsaRelatesTo(originalId);
 
-	// get receiver
-	URL receiver = routingTable.getReplyAddress(originalId);
-	if (receiver == null) {
-	    logger.warn("No receiver found for message with id: " + originalId);
-	    return false;
-	}
-
-	// set receiver
-	wsaSoapMessage.setWsaTo(receiver);
-
 	// set soapAction header (if available)
 	HashMap<String, String> headers = new HashMap<>();
 	if (wsaSoapMessage.getWsaAction() != null) {
@@ -183,8 +173,17 @@ class MessageRouter {
 	routingTable.removeReplyEntry(originalId);
 	routingTable.removeSurrogateId(surrogateId);
 	routingTable.printRoutingTable();
-
-	return sendMessage(receiver, wsaSoapMessage.getSoapMessageAsString(), headers);
+	
+	// get receiver
+	URL receiver = routingTable.getReplyAddress(originalId);
+	if (receiver == null) {
+	    logger.warn("No receiver found for message with id: " + originalId);
+	    return false;
+	}else{
+	    // set receiver
+	    wsaSoapMessage.setWsaTo(receiver);
+	    return sendMessage(receiver, wsaSoapMessage.getSoapMessageAsString(), headers);
+	}
     }
 
     /**
