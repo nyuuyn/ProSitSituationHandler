@@ -14,7 +14,7 @@
 					</xsd:sequence>
 				</xsd:complexType>
 			</xsd:element>
-			<xsd:element name="RollbackResponseELement">
+			<xsd:element name="RollbackResponseElement">
 				<xsd:complexType>
 					<xsd:sequence>
 						<xsd:element name="RelatedRequestId" type="xsd:string" />
@@ -28,7 +28,7 @@
 		<wsdl:part element="sit:RollbackRequestElement" name="parameters" />
 	</wsdl:message>
 	<wsdl:message name="RollbackResponse">
-		<wsdl:part element="sit:RollbackResponseELement" name="parameters" />
+		<wsdl:part element="sit:RollbackResponseElement" name="parameters" />
 	</wsdl:message>
 
 

@@ -59,7 +59,7 @@ class SoapConstants {
     /**
      * The Element in a Rollback Result Message containing the response.
      */
-    static final String ROLLBACK_RESPONSE_ELEMENT = "RollbackResponseELement";
+    static final String ROLLBACK_RESPONSE_ELEMENT = "RollbackResponseElement";
 
     /**
      * The namespace that was used to define the rollback messages.
