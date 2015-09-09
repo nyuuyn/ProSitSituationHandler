@@ -100,7 +100,7 @@ public class RestApiRoutes extends RouteBuilder {
      * Basic setup of the rest routes
      */
     private void restSetup() {
-	// XXX: CORS Workaround. 
+	// XXX: CORS Workaround.
 	// set CORS Headers for option requests and max file size
 	from(component + ":http://" + host + ":" + port
 		+ "/config?matchOnUriPrefix=true&httpMethodRestrict=OPTIONS&chunkedMaxContentLength="
@@ -257,8 +257,8 @@ public class RestApiRoutes extends RouteBuilder {
      */
     private void provideDocumentation() {
 
-	from(component + ":http://" + host + ":" + port
-		+ "/config/api-docs?chunked=false&enableCORS=true").process(new Processor() {
+	from(component + ":http://" + host + ":" + port + "/config/api-docs?sessionSupport=true")
+		.process(new Processor() {
 
 		    @Override
 		    public void process(Exchange exchange) throws Exception {
@@ -266,9 +266,15 @@ public class RestApiRoutes extends RouteBuilder {
 			    swaggerDoc = IOUtils.toString(this.getClass().getClassLoader()
 				    .getResourceAsStream("swagger.json"));
 			}
+			exchange.getIn().removeHeader("Access-Control-Allow-Origin");
 			exchange.getIn().setBody(swaggerDoc);
 			exchange.getIn().setHeader("Content-Type", "application/json");
 			exchange.getIn().setHeader("connection", "close");
+			exchange.getIn().setHeader("Access-Control-Allow-Headers",
+				"Content-Type, api_key, Authorization");
+			exchange.getIn().setHeader("Access-Control-Allow-Origin", "*");
+			exchange.getIn().setHeader("Access-Control-Allow-Methods",
+				"GET, POST, DELETE, PUT");
 		    }
 		});
     }
