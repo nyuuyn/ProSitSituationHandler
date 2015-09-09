@@ -3,11 +3,11 @@ package situationManagement;
 import java.net.URL;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 
+import main.CamelUtil;
 import situationHandling.storage.datatypes.Situation;
 
 /**
@@ -49,7 +49,7 @@ class Subscription {
     /**
      * The Executor service to run the subscriber thread.
      */
-    private ExecutorService subscriberPool = Executors.newSingleThreadExecutor();
+    private ExecutorService subscriberPool = CamelUtil.getCamelExecutorService();
 
     /**
      * The result of the subscriber thread.
@@ -118,7 +118,7 @@ class Subscription {
      * Callback when the subscription was successfully created.
      */
     void onSubscriptionCreated() {
-	subscriberPool.shutdown();
+	//method seems obsolete
     }
 
     /**

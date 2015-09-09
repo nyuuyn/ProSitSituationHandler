@@ -6,11 +6,11 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 
+import main.CamelUtil;
 import pluginManagement.PluginManager;
 import pluginManagement.PluginManagerFactory;
 import situationHandler.plugin.PluginParams;
@@ -33,8 +33,7 @@ class NotificationComponentImpl implements NotificationComponent {
     private static final Logger logger = Logger.getLogger(NotificationComponentImpl.class);
 
     /** The thread executor. */
-    private static ExecutorService threadExecutor = Executors
-	    .newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+    private static ExecutorService threadExecutor = CamelUtil.getCamelExecutorService();
 
     /*
      * (non-Javadoc)
@@ -91,8 +90,6 @@ class NotificationComponentImpl implements NotificationComponent {
 
     @Override
     public void shutdown() {
-	threadExecutor.shutdown();
-	
     }
 
 }

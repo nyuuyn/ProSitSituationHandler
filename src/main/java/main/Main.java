@@ -37,6 +37,8 @@ public class Main {
 
 	context = new DefaultCamelContext();
 
+
+
 	// Uncomment this to debug http requests (using fiddler)
 	// context.getProperties().put("http.proxyHost", "localhost");
 	// context.getProperties().put("http.proxyPort", "8888");
@@ -74,6 +76,8 @@ public class Main {
 		    GlobalProperties.MAXIMUM_FILE_SIZE, "jetty"));
 	    CamelUtil.initProducerTemplate(context.createProducerTemplate());
 	    CamelUtil.initConsumerTemplate(context.createConsumerTemplate());
+	    CamelUtil.initExecutorService(context.getExecutorServiceManager().newFixedThreadPool(Main.class, "SitHandlerThread",
+		GlobalProperties.DEFAULT_THREAD_POOL_SIZE));
 	    context.start();
 	} catch (Exception e) {
 	    e.printStackTrace();
@@ -125,6 +129,5 @@ public class Main {
 	    }
 	}).start();
     }
-
 
 }

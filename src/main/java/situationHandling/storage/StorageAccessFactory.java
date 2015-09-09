@@ -1,7 +1,8 @@
 package situationHandling.storage;
 
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+
+import main.CamelUtil;
 
 /**
  * 
@@ -22,9 +23,10 @@ public class StorageAccessFactory {
 	 */
 	private static HibernateSession hibernateSession = new HibernateSession();
 
-	//TODO: Man koennte das Theading auch über Camel machen. Dazu ueber den Context Pools erstellen.
-	private static ExecutorService threadExecutor = Executors
-			.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+	/**
+	 * Used to execute threads.
+	 */
+	private static ExecutorService threadExecutor = CamelUtil.getCamelExecutorService();
 	
 
 	/**
@@ -67,7 +69,6 @@ public class StorageAccessFactory {
 	 */
 	public static void closeStorageAccess() {
 		hibernateSession.shutdown();
-		threadExecutor.shutdownNow();
 	}
 
 }

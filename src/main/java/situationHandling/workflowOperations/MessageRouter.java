@@ -11,14 +11,13 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import javax.xml.soap.SOAPException;
 
-import main.GlobalProperties;
-
 import org.apache.log4j.Logger;
 
+import main.CamelUtil;
+import main.GlobalProperties;
 import pluginManagement.PluginManager;
 import pluginManagement.PluginManagerFactory;
 import situationHandler.plugin.PluginParams;
@@ -57,8 +56,7 @@ class MessageRouter {
     /** The logger. */
     private static final Logger logger = Logger.getLogger(MessageRouter.class);
 
-    private static final ExecutorService EXECUTOR_SERVICE = Executors
-	    .newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+    private static final ExecutorService EXECUTOR_SERVICE = CamelUtil.getCamelExecutorService();
 
     /** The soap message to send. */
     private WsaSoapMessage wsaSoapMessage;
@@ -283,7 +281,6 @@ class MessageRouter {
      * Message Router Cleanup.
      */
     static void shutdown() {
-	EXECUTOR_SERVICE.shutdown();
     }
 
 }
