@@ -22,7 +22,6 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-//TODO: Diese Klasse ist eine Schande --> viel zu gross und universal...
 
 /**
  * The Class WsaSoapMessage is a wrapper class for soap messages. It provides
