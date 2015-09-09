@@ -60,11 +60,6 @@ public class Rule {
 	 */
 	@OneToMany(cascade = CascadeType.ALL)
 	@JoinColumn(name = "rule_id")
-	// TODO: mal prüfen ob dies Initalisierung gefahr frei entfernt werden kann.
-	// Wenn ja dann machen, könnte sonst nebenwirkungen geben, wenn das
-	// eigentlich "NUll" sein sollte (wobei es vermutlich relativ gefahrfrei
-	// geht, weil das höchstens bei einem Update wichtig wäre, und ein Update
-	// von Rule inkl Aktionen geht ja eh nicht...)
 	private List<Action> actions = new LinkedList<>();
 
 	/**

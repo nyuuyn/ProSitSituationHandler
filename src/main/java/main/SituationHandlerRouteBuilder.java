@@ -16,7 +16,7 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 
 	public void configure() {
 
-		// TODO: Hint für Komponente: Aktuell geht mit Jetty das CORS Zeug nicht
+		// XXX: Hint für Komponente: Aktuell geht mit Jetty das CORS Zeug nicht
 		// richtig. Das ist allerdings egal, solange ich die Web app ebenfall
 		// mit Jetty anbiete, da ich dann alles auf dem gleichen Port laufen
 		// lassen kann. Wenn ich die WebApp aus irgend einem Grund aber woanders

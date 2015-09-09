@@ -136,10 +136,8 @@ class RuleStorageAccessWithSubscribe implements RuleStorageAccess {
 		try {
 			boolean success = rsa.updateRuleSituation(ruleID, situation);
 			Situation oldSituation = oldRule.getSituation();
-			if (success && !oldSituation.equals(situation)) {// check
-																// subscriptions
-																// if successful
-																// update
+			// check if update successful and situation changed
+			if (success && !oldSituation.equals(situation)) {								// update
 				SituationManager situationManager = SituationManagerFactory
 						.getSituationManager();
 				situationManager.removeSubscription(oldSituation);

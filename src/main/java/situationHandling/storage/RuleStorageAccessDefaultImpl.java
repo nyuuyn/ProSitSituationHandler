@@ -359,8 +359,6 @@ class RuleStorageAccessDefaultImpl implements RuleStorageDatabase {
 	@Override
 	public boolean updateRuleSituation(int ruleID, Situation situation)
 			throws InvalidRuleException {
-		// TODO: Bin mir nicht sicher ob das hier so passt --> was wenn einer
-		// der Situation params null ist -->BÖSE (bzw. gibt exception)
 		logger.debug("Updating rule: " + ruleID + " to new Situation "
 				+ situation);
 		Session session = sessionFactory.openSession();
@@ -375,8 +373,8 @@ class RuleStorageAccessDefaultImpl implements RuleStorageDatabase {
 						+ " found. No rule updated.");
 				return false;
 			} else {
-				rule.setSituation(situation);
-				session.update(rule);
+			    rule.setSituation(situation);
+			    session.update(rule);
 			}
 			tx.commit();
 		} catch (JDBCException e) {
