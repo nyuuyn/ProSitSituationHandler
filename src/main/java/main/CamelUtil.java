@@ -4,8 +4,6 @@ import org.apache.camel.ConsumerTemplate;
 import org.apache.camel.ProducerTemplate;
 
 public class CamelUtil {
-
-	//TODO: Das ganze hier ist doch noch etwas unschön
 	
 	private static ProducerTemplate producerTemplate;
 	private static ConsumerTemplate consumerTemplate;

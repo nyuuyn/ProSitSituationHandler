@@ -111,12 +111,18 @@ class RollbackHandler {
 		// init handling
 		OperationHandlerFactory.getOperationHandlerWithRollback()
 			.handleOperation(originalMessage, this);
+		StorageAccessFactory.getHistoryAccess().appendWorkflowRollbackAnswer(endpoint,
+			true, "");
 	    }
 	} else {// rollback failed
 	    rollbackFailed();
 	}
     }
-    
+
+    /**
+     * Handles the case that a rollback failed (should usually not happen!)
+     * 
+     */
     private void rollbackFailed() {
 	String resultMessage = "Problems occured due to situation change. Tried rollback, but the endpoint failed in the process. "
 		+ endpoint.toString();
@@ -124,7 +130,6 @@ class RollbackHandler {
 	logger.info(resultMessage);
 	StorageAccessFactory.getHistoryAccess().appendWorkflowRollbackAnswer(endpoint, false,
 		resultMessage);
-	return;
     }
 
     /**

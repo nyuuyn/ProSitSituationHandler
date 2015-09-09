@@ -246,13 +246,6 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageDatabase {
 
 	logger.debug("Updating endpoint: " + endpointID);
 	Session session = sessionFactory.openSession();
-	// TODO: Das ist echt scheiße, wenn man über die API eine Request
-	// schickt und dort situationName setzt, anstatt situation.situationName
-	// (vor allem beim Update --> hier wird dann der Wert aus
-	// situation.situationName übernommen und nicht situationName.)
-	// Das gleiche gilt für RULE usw vermutlich auch :(
-	// Es ist eigentlich Aufgabe der API zu checken, dass da was valides
-	// reinkommt!
 	Transaction tx = null;
 	try {
 	    tx = session.beginTransaction();

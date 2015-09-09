@@ -118,12 +118,9 @@ public class RestApiRoutes extends RouteBuilder {
 		.componentProperty("chunkedMaxContentLength", String.valueOf(maxFileSize));
 
 	// base route
-	// TODO: Was ist mit den Consumes/Produces dinger?
-	rest("/config").description("Situation Handler RestAPI")
-		.consumes("application/json").produces("application/json").enableCORS(true);
+	rest("/config").description("Situation Handler RestAPI").consumes("application/json")
+		.produces("application/json").enableCORS(true);
     }
-
-
 
     /**
      * sets up the routes for the endpoint Api

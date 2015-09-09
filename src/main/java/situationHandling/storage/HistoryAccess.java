@@ -44,8 +44,6 @@ public class HistoryAccess {
     /**
      * Used to run asynchronous tasks
      * 
-     * TODO: Ist das mit dem Threading hier so sinnvoll, oder irgendeine Camel
-     * Methode benutzen?
      */
     private ExecutorService threadExectutor;
 

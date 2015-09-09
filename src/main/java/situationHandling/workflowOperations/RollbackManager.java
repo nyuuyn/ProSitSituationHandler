@@ -153,21 +153,23 @@ class RollbackManager {
      * @return true, if the answer was a rollback answer, false else
      */
     boolean onRollbackAnswered(WsaSoapMessage answerMessage) {
-	// TODO: Das könnte man auch anders machen: Die Identifikation bezieht
-	// sich auf die ID der Nachricht, auf die sich der Rollback bezieht. Das
-	// würde es unabhängig vom Header machen und man könnte (auch) über das
-	// Feld identfizieren.
-
 	// check if there is a running rollback handler for this message
 	RollbackHandler handler = runningRollbacks.remove(answerMessage.getWsaRelatesTo());
-	if (handler == null) {// in case that this is not a rollback response
+	if (handler == null) {// no running handler exists: not a rollback
+			      // response
 	    // the rollbackhandler that still exists for this message must be
 	    // removed!
-	    removeRollbackHandler(answerMessage.getWsaRelatesTo());
+	    RollbackHandler removedHandler = removeRollbackHandler(answerMessage.getWsaRelatesTo());
+	    if (removedHandler != null) {// create history entry
+		logger.debug("Received regular answer from endpoint: "
+			+ removedHandler.getEndpoint().toString());
+		StorageAccessFactory.getHistoryAccess()
+			.appendWorkflowOperationAnswer(removedHandler.getEndpoint());
+	    }
 	    printExistingRollbackHandlers();
 	    printRunningRollbacks();
 	    return false;
-	} else {//in case this is a rollback response
+	} else {// in case this is a rollback response
 	    logger.debug("Received rollback answer:" + answerMessage.toString());
 	    // in case it is a rollback answer, do the appropriate handling
 	    handler.onRollbackCompleted(answerMessage);
@@ -186,17 +188,22 @@ class RollbackManager {
      * 
      * @param messageId
      *            the id of the rollback message
+     * @return the {@code RollbackHandler} that was removed, or {@code Null} if
+     *         no handler exists..
      */
-    private synchronized void removeRollbackHandler(String messageId) {
+    private synchronized RollbackHandler removeRollbackHandler(String messageId) {
+	RollbackHandler existingHandler = null;
 	for (LinkedList<RollbackHandler> handlers : rollbackHandlers.values()) {
 	    Iterator<RollbackHandler> it = handlers.iterator();
 	    while (it.hasNext()) {
 		RollbackHandler currentHandler = it.next();
 		if (currentHandler.getSurrogateId().equals(messageId)) {
+		    existingHandler = currentHandler;
 		    it.remove();
 		}
 	    }
 	}
+	return existingHandler;
     }
 
     /**

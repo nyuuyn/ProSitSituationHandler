@@ -183,7 +183,10 @@ public class WsaSoapMessage {
 		    this.wsaTo = new URL(she.getValue());
 		    break;
 		case "ReplyTo":
-		    this.wsaReplyTo = parseWsaAddress(she.getChildNodes());
+		    URL address = parseWsaAddress(she.getChildNodes());
+		    if (address != null && !address.toString().equals(SoapConstants.NO_REPLY_URI)) {
+			this.wsaReplyTo = address;
+		    }
 		    break;
 		case "RelatesTo":
 		    this.wsaRelatesTo = she.getValue();
@@ -260,10 +263,7 @@ public class WsaSoapMessage {
 	    // only address is parsed. Prefix can be ignored
 	    // in this case
 	    if (current.getNodeName().endsWith("Address")) {
-		String parsedAddress = current.getChildNodes().item(0).getNodeValue();
-		if (!parsedAddress.equals(SoapConstants.NO_REPLY_URI)) {
-		    return new URL(current.getChildNodes().item(0).getNodeValue());
-		}
+		return new URL(current.getChildNodes().item(0).getNodeValue());
 	    }
 	}
 	return null;
