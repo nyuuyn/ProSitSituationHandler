@@ -1,7 +1,9 @@
 package situationHandling.workflowOperations;
 
 import java.net.URL;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -18,7 +20,6 @@ class RoutingTable {
     /** The logger. */
     private static final Logger logger = Logger.getLogger(RoutingTable.class);
 
-    // TODO: Ist bei diesen Maps eine synchronisierung notwendig?
 
     /**
      * Stores the reply addresses for workflow requests.
@@ -27,7 +28,7 @@ class RoutingTable {
      * <p>
      * &lt;Original-ID, Reply-Address&gt;
      */
-    private HashMap<String, URL> replyAddresses = new HashMap<>();
+    private Map<String, URL> replyAddresses = Collections.synchronizedMap(new HashMap<>());
 
     /**
      * Stores the original ids of the requests.
@@ -37,7 +38,7 @@ class RoutingTable {
      * <p>
      * &lt;surrogate, original&gt;
      */
-    private HashMap<String, String> surrogateTable = new HashMap<>();
+    private Map<String, String> surrogateTable = Collections.synchronizedMap(new HashMap<>());
 
     /**
      * Adds a new reply address to the table.

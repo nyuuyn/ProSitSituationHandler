@@ -100,8 +100,7 @@ public class RestApiRoutes extends RouteBuilder {
      * Basic setup of the rest routes
      */
     private void restSetup() {
-	// TODO: Workaround. Fix in Camel 15.3, siehe Link in Dropbox. Sollte
-	// dann vllt auch mit Jetty wieder gehn
+	// XXX: CORS Workaround. 
 	// set CORS Headers for option requests and max file size
 	from(component + ":http://" + host + ":" + port
 		+ "/config?matchOnUriPrefix=true&httpMethodRestrict=OPTIONS&chunkedMaxContentLength="

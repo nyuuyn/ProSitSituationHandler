@@ -126,10 +126,6 @@ public class HistoryAccess {
     }
 
     /**
-     * TODO: Das hier ist wohl eher gestrichen, weil man die Antwort nicht
-     * wirklich dem Endpunkt zuordnen kann und daher auch keinen vernüftigen
-     * History Eintrag hinkriegt.
-     * <p>
      * Append an workflow operation to the history. This method will create an
      * entry that states that the result of an workflow operation was received.
      *

@@ -76,10 +76,6 @@ class RollbackHandler {
 	WsaSoapMessage rollbackRequest = SoapRequestFactory
 		.createRollbackRequest(endpoint.getEndpointURL(), surrogateId);
 	new MessageRouter(rollbackRequest).forwardRollbackRequest();
-
-	// TODO: Den fall abdecken, wenn der Endpunkt plötzlich nicht mehr
-	// erreicht wird? (Wichtig: hier müsste man noch alle möglichen Router
-	// einträge usw löschen!)
 	return rollbackRequest.getWsaMessageID();
     }
 

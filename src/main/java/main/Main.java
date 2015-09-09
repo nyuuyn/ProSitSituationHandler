@@ -34,7 +34,6 @@ public class Main {
 
     public static void main(String[] args) {
 	startShutdownListener();
-	shutdownHandling();
 
 	context = new DefaultCamelContext();
 
@@ -57,8 +56,7 @@ public class Main {
 	ResourceHandler webapp = new ResourceHandler();
 
 	try {
-	    webapp.setBaseResource(Resource.newResource(new File(
-		    GlobalProperties.WEB_APP_PATH)));
+	    webapp.setBaseResource(Resource.newResource(new File(GlobalProperties.WEB_APP_PATH)));
 	} catch (MalformedURLException e1) {
 	    e1.printStackTrace();
 	} catch (IOException e1) {
@@ -87,18 +85,7 @@ public class Main {
 	SituationManagerFactory.getSituationManager().init();
     }
 
-    // Maybe for later use :)
-    private static void shutdownHandling() {
-	// Runtime.getRuntime().addShutdownHook(new Thread() {
-	// public void run() {
-	//
-	// }
-	// });
-    }
-
     private static void startShutdownListener() {
-	// TODO: Das hier schöner machen
-	// for shutdown
 	new Thread(new Runnable() {
 
 	    @Override
@@ -110,9 +97,6 @@ public class Main {
 			line = in.readLine();
 			if (line.equalsIgnoreCase("routes")) {
 			    System.out.println(context.createRouteStaticEndpointJson(null));
-			} else if (line.equalsIgnoreCase("endpoint")) {
-			    // System.out.println(context.explainEipJson("blubb",
-			    // true));
 			}
 		    }
 		    logger.info("Shutting Down..");
@@ -141,5 +125,6 @@ public class Main {
 	    }
 	}).start();
     }
+
 
 }
