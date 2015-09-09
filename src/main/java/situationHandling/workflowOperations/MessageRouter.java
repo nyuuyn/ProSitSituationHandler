@@ -169,17 +169,18 @@ class MessageRouter {
 	}
 	headers.put("Content-Type", "text/xml");
 
+	// get receiver
+	URL receiver = routingTable.getReplyAddress(originalId);
+	
 	// remove entries in routing table
 	routingTable.removeReplyEntry(originalId);
 	routingTable.removeSurrogateId(surrogateId);
 	routingTable.printRoutingTable();
-	
-	// get receiver
-	URL receiver = routingTable.getReplyAddress(originalId);
+
 	if (receiver == null) {
 	    logger.warn("No receiver found for message with id: " + originalId);
 	    return false;
-	}else{
+	} else {
 	    // set receiver
 	    wsaSoapMessage.setWsaTo(receiver);
 	    return sendMessage(receiver, wsaSoapMessage.getSoapMessageAsString(), headers);
@@ -210,7 +211,8 @@ class MessageRouter {
 	    headers.put("SOAPAction", wsaSoapMessage.getWsaAction());
 	}
 
-	if (!sendMessage(wsaSoapMessage.getWsaTo(), wsaSoapMessage.getSoapMessageAsString(), headers)) {
+	if (!sendMessage(wsaSoapMessage.getWsaTo(), wsaSoapMessage.getSoapMessageAsString(),
+		headers)) {
 	    logger.error("Error sending Fault message...");
 	}
     }
