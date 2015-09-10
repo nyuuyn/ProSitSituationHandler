@@ -100,7 +100,6 @@ public class RestApiRoutes extends RouteBuilder {
      * Basic setup of the rest routes
      */
     private void restSetup() {
-	// XXX: CORS Workaround.
 	// set CORS Headers for option requests and max file size
 	from(component + ":http://" + host + ":" + port
 		+ "/config?matchOnUriPrefix=true&httpMethodRestrict=OPTIONS&chunkedMaxContentLength="

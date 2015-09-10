@@ -15,15 +15,6 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 	}
 
 	public void configure() {
-
-		// XXX: Hint f¸r Komponente: Aktuell geht mit Jetty das CORS Zeug nicht
-		// richtig. Das ist allerdings egal, solange ich die Web app ebenfall
-		// mit Jetty anbiete, da ich dann alles auf dem gleichen Port laufen
-		// lassen kann. Wenn ich die WebApp aus irgend einem Grund aber woanders
-		// deployen will, muss ich da nen anderen Port nehmen --> CORS nˆtig -->
-		// Es muss wieder auf netty4-http gewechselt werden (auﬂer da, wo die
-		// webapp geserved wird)
-
 		createRequestEndpoint();
 		createRequestAnswerEndpoint();
 		createSubscriptionEndpoint();
