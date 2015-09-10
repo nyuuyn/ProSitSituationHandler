@@ -958,7 +958,7 @@
     },
     "definitions": {
         "Endpoint": {
-            "description": "Represents an endpoint for workflow operations. Note that there are two ways to define an operation:either with a combination of namespace and operation name (as stated in the soap message) or with the wsa:Action header. Latter is the prefered variant. In case namespace and operation name are used, the qualifier is the namespace. In case the wsa:Action header is used, the qualifier must be "wsa:Action" and the operation name is the url or whatever is defined by the service.",
+            "description": "Represents an endpoint for workflow operations. Note that there are two ways to define an operation:either with a combination of namespace and operation name (as stated in the soap message) or with the wsa:Action header. Latter is the prefered variant. In case namespace and operation name are used, the qualifier is the namespace. In case the wsa:Action header is used, the qualifier must be \"wsa:Action\" and the operation name is the url or whatever is defined by the service.",
             "properties": {
                 "endpointID": {
                     "type": "integer",

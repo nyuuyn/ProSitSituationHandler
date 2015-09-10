@@ -257,7 +257,7 @@ public class RestApiRoutes extends RouteBuilder {
      */
     private void provideDocumentation() {
 
-	from(component + ":http://" + host + ":" + port + "/config/api-docs?sessionSupport=true")
+	from(component + ":http://" + host + ":" + (port) + "/config/swagger.json")
 		.process(new Processor() {
 
 		    @Override
@@ -268,10 +268,10 @@ public class RestApiRoutes extends RouteBuilder {
 			}
 			exchange.getIn().removeHeader("Access-Control-Allow-Origin");
 			exchange.getIn().setBody(swaggerDoc);
-			exchange.getIn().setHeader("Content-Type", "application/json");
+			exchange.getIn().setHeader("Content-Type", "application/json;charset=UTF-8");
 			exchange.getIn().setHeader("connection", "close");
 			exchange.getIn().setHeader("Access-Control-Allow-Headers",
-				"Content-Type, api_key, Authorization");
+				"Content-Type, api_key, Authorization, Origin");
 			exchange.getIn().setHeader("Access-Control-Allow-Origin", "*");
 			exchange.getIn().setHeader("Access-Control-Allow-Methods",
 				"GET, POST, DELETE, PUT");
