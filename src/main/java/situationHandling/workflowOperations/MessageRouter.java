@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 
@@ -171,7 +172,7 @@ class MessageRouter {
 
 	// get receiver
 	URL receiver = routingTable.getReplyAddress(originalId);
-	
+
 	// remove entries in routing table
 	routingTable.removeReplyEntry(originalId);
 	routingTable.removeSurrogateId(surrogateId);
@@ -252,9 +253,14 @@ class MessageRouter {
 	logger.debug("Sending message:\n" + XMLPrinter.getPrettyXMLString(payload, 2));
 
 	try {
-	    results = EXECUTOR_SERVICE.submit(
-		    pm.getPluginSender("situationHandler.http", url.toString(), payload, params))
-		    .get();
+	    Callable<Map<String, String>> plugin = pm.getPluginSender("situationHandler.http",
+		    url.toString(), payload, params);
+	    if (plugin != null) {
+		results = EXECUTOR_SERVICE.submit(plugin).get();
+	    } else {
+		logger.error("Could not find HTTP Plugin. Can not send any messages! ");
+		return false;
+	    }
 	} catch (InterruptedException | ExecutionException e) {
 	    logger.error("Error when invoking Endpoint.", e);
 	    return false;
