@@ -15,10 +15,3 @@ To run the situation handler, use eclipse and run main.Main or you can just run 
 
 Note that the situation handler needs its database running. It uses a MySQL Database server. You can use the structure dump to create the required tables. 
 
-
-### Contribution guidelines ###
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
