@@ -18,7 +18,7 @@ public class GlobalProperties {
     /**
      * The address of the situation recognition system / SitOpt.
      */
-    public static final String SRS_ADDRESS = "http://192.168.209.200:10010";
+    public static final String SRS_ADDRESS = "http://192.168.209.246:10010";
 
     /**
      * The root folder that contains the web app.
