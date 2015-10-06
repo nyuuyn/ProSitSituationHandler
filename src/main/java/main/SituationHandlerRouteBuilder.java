@@ -6,12 +6,28 @@ import org.apache.camel.builder.RouteBuilder;
 import utils.soap.SoapProcessor;
 
 class SituationHandlerRouteBuilder extends RouteBuilder {
-    private String hostname;
-    private int port;
 
-    public SituationHandlerRouteBuilder(String hostname, int port) {
-	this.hostname = hostname;
-	this.port = port;
+    /**
+     * The base path that defines the component and the address (if necessary)
+     * 
+     */
+    private String path;
+
+    /**
+     * The camel component to provide the http endpoints.
+     */
+    private String component;
+
+    public SituationHandlerRouteBuilder(String component) {
+
+	if (component.equals("jetty")) {
+	    path = "jetty:http://0.0.0.0:" + SituationHandlerProperties.getNetworkPort();
+	} else if (component.equals("servlet")) {
+	    path = "servlet://";
+	} else {
+	    throw new IllegalArgumentException("Unsupported Component: " + component);
+	}
+	this.component = component;
     }
 
     public void configure() {
@@ -19,8 +35,9 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 	createRequestAnswerEndpoint();
 	createSubscriptionEndpoint();
 	setCorsHeaders();
-	serveWebapp();
-
+	if (component.equals("jetty")) {
+	    serveWebapp();
+	}
     }
 
     private void createRequestEndpoint() {
@@ -28,10 +45,8 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 	// Handler. Requests are answered immediately and sent
 	// to a queue for asynchronous processing. Several threads are used to
 	// consume from the queue.
-	from("jetty:http://" + hostname + ":" + port + "/"
-		+ SituationHandlerProperties.getRequestEndpointPath() + "?matchOnUriPrefix=true")
-			// .to("stream:out")
-			.process(new SoapProcessor())
+	from(path + "/" + SituationHandlerProperties.getRequestEndpointPath()
+		+ "?matchOnUriPrefix=true").process(new SoapProcessor())
 			.to("seda:workflowRequests?waitForTaskToComplete=Never")
 			.transform(constant(""))
 			.setHeader(Exchange.HTTP_RESPONSE_CODE, constant("202"));
@@ -46,8 +61,8 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 	// Handler. Requests are answered immediately and sent
 	// to a queue for asynchronous processing. Several threads are used to
 	// consume from the queue.
-	from("jetty:http://" + hostname + ":" + port + "/"
-		+ SituationHandlerProperties.getAnswerEndpointPath() + "?matchOnUriPrefix=true")
+	from(path + "/" + SituationHandlerProperties.getAnswerEndpointPath()
+		+ "?matchOnUriPrefix=true")
 			// .to("stream:out")
 			.process(new SoapProcessor())
 			.to("seda:answeredRequests?waitForTaskToComplete=Never")
@@ -64,19 +79,16 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 	// to receive Subscriptions. Requests are answered immediately and sent
 	// to a queue for asynchronous processing. Several threads are used to
 	// consume from the queue.
-	from("jetty:http://" + hostname + ":" + port + "/"
-		+ SituationHandlerProperties.getSituationEndpointPath())
-			.to("seda:situationChange?waitForTaskToComplete=Never")
-			.transform(constant("Ok"));
+	from(path + "/" + SituationHandlerProperties.getSituationEndpointPath())
+		.to("seda:situationChange?waitForTaskToComplete=Never").transform(constant("Ok"));
 	// no conucurrent consumers here!
 	from("seda:situationChange").to("bean:situationEndpoint?method=situationReceived");
     }
 
     private void setCorsHeaders() {
-	// set CORS Headers for option requests and set max file size
-	from("jetty:http://" + hostname + ":" + port + "/api-docs?httpMethodRestrict=OPTIONS")
-		.setHeader("Access-Control-Allow-Origin").constant("*")
-		.setHeader("Access-Control-Allow-Methods")
+	// set CORS Headers for option requests
+	from(path + "/api-docs?httpMethodRestrict=OPTIONS").setHeader("Access-Control-Allow-Origin")
+		.constant("*").setHeader("Access-Control-Allow-Methods")
 		.constant("GET, HEAD, POST, PUT, DELETE, TRACE, OPTIONS, CONNECT, PATCH")
 		.setHeader("Access-Control-Allow-Headers").constant(
 			"Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers, x-file-last-modified,x-file-name,x-file-size");
@@ -85,6 +97,6 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 
     private void serveWebapp() {
 	// used for serving the wep app
-	from("jetty:http://" + hostname + ":" + port + "?handlers=#webApp").to("stream:out");
+	from(path + "?handlers=#webApp").to("stream:out");
     }
 }

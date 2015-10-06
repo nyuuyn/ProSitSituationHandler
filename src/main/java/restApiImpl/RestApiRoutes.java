@@ -1,5 +1,7 @@
 package restApiImpl;
 
+import java.security.InvalidParameterException;
+
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
@@ -28,20 +30,10 @@ import situationHandling.storage.datatypes.Situation;
 public class RestApiRoutes extends RouteBuilder {
 
     /**
-     * The port under which the api is available
+     * The base path that defines the component and the address (if necessary)
+     * 
      */
-    private int port;
-
-    /**
-     * The hostname/IP-Adress
-     */
-    private String host;
-
-    /**
-     * the maximum file size that is allowed for post operations in Bytes
-     * (especially when submitting files)
-     */
-    private int maxFileSize;
+    private final String path;
 
     /**
      * The camel component that is used for the rest routes.
@@ -60,25 +52,20 @@ public class RestApiRoutes extends RouteBuilder {
     /**
      * Creates a new instance of RestApiRoutes and does the initialization. Add
      * an instance of this class to the camel context to make the routes
-     * available under the given hostname and port.
+     * available.
      * 
-     * 
-     * @param host
-     *            the hostname, for example "localhost". Use "0.0.0.0" to expose
-     *            the routes on all interfaces.
-     * @param port
-     *            the port
-     * 
-     * @param maxFileSize
-     *            the maximum file size that is allowed for post operations in
-     *            Bytes (especially when submitting files)
      * @param component
      *            The camel component that is used for the rest routes.
      */
-    public RestApiRoutes(String host, int port, int maxFileSize, String component) {
-	this.host = host;
-	this.port = port;
-	this.maxFileSize = maxFileSize;
+    public RestApiRoutes(String component) {
+	if (component.equals("jetty")) {
+	    path = "jetty:http://0.0.0.0:" + SituationHandlerProperties.getNetworkPort();
+	} else if (component.equals("servlet")) {
+	    path = "servlet://";
+	} else {
+	    throw new IllegalArgumentException("Unsupported Component: " + component);
+	}
+
 	this.component = component;
     }
 
@@ -103,24 +90,49 @@ public class RestApiRoutes extends RouteBuilder {
      * Basic setup of the rest routes
      */
     private void restSetup() {
-	// set CORS Headers for option requests and max file size
-	from(component + ":http://" + host + ":" + port + "/" + restApiBasePath
-		+ "?matchOnUriPrefix=true&httpMethodRestrict=OPTIONS&chunkedMaxContentLength="
-		+ maxFileSize).setHeader("Access-Control-Allow-Origin").constant("*")
-			.setHeader("Access-Control-Allow-Methods")
-			.constant("GET, HEAD, POST, PUT, DELETE, TRACE, OPTIONS, CONNECT, PATCH")
-			.setHeader("Access-Control-Allow-Headers").constant(
-				"Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers, x-file-last-modified,x-file-name,x-file-size");
 
-	// setup configuration for rest routes and max file size
-	restConfiguration().component(component).port(port).host(host)
-		.bindingMode(RestBindingMode.json).dataFormatProperty("prettyPrint", "true")
-		.enableCORS(true)
-		.componentProperty("chunkedMaxContentLength", String.valueOf(maxFileSize));
+	// set Cors,max file size and rest Configuration. headers differ for the
+	if (component.equals("jetty")) {
+	    // set CORS Headers for option requests and max file size
+	    from(path + "/" + restApiBasePath
+		    + "?matchOnUriPrefix=true&httpMethodRestrict=OPTIONS&chunkedMaxContentLength="
+		    + SituationHandlerProperties.getMaximumFilesize())
+			    .setHeader("Access-Control-Allow-Origin").constant("*")
+			    .setHeader("Access-Control-Allow-Methods")
+			    .constant(
+				    "GET, HEAD, POST, PUT, DELETE, TRACE, OPTIONS, CONNECT, PATCH")
+			    .setHeader("Access-Control-Allow-Headers").constant(
+				    "Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers, x-file-last-modified,x-file-name,x-file-size");
+
+	    // setup configuration for rest routes and max file size
+	    restConfiguration().component(component)
+		    .port(SituationHandlerProperties.getNetworkPort()).host("0.0.0.0")
+		    .bindingMode(RestBindingMode.json).dataFormatProperty("prettyPrint", "true")
+		    .enableCORS(true).componentProperty("chunkedMaxContentLength",
+			    String.valueOf(SituationHandlerProperties.getMaximumFilesize()));
+
+	} else if (component.equals("servlet")) {
+	    from(path + "/" + restApiBasePath
+		    + "?matchOnUriPrefix=true&httpMethodRestrict=OPTIONS&chunkedMaxContentLength="
+		    + SituationHandlerProperties.getMaximumFilesize())
+			    .setHeader("Access-Control-Allow-Origin").constant("*")
+			    .setHeader("Access-Control-Allow-Methods")
+			    .constant(
+				    "GET, HEAD, POST, PUT, DELETE, TRACE, OPTIONS, CONNECT, PATCH")
+			    .setHeader("Access-Control-Allow-Headers").constant(
+				    "Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers, x-file-last-modified,x-file-name,x-file-size");
+
+	    // setup configuration for rest routes and max file size
+	    restConfiguration().component(component).bindingMode(RestBindingMode.json)
+		    .dataFormatProperty("prettyPrint", "true").enableCORS(true);
+
+	} else {
+	    throw new InvalidParameterException("Unsupported Component: " + component);
+	}
 
 	// base route
-	rest(restApiBasePath).description("Situation Handler RestAPI").consumes("application/json")
-		.produces("application/json").enableCORS(true);
+	rest(restApiBasePath).consumes("application/json").produces("application/json")
+		.enableCORS(true);
     }
 
     /**
@@ -261,26 +273,24 @@ public class RestApiRoutes extends RouteBuilder {
      */
     private void provideDocumentation() {
 
-	from(component + ":http://" + host + ":" + (port) + "/" + restApiBasePath + "/swagger.json")
-		.process(new Processor() {
+	from(path + "/" + restApiBasePath + "/swagger.json").process(new Processor() {
 
-		    @Override
-		    public void process(Exchange exchange) throws Exception {
-			if (swaggerDoc == null) {
-			    swaggerDoc = IOUtils.toString(this.getClass().getClassLoader()
-				    .getResourceAsStream("swagger.json"));
-			}
-			exchange.getIn().removeHeader("Access-Control-Allow-Origin");
-			exchange.getIn().setBody(swaggerDoc);
-			exchange.getIn().setHeader("Content-Type",
-				"application/json;charset=UTF-8");
-			exchange.getIn().setHeader("connection", "close");
-			exchange.getIn().setHeader("Access-Control-Allow-Headers",
-				"Content-Type, api_key, Authorization, Origin");
-			exchange.getIn().setHeader("Access-Control-Allow-Origin", "*");
-			exchange.getIn().setHeader("Access-Control-Allow-Methods",
-				"GET, POST, DELETE, PUT");
-		    }
-		});
+	    @Override
+	    public void process(Exchange exchange) throws Exception {
+		if (swaggerDoc == null) {
+		    swaggerDoc = IOUtils.toString(
+			    this.getClass().getClassLoader().getResourceAsStream("swagger.json"));
+		}
+		exchange.getIn().removeHeader("Access-Control-Allow-Origin");
+		exchange.getIn().setBody(swaggerDoc);
+		exchange.getIn().setHeader("Content-Type", "application/json;charset=UTF-8");
+		exchange.getIn().setHeader("connection", "close");
+		exchange.getIn().setHeader("Access-Control-Allow-Headers",
+			"Content-Type, api_key, Authorization, Origin");
+		exchange.getIn().setHeader("Access-Control-Allow-Origin", "*");
+		exchange.getIn().setHeader("Access-Control-Allow-Methods",
+			"GET, POST, DELETE, PUT");
+	    }
+	});
     }
 }

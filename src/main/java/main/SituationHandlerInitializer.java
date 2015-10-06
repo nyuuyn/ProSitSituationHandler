@@ -35,7 +35,9 @@ public class SituationHandlerInitializer {
     private final static Logger logger = Logger.getLogger(SituationHandlerInitializer.class);
 
     public static void startAsJavaApplication() {
+	context = new DefaultCamelContext();
 	registry = context.getRegistry(JndiRegistry.class);
+
 	setRegistryEntries();
 
 	// resource handler for serving the web app
@@ -49,7 +51,8 @@ public class SituationHandlerInitializer {
 	    e1.printStackTrace();
 	}
 	registry.bind("webApp", webapp);
-	startRoutes();
+
+	startRoutes("jetty");
 	startSituationHandler();
 
     }
@@ -57,17 +60,13 @@ public class SituationHandlerInitializer {
     public static void startInServletContainer(ServletContextEvent sce) {
 	registry = new JndiRegistry();
 	context = new ServletCamelContext(registry, sce.getServletContext());
+
 	setRegistryEntries();
-	startRoutes();
+	startRoutes("servlet");
 	startSituationHandler();
     }
 
     private static void setRegistryEntries() {
-	context = new DefaultCamelContext();
-
-	// Uncomment this to debug http requests (using fiddler)
-	// context.getProperties().put("http.proxyHost", "localhost");
-	// context.getProperties().put("http.proxyPort", "8888");
 
 	// register beans for use
 	registry.bind("ruleApi", RuleAPI.class);
@@ -80,15 +79,16 @@ public class SituationHandlerInitializer {
 
     }
 
-    private static void startRoutes() {
+    private static void startRoutes(String component) {
 	try {
-	    // add routes
-	    context.addRoutes(new SituationHandlerRouteBuilder("0.0.0.0",
-		    SituationHandlerProperties.getNetworkPort()));
+	    // Uncomment this to debug http requests (using fiddler)
+	    // context.getProperties().put("http.proxyHost", "localhost");
+	    // context.getProperties().put("http.proxyPort", "8888");
 
-	    context.addRoutes(
-		    new RestApiRoutes("0.0.0.0", SituationHandlerProperties.getNetworkPort(),
-			    SituationHandlerProperties.getMaximumFilesize(), "jetty"));
+	    // add routes
+	    context.addRoutes(new SituationHandlerRouteBuilder(component));
+
+	    context.addRoutes(new RestApiRoutes(component));
 	    CamelUtil.initProducerTemplate(context.createProducerTemplate());
 	    CamelUtil.initConsumerTemplate(context.createConsumerTemplate());
 	    CamelUtil.initExecutorService(context.getExecutorServiceManager().newFixedThreadPool(
@@ -111,7 +111,6 @@ public class SituationHandlerInitializer {
     }
 
     public static void shutdown() {
-
 	logger.info("Shutting Down..");
 	logger.info("Deleting Subscriptions");
 	SituationManagerFactory.getSituationManager().cleanup();
@@ -133,7 +132,6 @@ public class SituationHandlerInitializer {
 	logger.info("Shutting down operation handling component.");
 	OperationHandlerFactory.shutdown();
 	logger.info("done");
-
     }
 
 }
