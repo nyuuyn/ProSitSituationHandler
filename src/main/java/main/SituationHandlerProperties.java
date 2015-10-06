@@ -1,5 +1,6 @@
 package main;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -33,14 +34,19 @@ public class SituationHandlerProperties {
     private static Properties properties = new Properties();
 
     static {
+	logger.debug("Loading properties...");
 	/*
 	 * Load the properties.
 	 */
 	InputStream inputStream = null;
 	try {
-	    inputStream = SituationHandlerProperties.class.getResourceAsStream(PROPERTIES_FILENAME);
-
+	    inputStream = SituationHandlerProperties.class.getClassLoader()
+		    .getResourceAsStream(PROPERTIES_FILENAME);
+	    if (inputStream == null) {
+		throw new FileNotFoundException();
+	    }
 	    properties.load(inputStream);
+	    logger.info("Properties loaded.");
 	} catch (IOException e) {
 	    logger.error("Could not load properties file.", e);
 	} finally {
