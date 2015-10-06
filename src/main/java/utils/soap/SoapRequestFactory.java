@@ -21,7 +21,7 @@ import javax.xml.soap.SOAPPart;
 
 import org.apache.log4j.Logger;
 
-import main.GlobalProperties;
+import main.SituationHandlerProperties;
 
 /**
  * A factory for creating soap requests. This is a utility class to create new
@@ -80,8 +80,8 @@ public class SoapRequestFactory {
 
 	    // create reply address
 	    String ownIPAdress = InetAddress.getLocalHost().getHostAddress();
-	    String replyToAddress = "http://" + ownIPAdress + ":" + GlobalProperties.NETWORK_PORT
-		    + "/" + GlobalProperties.ANSWER_ENDPOINT_PATH;
+	    String replyToAddress = "http://" + ownIPAdress + ":" + SituationHandlerProperties.NETWORK_PORT
+		    + "/" + SituationHandlerProperties.ANSWER_ENDPOINT_PATH;
 
 	    addWsaHeaders(envelope, receiver, true, relatedMessageId,
 		    SoapConstants.RELATIONSHIP_TYPE_ROLLBACK, replyToAddress,

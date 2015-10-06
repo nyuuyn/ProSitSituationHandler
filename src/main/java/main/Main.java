@@ -58,7 +58,7 @@ public class Main {
 	ResourceHandler webapp = new ResourceHandler();
 
 	try {
-	    webapp.setBaseResource(Resource.newResource(new File(GlobalProperties.WEB_APP_PATH)));
+	    webapp.setBaseResource(Resource.newResource(new File(SituationHandlerProperties.WEB_APP_PATH)));
 	} catch (MalformedURLException e1) {
 	    e1.printStackTrace();
 	} catch (IOException e1) {
@@ -70,14 +70,14 @@ public class Main {
 	try {
 	    // add routes
 	    context.addRoutes(
-		    new SituationHandlerRouteBuilder("0.0.0.0", GlobalProperties.NETWORK_PORT));
+		    new SituationHandlerRouteBuilder("0.0.0.0", SituationHandlerProperties.NETWORK_PORT));
 
-	    context.addRoutes(new RestApiRoutes("0.0.0.0", GlobalProperties.NETWORK_PORT,
-		    GlobalProperties.MAXIMUM_FILE_SIZE, "jetty"));
+	    context.addRoutes(new RestApiRoutes("0.0.0.0", SituationHandlerProperties.NETWORK_PORT,
+		    SituationHandlerProperties.MAXIMUM_FILE_SIZE, "jetty"));
 	    CamelUtil.initProducerTemplate(context.createProducerTemplate());
 	    CamelUtil.initConsumerTemplate(context.createConsumerTemplate());
 	    CamelUtil.initExecutorService(context.getExecutorServiceManager().newFixedThreadPool(Main.class, "SitHandlerThread",
-		GlobalProperties.DEFAULT_THREAD_POOL_SIZE));
+		SituationHandlerProperties.DEFAULT_THREAD_POOL_SIZE));
 	    context.start();
 	} catch (Exception e) {
 	    e.printStackTrace();

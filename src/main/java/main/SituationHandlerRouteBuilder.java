@@ -39,7 +39,7 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 
 		from(
 				"seda:workflowRequests?concurrentConsumers="
-						+ GlobalProperties.DEFAULT_THREAD_POOL_SIZE).to(
+						+ SituationHandlerProperties.DEFAULT_THREAD_POOL_SIZE).to(
 				"bean:operationHandlerEndpoint?method=receiveRequest");
 	}
 
@@ -50,7 +50,7 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 		// consume from the queue.
 		from(
 				"jetty:http://" + hostname + ":" + port + "/"
-						+ GlobalProperties.ANSWER_ENDPOINT_PATH
+						+ SituationHandlerProperties.ANSWER_ENDPOINT_PATH
 						+ "?matchOnUriPrefix=true")
 				// .to("stream:out")
 				.process(new SoapProcessor())
@@ -59,7 +59,7 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 
 		from(
 				"seda:answeredRequests?concurrentConsumers="
-						+ GlobalProperties.DEFAULT_THREAD_POOL_SIZE).to(
+						+ SituationHandlerProperties.DEFAULT_THREAD_POOL_SIZE).to(
 				"bean:operationHandlerEndpoint?method=receiveAnswer");
 	}
 
@@ -69,7 +69,7 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 		// consume from the queue.
 		from(
 				"jetty:http://" + hostname + ":" + port + "/"
-						+ GlobalProperties.SITUATION_ENDPOINT_PATH).to(
+						+ SituationHandlerProperties.SITUATION_ENDPOINT_PATH).to(
 				"seda:situationChange?waitForTaskToComplete=Never").transform(
 				constant("Ok"));
 		//no conucurrent consumers here!

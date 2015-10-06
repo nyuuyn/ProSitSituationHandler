@@ -18,7 +18,7 @@ import javax.xml.soap.SOAPException;
 import org.apache.log4j.Logger;
 
 import main.CamelUtil;
-import main.GlobalProperties;
+import main.SituationHandlerProperties;
 import pluginManagement.PluginManager;
 import pluginManagement.PluginManagerFactory;
 import situationHandler.plugin.PluginParams;
@@ -92,7 +92,7 @@ class MessageRouter {
 	try {
 	    String ownIPAdress = InetAddress.getLocalHost().getHostAddress();
 	    wsaSoapMessage.setWsaReplyTo(new URL("http://" + ownIPAdress + ":"
-		    + GlobalProperties.NETWORK_PORT + "/" + GlobalProperties.ANSWER_ENDPOINT_PATH));
+		    + SituationHandlerProperties.NETWORK_PORT + "/" + SituationHandlerProperties.ANSWER_ENDPOINT_PATH));
 	} catch (MalformedURLException | UnknownHostException e) {
 	    logger.error("Could not create answer address", e);
 	    return null;

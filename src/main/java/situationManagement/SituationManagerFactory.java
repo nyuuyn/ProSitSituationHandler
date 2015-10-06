@@ -7,7 +7,7 @@ import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.Map;
 
-import main.GlobalProperties;
+import main.SituationHandlerProperties;
 
 import org.apache.commons.collections4.map.LRUMap;
 import org.apache.log4j.Logger;
@@ -56,13 +56,13 @@ public class SituationManagerFactory {
 			/*
 			 * Init the components managed by the factory.
 			 */
-			srsUrl = new URL(GlobalProperties.SRS_ADDRESS);
+			srsUrl = new URL(SituationHandlerProperties.SRS_ADDRESS);
 
 			String ownIPAdress = InetAddress.getLocalHost().getHostAddress();
 
 			URL ownAdress = new URL("http://" + ownIPAdress + ":"
-					+ GlobalProperties.NETWORK_PORT + "/"
-					+ GlobalProperties.SITUATION_ENDPOINT_PATH);
+					+ SituationHandlerProperties.NETWORK_PORT + "/"
+					+ SituationHandlerProperties.SITUATION_ENDPOINT_PATH);
 
 			subscriptionHandler = new SubscriptionHandler(ownAdress,
 					new SRSCommunicator(srsUrl));
