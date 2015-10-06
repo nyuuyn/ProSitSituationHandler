@@ -56,13 +56,13 @@ public class SituationManagerFactory {
 			/*
 			 * Init the components managed by the factory.
 			 */
-			srsUrl = new URL(SituationHandlerProperties.SRS_ADDRESS);
+			srsUrl = new URL(SituationHandlerProperties.getSrsAddress());
 
 			String ownIPAdress = InetAddress.getLocalHost().getHostAddress();
 
 			URL ownAdress = new URL("http://" + ownIPAdress + ":"
-					+ SituationHandlerProperties.NETWORK_PORT + "/"
-					+ SituationHandlerProperties.SITUATION_ENDPOINT_PATH);
+					+ SituationHandlerProperties.getNetworkPort() + "/"
+					+ SituationHandlerProperties.getSituationEndpointPath());
 
 			subscriptionHandler = new SubscriptionHandler(ownAdress,
 					new SRSCommunicator(srsUrl));

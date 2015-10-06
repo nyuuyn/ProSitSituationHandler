@@ -6,6 +6,7 @@ import java.util.LinkedList;
 
 import org.apache.log4j.Logger;
 
+import main.SituationHandlerProperties;
 import situationHandling.storage.StorageAccessFactory;
 import situationHandling.storage.datatypes.Endpoint;
 import situationHandling.storage.datatypes.Situation;
@@ -24,7 +25,7 @@ class RollbackManager {
      * The Constant DEFAULT_ROLLBACK_MAXIMUM. This value is used as maximum
      * number of retries when a request does not specifiy a value.
      */
-    private static final int DEFAULT_ROLLBACK_MAXIMUM = 2;
+    private static final int DEFAULT_ROLLBACK_MAXIMUM = SituationHandlerProperties.getDefaultMaxRetries();
 
     /**
      * Stores the rollback handlers, the will be executed when a certain

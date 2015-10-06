@@ -6,6 +6,7 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.rest.RestBindingMode;
 import org.apache.commons.io.IOUtils;
 
+import main.SituationHandlerProperties;
 import pluginManagement.PluginInfo;
 import situationHandling.storage.datatypes.Action;
 import situationHandling.storage.datatypes.Endpoint;
@@ -47,6 +48,8 @@ public class RestApiRoutes extends RouteBuilder {
      * 
      */
     private String component;
+
+    private final String restApiBasePath = SituationHandlerProperties.getRestApiBasePath();
 
     /**
      * Contains the swagger.json loaded from the file system.
@@ -101,8 +104,8 @@ public class RestApiRoutes extends RouteBuilder {
      */
     private void restSetup() {
 	// set CORS Headers for option requests and max file size
-	from(component + ":http://" + host + ":" + port
-		+ "/config?matchOnUriPrefix=true&httpMethodRestrict=OPTIONS&chunkedMaxContentLength="
+	from(component + ":http://" + host + ":" + port + "/" + restApiBasePath
+		+ "?matchOnUriPrefix=true&httpMethodRestrict=OPTIONS&chunkedMaxContentLength="
 		+ maxFileSize).setHeader("Access-Control-Allow-Origin").constant("*")
 			.setHeader("Access-Control-Allow-Methods")
 			.constant("GET, HEAD, POST, PUT, DELETE, TRACE, OPTIONS, CONNECT, PATCH")
@@ -116,7 +119,7 @@ public class RestApiRoutes extends RouteBuilder {
 		.componentProperty("chunkedMaxContentLength", String.valueOf(maxFileSize));
 
 	// base route
-	rest("/config").description("Situation Handler RestAPI").consumes("application/json")
+	rest(restApiBasePath).description("Situation Handler RestAPI").consumes("application/json")
 		.produces("application/json").enableCORS(true);
     }
 
@@ -125,46 +128,47 @@ public class RestApiRoutes extends RouteBuilder {
      */
     private void createEndpointApi() {
 	// ../endpoints --> GET all endpoints
-	rest("/config/endpoints").get().outTypeList(Endpoint.class)
+	rest(restApiBasePath + "/endpoints").get().outTypeList(Endpoint.class)
 		.to("bean:endpointApi?method=getEndpoints");
 
 	// ../endpoints --> Post: add new endpoint
-	rest("/config/endpoints").post().type(Endpoint.class)
+	rest(restApiBasePath + "/endpoints").post().type(Endpoint.class)
 		.to("bean:endpointApi?method=addEndpoint");
 
 	// ../endpoints/<id> --> GET: gets the endpoint with <id>
-	rest("/config/endpoints/{endpointId}").get().outType(Endpoint.class)
+	rest(restApiBasePath + "/endpoints/{endpointId}").get().outType(Endpoint.class)
 		.to("bean:endpointApi?method=getEndpointByID(${header.endpointId})");
 
 	// ../endpoints/<id> --> DELETE: deletes the endpoint with <id>
-	rest("/config/endpoints/{endpointId}").delete()
+	rest(restApiBasePath + "/endpoints/{endpointId}").delete()
 		.to("bean:endpointApi?method=deleteEndpoint(${header.endpointId})");
 
 	// ../endpoints/<id> --> PUT: updates the endpoint with <id>
-	rest("/config/endpoints/{endpointId}").put().type(Endpoint.class)
+	rest(restApiBasePath + "/endpoints/{endpointId}").put().type(Endpoint.class)
 		.to("bean:endpointApi?method=updateEndpoint(${header.endpointId})");
 
 	// ../endpoints/<id>/handledSituations -->GET: get all handled
 	// situations
-	rest("/config/endpoints/{endpointId}/handledSituations").get()
+	rest(restApiBasePath + "/endpoints/{endpointId}/handledSituations").get()
 		.outTypeList(HandledSituation.class)
 		.to("bean:endpointApi?method=getAllHandledSituations(${header.endpointId})");
 
 	// ../endpoints/<id>/handledSituations -->POST: add handled situation
-	rest("/config/endpoints/{endpointId}/handledSituations").post().type(HandledSituation.class)
+	rest(restApiBasePath + "/endpoints/{endpointId}/handledSituations").post()
+		.type(HandledSituation.class)
 		.to("bean:endpointApi?method=addHandledSituation(${header.endpointId})");
 	// ../endpoints/<id>/handledSituations/<id> -->GET: get handled
 	// situation
-	rest("/config/endpoints/{endpointId}/handledSituations/{situationId}").get()
+	rest(restApiBasePath + "/endpoints/{endpointId}/handledSituations/{situationId}").get()
 		.outType(HandledSituation.class)
 		.to("bean:endpointApi?method=getHandledSituation(${header.situationId})");
 	// ../endpoints/<id>/handledSituations/<id> -->DELETE: delete handled
 	// situation
-	rest("/config/endpoints/{endpointId}/handledSituations/{situationId}").delete()
+	rest(restApiBasePath + "/endpoints/{endpointId}/handledSituations/{situationId}").delete()
 		.to("bean:endpointApi?method=deleteHandledSituation(${header.situationId})");
 	// ../endpoints/<id>/handledSituations/<id> -->PUT: update handled
 	// situation
-	rest("/config/endpoints/{endpointId}/handledSituations/{situationId}").put()
+	rest(restApiBasePath + "/endpoints/{endpointId}/handledSituations/{situationId}").put()
 		.type(HandledSituation.class)
 		.to("bean:endpointApi?method=updateHandledSituation(${header.situationId})");
 
@@ -175,43 +179,44 @@ public class RestApiRoutes extends RouteBuilder {
      */
     private void createRuleApi() {
 	// ../rules --> GET all rules
-	rest("/config/rules").get().outTypeList(Rule.class).to("bean:ruleApi?method=getRules");
+	rest(restApiBasePath + "/rules").get().outTypeList(Rule.class)
+		.to("bean:ruleApi?method=getRules");
 
 	// ../rules -->POST: creates a new rule
-	rest("/config/rules").post().type(Rule.class).to("bean:ruleApi?method=addRule");
+	rest(restApiBasePath + "/rules").post().type(Rule.class).to("bean:ruleApi?method=addRule");
 
 	// ../rules/<ID> -->GET rules with <ID>
-	rest("config/rules/{ruleId}").get().outType(Rule.class)
+	rest(restApiBasePath + "/rules/{ruleId}").get().outType(Rule.class)
 		.to("bean:ruleApi?method=getRuleByID(${header.ruleId})");
 
 	// ../rules/<ID> -->PUT: updates the rule with this id
-	rest("config/rules/{ruleId}").put().type(Situation.class)
+	rest(restApiBasePath + "/rules/{ruleId}").put().type(Situation.class)
 		.to("bean:ruleApi?method=updateRuleSituation(${header.ruleId})");
 
 	// ../rules/<ID> -->Delete: deletes the rule with this id
-	rest("config/rules/{ruleId}").delete()
+	rest(restApiBasePath + "/rules/{ruleId}").delete()
 		.to("bean:ruleApi?method=deleteRule(${header.ruleId})");
 
 	// ../rules/<ID>/actions --> GET all actions of rule <ID>
-	rest("config/rules/{ruleId}/actions").get().outTypeList(Action.class)
+	rest(restApiBasePath + "/rules/{ruleId}/actions").get().outTypeList(Action.class)
 		.to("bean:ruleApi?method=getActionsByRule(${header.ruleId})");
 
 	// ../rules/<ID>/actions -->POST: creates a new action
-	rest("/config/rules/{ruleId}/actions").post().type(Action.class)
+	rest(restApiBasePath + "/rules/{ruleId}/actions").post().type(Action.class)
 		.to("bean:ruleApi?method=addAction(${header.ruleId})");
 
 	// ../rules/<ID>/actions/<actionID> --> GET action with <actionID>
-	rest("config/rules/{ruleId}/actions/{actionId}").get().outType(Action.class)
+	rest(restApiBasePath + "/rules/{ruleId}/actions/{actionId}").get().outType(Action.class)
 		.to("bean:ruleApi?method=getActionByID(${header.actionId})");
 
 	// ../rules/<ID>/actions/<actionID> --> PUT: updates the action with
 	// <actionID>
-	rest("config/rules/{ruleId}/actions/{actionId}").put().type(Action.class)
+	rest(restApiBasePath + "/rules/{ruleId}/actions/{actionId}").put().type(Action.class)
 		.to("bean:ruleApi?method=updateAction(${header.actionId})");
 
 	// ../rules/<ID>/actions/<actionID> --> DELETE: deltes the action with
 	// <actionID>
-	rest("config/rules/{ruleId}/actions/{actionId}").delete()
+	rest(restApiBasePath + "/rules/{ruleId}/actions/{actionId}").delete()
 		.to("bean:ruleApi?method=deleteAction(${header.actionId})");
 
     }
@@ -221,23 +226,23 @@ public class RestApiRoutes extends RouteBuilder {
      */
     private void createPluginApi() {
 	// ../plugins --> GET information about all plugins
-	rest("/config/plugins").get().outTypeList(PluginInfo.class)
+	rest(restApiBasePath + "/plugins").get().outTypeList(PluginInfo.class)
 		.to("bean:pluginApi?method=getPlugins");
 
 	// ../plugins --> POST: add a new Plugin
-	rest("/config/plugins").post().consumes("multipart/form-data")
+	rest(restApiBasePath + "/plugins").post().consumes("multipart/form-data")
 		.bindingMode(RestBindingMode.off).to("bean:pluginApi?method=addPlugin");
 
 	// ../plugins/<ID> --> GET information about the plugin with <ID>
-	rest("/config/plugins/{pluginID}").get().outType(PluginInfo.class)
+	rest(restApiBasePath + "/plugins/{pluginID}").get().outType(PluginInfo.class)
 		.to("bean:pluginApi?method=getPluginByID(${header.pluginID})");
 
 	// ../plugins/<ID>/manual --> GET the manual of the plugin with <ID>
-	rest("/config/plugins/{pluginID}/manual").get()
+	rest(restApiBasePath + "/plugins/{pluginID}/manual").get()
 		.to("bean:pluginApi?method=getPluginManual(${header.pluginID})");
 
 	// ../plugins/<id> --> DELETE: deletes the plugin with <id>
-	rest("/config/plugins/{pluginID}").delete()
+	rest(restApiBasePath + "/plugins/{pluginID}").delete()
 		.to("bean:pluginApi?method=deletePlugin(${header.pluginID}, ${header.delete})");
 
     }
@@ -246,7 +251,7 @@ public class RestApiRoutes extends RouteBuilder {
      * sets up the routes for the history Api
      */
     private void createHistoryApi() {
-	rest("/config/history").get().outTypeList(HistoryEntry.class)
+	rest(restApiBasePath + "/history").get().outTypeList(HistoryEntry.class)
 		.to("bean:historyApi?method=getHistory");
 
     }
@@ -256,7 +261,7 @@ public class RestApiRoutes extends RouteBuilder {
      */
     private void provideDocumentation() {
 
-	from(component + ":http://" + host + ":" + (port) + "/config/swagger.json")
+	from(component + ":http://" + host + ":" + (port) + "/" + restApiBasePath + "/swagger.json")
 		.process(new Processor() {
 
 		    @Override
@@ -267,7 +272,8 @@ public class RestApiRoutes extends RouteBuilder {
 			}
 			exchange.getIn().removeHeader("Access-Control-Allow-Origin");
 			exchange.getIn().setBody(swaggerDoc);
-			exchange.getIn().setHeader("Content-Type", "application/json;charset=UTF-8");
+			exchange.getIn().setHeader("Content-Type",
+				"application/json;charset=UTF-8");
 			exchange.getIn().setHeader("connection", "close");
 			exchange.getIn().setHeader("Access-Control-Allow-Headers",
 				"Content-Type, api_key, Authorization, Origin");

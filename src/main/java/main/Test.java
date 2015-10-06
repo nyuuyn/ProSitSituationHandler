@@ -6,6 +6,8 @@ import utils.soap.WsaSoapMessage;
 
 public class Test {
 
+    //TODO:REMOVE!
+    
     public static void main(String[] args) {
 
 	WsaSoapMessage message;

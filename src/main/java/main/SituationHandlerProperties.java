@@ -31,9 +31,6 @@ public class SituationHandlerProperties {
 	}
     }
 
-    // #situation handling
-    // situationHandler.handling.defaultMaxRetries=2
-
     public static int getNetworkPort() {
 	try {
 	    return Integer.parseInt(properties.getProperty("situationHandler.network.port"));
@@ -42,6 +39,14 @@ public class SituationHandlerProperties {
 	}
     }
 
+    /**
+     * Get the maximum file size (in bytes) that is allowed for file upload at
+     * the rest api. This especially limits the size of plugins that are added
+     * to the situation handler using the rest api.
+     * 
+     * @return the value for the file size as specified in the properties or
+     *         15_000_000 as the default value.
+     */
     public static int getMaximumFilesize() {
 	try {
 	    return Integer.parseInt(
@@ -50,7 +55,6 @@ public class SituationHandlerProperties {
 	    return 15_000_000;
 	}
     }
-
 
     public static String getSituationEndpointPath() {
 	return properties.getProperty("situationHandler.endpoints.SituationEndpointPath",
@@ -71,22 +75,49 @@ public class SituationHandlerProperties {
 	return properties.getProperty("situationHandler.rest.basepath", "config");
     }
 
+    /**
+     * Get the path to the root folder that contains the web app.
+     * <p>
+     * Only relevant when using the jetty component.
+     * 
+     * @return the path of the root folder as specified in the properties or
+     *         C:\\app as the default value.
+     */
     public static String getWebAppPath() {
-	return properties.getProperty("situationHandler.external.webapp",
-		"C:\\Users\\Stefan\\workspace_Masterarbeit\\SituationHandler_WebApp\\app");
+	return properties.getProperty("situationHandler.external.webapp", "C:\\app");
     }
 
+    /**
+     * Get the address of the situation recognition system / SitOpt.
+     * 
+     * @return the value for srs address as specified in the properties or
+     *         http://192.168.209.246:10010 as the default value.
+     */
     public static String getSrsAddress() {
 	return properties.getProperty("situationHandler.external.srs.Address",
 		"http://192.168.209.246:10010");
     }
 
+    /**
+     * Get the path to the plugin folder. Jar-Files in this folder are loaded at
+     * startup.
+     * 
+     * @return the path to the plugin folder as specified in the properties or
+     *         plugins as the default value.
+     */
     public static String getPluginStartupFolder() {
-	return properties.getProperty("situationHandler.plugins.startupFolder", "Plugins");
+	return properties.getProperty("situationHandler.plugins.startupFolder", "plugins");
     }
 
+    /**
+     * Get the path to the runtime folder. This folder is used to store jars
+     * that are added at runtime.
+     * 
+     * @return the path to the runtime folder as specified in the properties or
+     *         runtime as the default value.
+     */
     public static String getPluginRuntimeFolder() {
-	return properties.getProperty("situationHandler.plugins.runtimeFolder", "Runtime");
+	return properties.getProperty("situationHandler.plugins.runtimeFolder", "runtime");
     }
 
     public static int getDefaultMaxRetries() {
@@ -98,26 +129,7 @@ public class SituationHandlerProperties {
 	}
     }
 
-    public static final int NETWORK_PORT = 8081;
-
-    public static final String ANSWER_ENDPOINT_PATH = "AnswerEndpoint";
-    public static final String SITUATION_ENDPOINT_PATH = "SituationEndpoint";
-
-    /**
-     * The maximum file size (in bytes) that is allowed for file upload at
-     * the rest api. This especially limits the size of plugins that are added
-     * to the situation handler using the rest api.
-     */
-    public static final int MAXIMUM_FILE_SIZE = 15_000_000;
-    public static final int DEFAULT_THREAD_POOL_SIZE = Runtime.getRuntime().availableProcessors();
-
-    /**
-     * The address of the situation recognition system / SitOpt.
-     */
-    public static final String SRS_ADDRESS = "http://192.168.209.246:10010";
-
-    /**
-     * The root folder that contains the web app.
-     */
-    public static final String WEB_APP_PATH = "C:\\Users\\Stefan\\workspace_Masterarbeit\\SituationHandler_WebApp\\app";
+    public static int getDefaultThreadPoolSize() {
+	return Runtime.getRuntime().availableProcessors();
+    }
 }

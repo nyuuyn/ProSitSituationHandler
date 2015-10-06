@@ -1,5 +1,7 @@
 package pluginManagement;
 
+import main.SituationHandlerProperties;
+
 /**
  * A factory for creating and initializing PluginManager objects.
  * 
@@ -7,37 +9,27 @@ package pluginManagement;
  */
 public class PluginManagerFactory {
 
-	/**
-	 * The path to the plugin folder. Jar-Files in this folder are loaded at
-	 * startup.
-	 */
-	private static final String PLUGIN_FOLDER = "plugins";
+    /** The pluginLoader used for the default Plugin Managers. */
+    private static final PluginLoader pluginLoader = new PluginLoader(
+	    SituationHandlerProperties.getPluginStartupFolder(),
+	    SituationHandlerProperties.getPluginRuntimeFolder());
 
-	/**
-	 * The path to the runtime folder. This folder is used to store jars that
-	 * are added at runtime.
-	 */
-	private static final String RUNTIME_FOLDER = "runtime";
+    /**
+     *
+     * @return an instance of plugin manager.
+     */
+    public static PluginManager getPluginManager() {
+	return new PluginManagerImpl(pluginLoader);
+    }
 
-	/** The pluginLoader used for the default Plugin Managers. */
-	private static final PluginLoader pluginLoader = new PluginLoader(PLUGIN_FOLDER, RUNTIME_FOLDER);
-
-	/**
-	 *
-	 * @return an instance of plugin manager.
-	 */
-	public static PluginManager getPluginManager() {
-		return new PluginManagerImpl(pluginLoader);
-	}
-
-	/**
-	 * Shuts down the plugin functionality. After shuting down, the plugins
-	 * cannot be used anymore (and there is no way to restart). *
-	 * <p>
-	 * Equal to {@link PluginManager#shutdownPluginManagement()}
-	 */
-	public static void shutdownPluginManagement() {
-		getPluginManager().shutdownPluginManagement();
-	}
+    /**
+     * Shuts down the plugin functionality. After shuting down, the plugins
+     * cannot be used anymore (and there is no way to restart). *
+     * <p>
+     * Equal to {@link PluginManager#shutdownPluginManagement()}
+     */
+    public static void shutdownPluginManagement() {
+	getPluginManager().shutdownPluginManagement();
+    }
 
 }

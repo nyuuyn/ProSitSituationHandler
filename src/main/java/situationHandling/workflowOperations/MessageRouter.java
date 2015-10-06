@@ -92,7 +92,7 @@ class MessageRouter {
 	try {
 	    String ownIPAdress = InetAddress.getLocalHost().getHostAddress();
 	    wsaSoapMessage.setWsaReplyTo(new URL("http://" + ownIPAdress + ":"
-		    + SituationHandlerProperties.NETWORK_PORT + "/" + SituationHandlerProperties.ANSWER_ENDPOINT_PATH));
+		    + SituationHandlerProperties.getNetworkPort() + "/" + SituationHandlerProperties.getAnswerEndpointPath()));
 	} catch (MalformedURLException | UnknownHostException e) {
 	    logger.error("Could not create answer address", e);
 	    return null;
