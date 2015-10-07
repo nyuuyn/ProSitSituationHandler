@@ -80,8 +80,10 @@ public class SoapRequestFactory {
 
 	    // create reply address
 	    String ownIPAdress = InetAddress.getLocalHost().getHostAddress();
-	    String replyToAddress = "http://" + ownIPAdress + ":" + SituationHandlerProperties.getNetworkPort()
-		    + "/" + SituationHandlerProperties.getAnswerEndpointPath();
+	    String replyToAddress = "http://" + ownIPAdress + ":"
+		    + SituationHandlerProperties.getNetworkPort() + "/"
+		    + SituationHandlerProperties.getRestBasePath() + "/"
+		    + SituationHandlerProperties.getAnswerEndpointPath();
 
 	    addWsaHeaders(envelope, receiver, true, relatedMessageId,
 		    SoapConstants.RELATIONSHIP_TYPE_ROLLBACK, replyToAddress,

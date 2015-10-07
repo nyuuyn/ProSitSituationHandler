@@ -6,7 +6,7 @@
         "description": "This is the Rest Api to configure the Situation Handler. It allows to\n  - View, edit and create endpoints\n  - View, edit and create notification rules and actions\n  - View, add and remove plugins at runtime\n  - View the history of executed actions/operations\n"
     },
     "host": "localhost:8081",
-    "basePath": "/config",
+    "basePath": "situationhandler/config",
     "schemes": [
         "http"
     ],

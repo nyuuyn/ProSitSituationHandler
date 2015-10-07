@@ -132,13 +132,24 @@ public class SituationHandlerProperties {
     }
 
     /**
-     * Gets the (relative) base path for the rest api.
+     * Gets the (relative) base path for the rest api. Api is available under
+     * <basepath>/<api basepath>
+     * 
+     * @return the api base path as specified in the properties or config as the
+     *         default value.
+     */
+    public static String getRestApiBasePath() {
+	return properties.getProperty("situationHandler.rest.api.basepath", "config");
+    }
+
+    /**
+     * Gets the (relative) base path. Used as parent for all other paths.
      * 
      * @return the base path as specified in the properties or config as the
      *         default value.
      */
-    public static String getRestApiBasePath() {
-	return properties.getProperty("situationHandler.rest.basepath", "config");
+    public static String getRestBasePath() {
+	return properties.getProperty("situationHandler.rest.basepath", "situationhandler");
     }
 
     /**

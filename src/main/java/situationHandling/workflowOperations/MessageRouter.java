@@ -91,8 +91,10 @@ class MessageRouter {
 	// set new answer address
 	try {
 	    String ownIPAdress = InetAddress.getLocalHost().getHostAddress();
-	    wsaSoapMessage.setWsaReplyTo(new URL("http://" + ownIPAdress + ":"
-		    + SituationHandlerProperties.getNetworkPort() + "/" + SituationHandlerProperties.getAnswerEndpointPath()));
+	    wsaSoapMessage.setWsaReplyTo(new URL(
+		    "http://" + ownIPAdress + ":" + SituationHandlerProperties.getNetworkPort()
+			    + "/" + SituationHandlerProperties.getRestBasePath() + "/"
+			    + SituationHandlerProperties.getAnswerEndpointPath()));
 	} catch (MalformedURLException | UnknownHostException e) {
 	    logger.error("Could not create answer address", e);
 	    return null;

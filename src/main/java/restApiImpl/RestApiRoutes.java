@@ -41,7 +41,7 @@ public class RestApiRoutes extends RouteBuilder {
      */
     private String component;
 
-    private final String restApiBasePath = SituationHandlerProperties.getRestApiBasePath();
+    private final String restApiBasePath;
 
     /**
      * Contains the swagger.json loaded from the file system.
@@ -60,8 +60,11 @@ public class RestApiRoutes extends RouteBuilder {
     public RestApiRoutes(String component) {
 	if (component.equals("jetty")) {
 	    path = "jetty:http://0.0.0.0:" + SituationHandlerProperties.getNetworkPort();
+	    restApiBasePath = SituationHandlerProperties.getRestBasePath() + "/"
+		    + SituationHandlerProperties.getRestApiBasePath();
 	} else if (component.equals("servlet")) {
 	    path = "servlet://";
+	    restApiBasePath = SituationHandlerProperties.getRestApiBasePath();
 	} else {
 	    throw new IllegalArgumentException("Unsupported Component: " + component);
 	}
@@ -94,7 +97,7 @@ public class RestApiRoutes extends RouteBuilder {
 	// set Cors,max file size and rest Configuration. headers differ for the
 	if (component.equals("jetty")) {
 	    // set CORS Headers for option requests and max file size
-	    from(path + "/" + restApiBasePath
+	    from(path + "/" + SituationHandlerProperties.getRestBasePath() + "/" + restApiBasePath
 		    + "?matchOnUriPrefix=true&httpMethodRestrict=OPTIONS&chunkedMaxContentLength="
 		    + SituationHandlerProperties.getMaximumFilesize())
 			    .setHeader("Access-Control-Allow-Origin").constant("*")
@@ -112,15 +115,12 @@ public class RestApiRoutes extends RouteBuilder {
 			    String.valueOf(SituationHandlerProperties.getMaximumFilesize()));
 
 	} else if (component.equals("servlet")) {
-	    from(path + "/" + restApiBasePath
-		    + "?matchOnUriPrefix=true&httpMethodRestrict=OPTIONS&chunkedMaxContentLength="
-		    + SituationHandlerProperties.getMaximumFilesize())
-			    .setHeader("Access-Control-Allow-Origin").constant("*")
-			    .setHeader("Access-Control-Allow-Methods")
-			    .constant(
-				    "GET, HEAD, POST, PUT, DELETE, TRACE, OPTIONS, CONNECT, PATCH")
-			    .setHeader("Access-Control-Allow-Headers").constant(
-				    "Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers, x-file-last-modified,x-file-name,x-file-size");
+	    from(path + "/" + restApiBasePath + "?matchOnUriPrefix=true&httpMethodRestrict=OPTIONS")
+		    .setHeader("Access-Control-Allow-Origin").constant("*")
+		    .setHeader("Access-Control-Allow-Methods")
+		    .constant("GET, HEAD, POST, PUT, DELETE, TRACE, OPTIONS, CONNECT, PATCH")
+		    .setHeader("Access-Control-Allow-Headers").constant(
+			    "Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers, x-file-last-modified,x-file-name,x-file-size");
 
 	    // setup configuration for rest routes and max file size
 	    restConfiguration().component(component).bindingMode(RestBindingMode.json)
@@ -272,7 +272,6 @@ public class RestApiRoutes extends RouteBuilder {
      * provides the documentation (as swagger file) for the rest api
      */
     private void provideDocumentation() {
-
 	from(path + "/" + restApiBasePath + "/swagger.json").process(new Processor() {
 
 	    @Override

@@ -21,7 +21,8 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
     public SituationHandlerRouteBuilder(String component) {
 
 	if (component.equals("jetty")) {
-	    path = "jetty:http://0.0.0.0:" + SituationHandlerProperties.getNetworkPort();
+	    path = "jetty:http://0.0.0.0:" + SituationHandlerProperties.getNetworkPort() + "/"
+		    + SituationHandlerProperties.getRestBasePath();
 	} else if (component.equals("servlet")) {
 	    path = "servlet://";
 	} else {
