@@ -89,6 +89,7 @@ public class SituationHandlerInitializer {
 	    context.addRoutes(new SituationHandlerRouteBuilder(component));
 
 	    context.addRoutes(new RestApiRoutes(component));
+	    CamelUtil.initCamelContext(context);
 	    CamelUtil.initProducerTemplate(context.createProducerTemplate());
 	    CamelUtil.initConsumerTemplate(context.createConsumerTemplate());
 	    CamelUtil.initExecutorService(context.getExecutorServiceManager().newFixedThreadPool(

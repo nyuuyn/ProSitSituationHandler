@@ -68,7 +68,7 @@ public class RestApiRoutes extends RouteBuilder {
 	} else {
 	    throw new IllegalArgumentException("Unsupported Component: " + component);
 	}
-
+	System.out.println("Restapibasepath " + restApiBasePath);
 	this.component = component;
     }
 
@@ -97,7 +97,7 @@ public class RestApiRoutes extends RouteBuilder {
 	// set Cors,max file size and rest Configuration. headers differ for the
 	if (component.equals("jetty")) {
 	    // set CORS Headers for option requests and max file size
-	    from(path + "/" + SituationHandlerProperties.getRestBasePath() + "/" + restApiBasePath
+	    from(path + "/" + restApiBasePath
 		    + "?matchOnUriPrefix=true&httpMethodRestrict=OPTIONS&chunkedMaxContentLength="
 		    + SituationHandlerProperties.getMaximumFilesize())
 			    .setHeader("Access-Control-Allow-Origin").constant("*")

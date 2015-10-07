@@ -4,12 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import org.apache.camel.CamelContext;
 import org.apache.log4j.Logger;
 
 public class Main {
-
-    private static CamelContext context;
 
     private final static Logger logger = Logger.getLogger(Main.class);
 
@@ -30,7 +27,8 @@ public class Main {
 		    while (line.equalsIgnoreCase("quit") == false) {
 			line = in.readLine();
 			if (line.equalsIgnoreCase("routes")) {
-			    System.out.println(context.createRouteStaticEndpointJson(null));
+			    System.out.println(CamelUtil.getCamelContext()
+				    .createRouteStaticEndpointJson(null));
 			}
 		    }
 		    SituationHandlerInitializer.shutdown();
