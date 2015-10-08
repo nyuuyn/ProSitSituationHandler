@@ -37,7 +37,7 @@ public class SituationEndpoint {
 	 */
 	public void situationReceived(Exchange exchange) {
 		String changedSituation = exchange.getIn().getBody(String.class);
-
+		
 		SituationResult situationResult;
 
 		try {
