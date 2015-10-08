@@ -8,8 +8,10 @@ import java.util.List;
 import org.apache.camel.CamelExecutionException;
 import org.apache.camel.Exchange;
 import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
 
 import main.CamelUtil;
+import main.SituationHandlerProperties;
 import pluginManagement.PluginInfo;
 import pluginManagement.PluginManager;
 import pluginManagement.PluginManagerFactory;
@@ -28,6 +30,11 @@ import situationHandling.storage.StorageAccessFactory;
  * @see PluginManager
  */
 public class PluginAPI {
+
+    /**
+     * The logger
+     */
+    private final static Logger logger = Logger.getLogger(PluginAPI.class);
 
     /**
      * Plugin Manager to access the plugins.
@@ -75,17 +82,32 @@ public class PluginAPI {
      */
     public void addPlugin(Exchange exchange) {
 	String pluginID = (String) exchange.getIn().getHeader("x-file-name");
-	String directory = "tempfiles";
+	String directory = SituationHandlerProperties.getPluginStartupFolder() + "\\tempfiles";
 	String filename = pluginID + ".jar";
+//TODO
+//	System.out.println("------------------------------------");
+//	System.out.println(exchange.getIn().getHeaders().toString());
+//	System.out.println(exchange.getIn().getBody(String.class));
+//	System.out.println("------------------------------------");
 
-	// get first attachment, then save at temporarily (jetty version)
+	// get first attachment, then save it temporarily (jetty version)
 	try {
-	    CamelUtil.getProducerTemplate().sendBody("file:" + directory + "?fileName=" + filename,
-		    exchange.getIn()
-			    .getAttachment(exchange.getIn().getAttachmentNames().iterator().next())
-			    .getContent());
+	    if (SituationHandlerProperties.getHttpEndpointComponent().equals("jetty")) {
+		CamelUtil.getProducerTemplate().sendBody(
+			"file:" + directory + "?fileName=" + filename,
+			exchange.getIn()
+				.getAttachment(
+					exchange.getIn().getAttachmentNames().iterator().next())
+				.getContent());
+	    } else if (SituationHandlerProperties.getHttpEndpointComponent().equals("servlet")) {
+		CamelUtil.getProducerTemplate().sendBody(
+			"file:" + directory + "?fileName=" + filename, exchange.getIn().getBody());
+	    } else {
+		logger.error("Invalid component: "
+			+ SituationHandlerProperties.getHttpEndpointComponent());
+	    }
 	} catch (CamelExecutionException | IOException e) {
-	    e.printStackTrace();
+	    logger.error("Error adding plugin", e);
 	}
 
 	// TODO: finale Komponente festlegen..

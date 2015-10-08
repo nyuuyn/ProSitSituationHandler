@@ -27,14 +27,14 @@ import situationHandling.workflowOperations.OperationHandlerFactory;
 import situationManagement.SituationEndpoint;
 import situationManagement.SituationManagerFactory;
 
-public class SituationHandlerInitializer {
+class SituationHandlerInitializer {
 
     private static CamelContext context;
     private static JndiRegistry registry;
 
     private final static Logger logger = Logger.getLogger(SituationHandlerInitializer.class);
 
-    public static void startAsJavaApplication() {
+    static void startAsJavaApplication() {
 	context = new DefaultCamelContext();
 	registry = context.getRegistry(JndiRegistry.class);
 
@@ -52,16 +52,18 @@ public class SituationHandlerInitializer {
 	}
 	registry.bind("webApp", webapp);
 
+	SituationHandlerProperties.setHttpEndpointComponent("jetty");
 	startRoutes("jetty");
 	startSituationHandler();
 
     }
 
-    public static void startInServletContainer(ServletContextEvent sce) {
+    static void startInServletContainer(ServletContextEvent sce) {
 	registry = new JndiRegistry();
 	context = new ServletCamelContext(registry, sce.getServletContext());
 
 	setRegistryEntries();
+	SituationHandlerProperties.setHttpEndpointComponent("servlet");
 	startRoutes("servlet");
 	startSituationHandler();
     }
@@ -111,7 +113,7 @@ public class SituationHandlerInitializer {
 	PluginManagerFactory.getPluginManager().getAllPluginIDs();
     }
 
-    public static void shutdown() {
+    static void shutdown() {
 	logger.info("Shutting Down..");
 	logger.info("Deleting Subscriptions");
 	SituationManagerFactory.getSituationManager().cleanup();
@@ -125,7 +127,6 @@ public class SituationHandlerInitializer {
 	}
 	logger.info("Shuting down storage access");
 	StorageAccessFactory.closeStorageAccess();
-	logger.info("stopping console listener");
 	logger.info("Shutting down plugin system.");
 	PluginManagerFactory.shutdownPluginManagement();
 	logger.info("Shutting down notification component.");

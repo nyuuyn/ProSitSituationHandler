@@ -29,6 +29,12 @@ public class SituationHandlerProperties {
     private static final String PROPERTIES_FILENAME = "situationHandler.config.properties";
 
     /**
+     * The camel component that is used to provide http components. Either
+     * "jetty", "servlet" or "not_set".
+     */
+    private static String httpEndpointComponent = "not_set";
+
+    /**
      * The properties as loaded from the file system.
      */
     private static Properties properties = new Properties();
@@ -185,6 +191,7 @@ public class SituationHandlerProperties {
      *         plugins as the default value.
      */
     public static String getPluginStartupFolder() {
+	System.out.println("Folder:" + properties.getProperty("situationHandler.plugins.startupFolder"));
 	return properties.getProperty("situationHandler.plugins.startupFolder", "plugins");
     }
 
@@ -225,4 +232,26 @@ public class SituationHandlerProperties {
     public static int getDefaultThreadPoolSize() {
 	return Runtime.getRuntime().availableProcessors();
     }
+
+    /**
+     * Gets the camel component that is used to provide http components.
+     * 
+     * @return the httpEndpointComponent. Is either "jetty", "servlet" or
+     *         "not_set"
+     */
+    public static String getHttpEndpointComponent() {
+	return httpEndpointComponent;
+    }
+
+    /**
+     * Sets the camel component that is used to provide http components.
+     * 
+     * @param httpEndpointComponent
+     *            the httpEndpointComponent to set. Either "jetty", "servlet" or
+     *            "not_set".
+     */
+    static void setHttpEndpointComponent(String httpEndpointComponent) {
+	SituationHandlerProperties.httpEndpointComponent = httpEndpointComponent;
+    }
+
 }

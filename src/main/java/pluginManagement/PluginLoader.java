@@ -286,6 +286,7 @@ class PluginLoader {
 	    }
 	} catch (ServiceConfigurationError e) {
 	    logger.warn("Could not load plugin. " + e.getMessage());
+	    e.printStackTrace();
 	}
     }
 
@@ -301,7 +302,7 @@ class PluginLoader {
 	File folder = new File(pluginFolder);
 
 	if (!folder.exists()) {
-	    folder.mkdir();
+	    System.out.println("Folder Created: " + folder.mkdirs());
 	}
 
 	File[] jarList = folder.listFiles(new FileFilter() {

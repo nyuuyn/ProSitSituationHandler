@@ -11,7 +11,7 @@ public class CamelStartupServlet implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-	logger.info("Situation Handler Startup");
+	logger.info("Starting situation handler on server.");
 	SituationHandlerInitializer.startInServletContainer(sce);
     }
 

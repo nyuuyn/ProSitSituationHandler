@@ -68,7 +68,6 @@ public class RestApiRoutes extends RouteBuilder {
 	} else {
 	    throw new IllegalArgumentException("Unsupported Component: " + component);
 	}
-	System.out.println("Restapibasepath " + restApiBasePath);
 	this.component = component;
     }
 
