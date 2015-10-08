@@ -13,51 +13,64 @@ import java.util.jar.JarFile;
  */
 class DynamicURLClassLoader extends URLClassLoader {
 
-	/**
-	 * Instantiates a new dynamic url class loader, loading jars from the
-	 * specified URLs.
-	 * <p>
-	 * Does the same than {@link URLClassLoader#URLClassLoader(URL[])}
-	 *
-	 * @param urls
-	 *            the urls to load.
-	 */
-	DynamicURLClassLoader(URL[] urls) {
-		super(urls);
+    /**
+     * Instantiates a new dynamic url class loader, loading jars from the
+     * specified URLs.
+     * <p>
+     * Does the same than {@link URLClassLoader#URLClassLoader(URL[])}
+     *
+     * @param urls
+     *            the urls to load.
+     */
+    DynamicURLClassLoader(URL[] urls) {
+	super(urls);
 
+    }
+
+    /**
+     * Instantiates a new dynamic url class loader, loading jars from the
+     * specified URLs.
+     * <p>
+     * Does the same than {@link URLClassLoader#URLClassLoader(URL[], ClassLoader))}
+     *
+     * 
+     * @param urls the urls to load
+     * @param parent the parent class loader
+     */
+    public DynamicURLClassLoader(URL[] urls, ClassLoader parent) {
+	super(urls, parent);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.net.URLClassLoader#addURL(java.net.URL)
+     */
+    @Override
+    protected void addURL(URL url) {
+	super.addURL(url);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.net.URLClassLoader#close()
+     */
+    @Override
+    public void close() throws IOException {
+
+	for (URL url : getURLs()) {
+	    JarFile jar;
+	    try {
+		File file = new File(url.toURI());
+		jar = new JarFile(file);
+		jar.close();
+	    } catch (IOException | URISyntaxException e) {
+		e.printStackTrace();
+	    }
 	}
 
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.net.URLClassLoader#addURL(java.net.URL)
-	 */
-	@Override
-	protected void addURL(URL url) {
-		super.addURL(url);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.net.URLClassLoader#close()
-	 */
-	@Override
-	public void close() throws IOException {
-
-		for (URL url : getURLs()) {
-			JarFile jar;
-			try {
-				File file = new File(url.toURI());
-				jar = new JarFile(file);
-				jar.close();
-			} catch (IOException | URISyntaxException e) {
-				e.printStackTrace();
-			}
-		}
-
-		super.close();
-	}
+	super.close();
+    }
 
 }

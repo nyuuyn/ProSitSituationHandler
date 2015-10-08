@@ -115,8 +115,13 @@ class PluginLoader {
      * available Plugins.
      */
     private void initLoaders() {
+
 	urlClassLoader = new DynamicURLClassLoader(
-		pluginUrls.values().toArray(new URL[pluginUrls.values().size()]));
+		pluginUrls.values().toArray(new URL[pluginUrls.values().size()]),
+		getClass().getClassLoader());
+
+	// urlClassLoader = new DynamicURLClassLoader(
+	// pluginUrls.values().toArray(new URL[pluginUrls.values().size()]));
 
 	serviceLoader = ServiceLoader.load(Plugin.class, urlClassLoader);
 	updatePluginCache();
