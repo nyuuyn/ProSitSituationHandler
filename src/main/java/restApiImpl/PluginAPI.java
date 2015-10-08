@@ -84,15 +84,10 @@ public class PluginAPI {
 	String pluginID = (String) exchange.getIn().getHeader("x-file-name");
 	String directory = SituationHandlerProperties.getPluginStartupFolder() + "\\tempfiles";
 	String filename = pluginID + ".jar";
-//TODO
-//	System.out.println("------------------------------------");
-//	System.out.println(exchange.getIn().getHeaders().toString());
-//	System.out.println(exchange.getIn().getBody(String.class));
-//	System.out.println("------------------------------------");
 
-	// get first attachment, then save it temporarily (jetty version)
 	try {
 	    if (SituationHandlerProperties.getHttpEndpointComponent().equals("jetty")) {
+		// get first attachment, then save it temporarily
 		CamelUtil.getProducerTemplate().sendBody(
 			"file:" + directory + "?fileName=" + filename,
 			exchange.getIn()
@@ -100,6 +95,7 @@ public class PluginAPI {
 					exchange.getIn().getAttachmentNames().iterator().next())
 				.getContent());
 	    } else if (SituationHandlerProperties.getHttpEndpointComponent().equals("servlet")) {
+		// save file from body
 		CamelUtil.getProducerTemplate().sendBody(
 			"file:" + directory + "?fileName=" + filename, exchange.getIn().getBody());
 	    } else {
@@ -109,12 +105,6 @@ public class PluginAPI {
 	} catch (CamelExecutionException | IOException e) {
 	    logger.error("Error adding plugin", e);
 	}
-
-	// TODO: finale Komponente festlegen..
-	// save file temporarily (netty version)
-	// CamelUtil.getProducerTemplate().sendBody(
-	// "file:" + directory + "?fileName=" + filename,
-	// exchange.getIn().getBody());
 
 	// add plugin (also deletes temp file)
 	exchange.getOut().setHeader(Exchange.CONTENT_TYPE, "text/plain; charset=utf-8");
