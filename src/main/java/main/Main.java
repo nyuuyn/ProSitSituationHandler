@@ -6,16 +6,31 @@ import java.io.InputStreamReader;
 
 import org.apache.log4j.Logger;
 
+/**
+ * The Class Main is used to handle the startup and shutdown of the sitaution
+ * handler when it is started as a java application.
+ */
 public class Main {
 
+    /** The logger. */
     private final static Logger logger = Logger.getLogger(Main.class);
 
+    /**
+     * The main method.
+     *
+     * @param args
+     *            the arguments
+     */
     public static void main(String[] args) {
 	logger.info("Starting as java application.");
 	startShutdownListener();
 	SituationHandlerInitializer.startAsJavaApplication();
     }
 
+    /**
+     * Start the shutdown listener. Listens to console input and inits the
+     * shutdown if required.
+     */
     private static void startShutdownListener() {
 	new Thread(new Runnable() {
 
@@ -27,7 +42,7 @@ public class Main {
 		    while (line.equalsIgnoreCase("quit") == false) {
 			line = in.readLine();
 			if (line.equalsIgnoreCase("routes")) {
-			    System.out.println(CamelUtil.getCamelContext()
+			    logger.info(CamelUtil.getCamelContext()
 				    .createRouteStaticEndpointJson(null));
 			}
 		    }

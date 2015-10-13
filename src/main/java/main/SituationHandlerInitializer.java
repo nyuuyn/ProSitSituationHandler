@@ -27,13 +27,25 @@ import situationHandling.workflowOperations.OperationHandlerFactory;
 import situationManagement.SituationEndpoint;
 import situationManagement.SituationManagerFactory;
 
+/**
+ * The Class SituationHandlerInitializer can be used to initialize and close the
+ * situation handler. Two different camel components can be used for the startup
+ * : jetty for the java-application-mode and servlet for the server-mode.
+ */
 class SituationHandlerInitializer {
 
+    /** The camel context. */
     private static CamelContext context;
+
+    /** The registry. */
     private static JndiRegistry registry;
 
+    /** The logger. */
     private final static Logger logger = Logger.getLogger(SituationHandlerInitializer.class);
 
+    /**
+     * Start as java application.
+     */
     static void startAsJavaApplication() {
 	context = new DefaultCamelContext();
 	registry = context.getRegistry(JndiRegistry.class);
@@ -58,6 +70,12 @@ class SituationHandlerInitializer {
 
     }
 
+    /**
+     * Start in servlet container.
+     *
+     * @param sce
+     *            servlet context
+     */
     static void startInServletContainer(ServletContextEvent sce) {
 	registry = new JndiRegistry();
 	context = new ServletCamelContext(registry, sce.getServletContext());
@@ -68,6 +86,9 @@ class SituationHandlerInitializer {
 	startSituationHandler();
     }
 
+    /**
+     * Sets the registry entries (bean binding).
+     */
     private static void setRegistryEntries() {
 
 	// register beans for use
@@ -81,6 +102,12 @@ class SituationHandlerInitializer {
 
     }
 
+    /**
+     * Start the camel routes.
+     *
+     * @param component
+     *            the component
+     */
     private static void startRoutes(String component) {
 	try {
 	    // Uncomment this to debug http requests (using fiddler)
@@ -105,6 +132,9 @@ class SituationHandlerInitializer {
 	logger.info("Camel context initialized");
     }
 
+    /**
+     * Start situation handler components.
+     */
     private static void startSituationHandler() {
 	// situation handler initialization
 	SituationManagerFactory.getSituationManager().init();
@@ -113,6 +143,9 @@ class SituationHandlerInitializer {
 	PluginManagerFactory.getPluginManager().getAllPluginIDs();
     }
 
+    /**
+     * Shutdown. Closes the situation handler and does some cleanup.
+     */
     static void shutdown() {
 	logger.info("Shutting Down..");
 	logger.info("Deleting Subscriptions");

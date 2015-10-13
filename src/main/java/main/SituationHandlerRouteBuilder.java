@@ -5,11 +5,14 @@ import org.apache.camel.builder.RouteBuilder;
 
 import utils.soap.SoapProcessor;
 
+/**
+ * The Class SituationHandlerRouteBuilder creates the http-endpoints used for
+ * the handling of workflows and so on.
+ */
 class SituationHandlerRouteBuilder extends RouteBuilder {
 
     /**
-     * The base path that defines the component and the address (if necessary)
-     * 
+     * The base path that defines the component and the address (if necessary).
      */
     private String path;
 
@@ -18,6 +21,13 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
      */
     private String component;
 
+    /**
+     * Instantiates a new situation handler route builder.
+     *
+     * @param component
+     *            the component that provides the http-endpoints. Use either
+     *            "jetty" or "servlet".
+     */
     public SituationHandlerRouteBuilder(String component) {
 
 	if (component.equals("jetty")) {
@@ -31,6 +41,11 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 	this.component = component;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.camel.builder.RouteBuilder#configure()
+     */
     public void configure() {
 	createRequestEndpoint();
 	createRequestAnswerEndpoint();
@@ -41,6 +56,9 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 	}
     }
 
+    /**
+     * Creates the endpoint to receive workflow requests.
+     */
     private void createRequestEndpoint() {
 	// forward each message posted on .../RequestEndpoint to the operation
 	// Handler. Requests are answered immediately and sent
@@ -57,6 +75,9 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 			.to("bean:operationHandlerEndpoint?method=receiveRequest");
     }
 
+    /**
+     * Creates the endpoint to receive workflow answers.
+     */
     private void createRequestAnswerEndpoint() {
 	// forward each message posted on .../AnswerEndpoint to the appropriate
 	// Handler. Requests are answered immediately and sent
@@ -76,6 +97,9 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 			.to("bean:operationHandlerEndpoint?method=receiveAnswer");
     }
 
+    /**
+     * Creates the endpoint to receive situation changes.
+     */
     private void createSubscriptionEndpoint() {
 	// to receive Subscriptions. Requests are answered immediately and sent
 	// to a queue for asynchronous processing. Several threads are used to
@@ -86,6 +110,9 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 	from("seda:situationChange").to("bean:situationEndpoint?method=situationReceived");
     }
 
+    /**
+     * Helper method to set the cors headers.
+     */
     private void setCorsHeaders() {
 	// set CORS Headers for option requests
 	from(path + "/api-docs?httpMethodRestrict=OPTIONS").setHeader("Access-Control-Allow-Origin")
@@ -96,6 +123,9 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 
     }
 
+    /**
+     * Provides the wepapp.
+     */
     private void serveWebapp() {
 	// used for serving the wep app
 	from(path + "?handlers=#webApp").to("stream:out");
