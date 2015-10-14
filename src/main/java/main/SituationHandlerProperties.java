@@ -191,7 +191,6 @@ public class SituationHandlerProperties {
      *         plugins as the default value.
      */
     public static String getPluginStartupFolder() {
-	System.out.println("Folder:" + properties.getProperty("situationHandler.plugins.startupFolder"));
 	return properties.getProperty("situationHandler.plugins.startupFolder", "plugins");
     }
 

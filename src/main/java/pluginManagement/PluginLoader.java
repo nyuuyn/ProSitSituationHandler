@@ -304,7 +304,7 @@ class PluginLoader {
 	File folder = new File(pluginFolder);
 
 	if (!folder.exists()) {
-	    System.out.println("Folder Created: " + folder.mkdirs());
+	    logger.debug("Plugin Folder Created: " + folder.mkdirs());
 	}
 
 	File[] jarList = folder.listFiles(new FileFilter() {
