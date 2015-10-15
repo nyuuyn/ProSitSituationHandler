@@ -102,7 +102,7 @@ public class SituationHandlerProperties {
     }
 
     /**
-     * Gets the relative path of the http endpoint that is used to reveive
+     * Gets the relative path of the http endpoint that is used to receive
      * situation changes.
      * 
      * @return the path to the http endpoint as specified in the properties or
@@ -114,7 +114,7 @@ public class SituationHandlerProperties {
     }
 
     /**
-     * Gets the relative path of the http endpoint that is used to reveive
+     * Gets the relative path of the http endpoint that is used to receive
      * answers of workflows.
      * 
      * @return the path to the http endpoint as specified in the properties or
@@ -126,7 +126,7 @@ public class SituationHandlerProperties {
     }
 
     /**
-     * Gets the relative path of the http endpoint that is used to reveive
+     * Gets the relative path of the http endpoint that is used to receive
      * requests from workflows.
      * 
      * @return the path to the http endpoint as specified in the properties or
@@ -135,6 +135,18 @@ public class SituationHandlerProperties {
     public static String getRequestEndpointPath() {
 	return properties.getProperty("situationHandler.endpoints.RequestEndpointPath",
 		"RequestEndpoint");
+    }
+
+    /**
+     * Gets the relative path of the http endpoint that is used to receive
+     * workflow decisions.
+     * 
+     * @return the path to the http endpoint as specified in the properties or
+     *         decisions as the default value
+     */
+    public static String getDecisionsEndpointPath() {
+	return properties.getProperty("situationHandler.endpoints.DecisionEndpointPath",
+		"decisions");
     }
 
     /**
@@ -151,7 +163,7 @@ public class SituationHandlerProperties {
     /**
      * Gets the (relative) base path. Used as parent for all other paths.
      * 
-     * @return the base path as specified in the properties or config as the
+     * @return the base path as specified in the properties or situationhandler as the
      *         default value.
      */
     public static String getRestBasePath() {
