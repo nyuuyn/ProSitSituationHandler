@@ -22,7 +22,6 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-
 /**
  * The Class WsaSoapMessage is a wrapper class for soap messages. It provides
  * means to directly access and set relevant headers, especially WSA headers and
@@ -80,6 +79,17 @@ public class WsaSoapMessage {
      * situation change.
      */
     private Integer maxRetries = null;
+
+    /**
+     * The guy that decides which endpoint is chosen. This is most likely an
+     * address, e.g. a gcm token.
+     */
+    private String decider;
+    /**
+     * When a decider is specified, this string will be used as the description
+     * of the decision.
+     */
+    private String decisionDescription;
 
     /**
      * Instantiates a new wsa soap message. The soap message is parsed from a
@@ -232,6 +242,10 @@ public class WsaSoapMessage {
 		// correlation info header
 		faultCorrelationId = she.getValue();
 		toRemove.add(she);
+	    } else if (headerName.equals(SoapConstants.HEADER_DECIDER)) {
+		decider = she.getValue();
+	    } else if (headerName.equals(SoapConstants.HEADER_DECISION_DESCRIPTION)) {
+		decisionDescription = she.getValue();
 	    }
 	}
 	// remove headers after processing.. (to avoid modification of list
@@ -521,6 +535,26 @@ public class WsaSoapMessage {
      */
     public Integer getMaxRetries() {
 	return maxRetries;
+    }
+
+    /**
+     * The decider is the guy that decides which endpoint is chosen. This is
+     * most likely an address, e.g. a gcm token.
+     * 
+     * @return the decider, the decider or null, if no decider is specified.
+     */
+    public String getDecider() {
+	return decider;
+    }
+
+    /**
+     * When a decider is specified, this string can be used as the description
+     * of the decision.
+     * 
+     * @return the decisionDescription
+     */
+    public String getDecisionDescription() {
+	return decisionDescription;
     }
 
     @Override

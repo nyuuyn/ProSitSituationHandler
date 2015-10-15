@@ -2,12 +2,14 @@ package situationHandling.workflowOperations;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.xml.soap.SOAPConstants;
 
 import org.apache.log4j.Logger;
 
+import main.CamelUtil;
 import situationHandling.storage.StorageAccessFactory;
 import situationHandling.storage.datatypes.Endpoint;
 import situationHandling.storage.datatypes.HandledSituation;
@@ -83,33 +85,43 @@ class OperationHandlerImpl implements OperationHandlerForRollback {
 	}
 
 	logger.debug("Handling Operation: " + operationName + ":" + qualifier);
-	Endpoint chosenEndpoint = chooseEndpoint(new Operation(operationName, qualifier));
-	if (chosenEndpoint == null) {
+	List<Endpoint> bestEndpoints = chooseEndpoint(new Operation(operationName, qualifier));
+	// either there is no endpoint (error), a definite endpoint (only one or
+	// no decider) or more that one endpoint with a decider specified
+	if (bestEndpoints.size() == 0) {
 	    logger.warn("No endpoint found for Operation: " + operationName + ":" + qualifier);
 	    sendErrorMessage("No endpoint found for " + operationName + ":" + qualifier
 		    + ". Nothing executed.", wsaSoapMessage);
 	    return;
+	} else if (bestEndpoints.size() == 1 || wsaSoapMessage.getDecider() == null) {
+	    sendToEndpoint(bestEndpoints.get(0), wsaSoapMessage, rollbackHandler);
+	} else {
+	    // contact decider
+	    CamelUtil.getCamelExecutorService().submit(new DecisionResultHandler(bestEndpoints,
+		    this, wsaSoapMessage, rollbackHandler));
 	}
+    }
 
-	URL endpointURL = null;
-	try {
-	    endpointURL = new URL(chosenEndpoint.getEndpointURL());
-	} catch (MalformedURLException e) {
-	    sendErrorMessage("Chosen endpoint is invalid. URL: " + chosenEndpoint.getEndpointURL(),
-		    wsaSoapMessage);
-	    return;
+    /**
+     * Callback for decision result handlers. Initiates further processing.
+     * 
+     * @param resultEndpointId
+     *            the decision (endpoint) when a decision was made. Else -1.
+     * @param wsaSoapMessage
+     *            the request this decision relates to
+     * @param rollbackHandler
+     *            the rollbackhandler (if available)
+     */
+    public void decisionCallback(int resultEndpointId, WsaSoapMessage wsaSoapMessage,
+	    RollbackHandler rollbackHandler) {
+	Endpoint resultEndpoint;
+	// if invalid result, sent error message, else forward request
+	if (resultEndpointId == -1 || (resultEndpoint = StorageAccessFactory
+		.getEndpointStorageAccess().getEndpointByID(resultEndpointId)) == null) {
+	    sendErrorMessage("Decision was requested but not result was received.", wsaSoapMessage);
+	} else {
+	    sendToEndpoint(resultEndpoint, wsaSoapMessage, rollbackHandler);
 	}
-	String surrogate = new MessageRouter(wsaSoapMessage).forwardRequest(endpointURL);
-	StorageAccessFactory.getHistoryAccess().appendWorkflowOperationInvocation(chosenEndpoint,
-		(surrogate != null));
-	if (surrogate == null) {
-	    sendErrorMessage("Endpoint cannot be reached. " + chosenEndpoint, wsaSoapMessage);
-	    return;
-	}
-
-	rollbackManager.registerRollbackHandler(rollbackHandler, chosenEndpoint, wsaSoapMessage,
-		surrogate);
-
     }
 
     /**
@@ -126,8 +138,8 @@ class OperationHandlerImpl implements OperationHandlerForRollback {
 	String correlationId = request.getFaultCorrelationId() == null ? request.getWsaMessageID()
 		: request.getFaultCorrelationId();
 	WsaSoapMessage rollbackMessage = SoapRequestFactory.createFaultMessageWsa(
-		request.getWsaReplyTo().toString(), correlationId, 
-		error, SOAPConstants.SOAP_RECEIVER_FAULT);
+		request.getWsaReplyTo().toString(), correlationId, error,
+		SOAPConstants.SOAP_RECEIVER_FAULT);
 
 	new MessageRouter(rollbackMessage).forwardFaultMessage(null);
     }
@@ -155,10 +167,10 @@ class OperationHandlerImpl implements OperationHandlerForRollback {
      * @return The endpoint chosen by the criteria listed above or {@code Null}
      *         if no endpoint matching these criteria was found.
      */
-    private Endpoint chooseEndpoint(Operation operation) {
+    private List<Endpoint> chooseEndpoint(Operation operation) {
 	List<Endpoint> candidateEndpoints = StorageAccessFactory.getEndpointStorageAccess()
 		.getCandidateEndpoints(operation);
-	Endpoint bestCandidate = null;
+	LinkedList<Endpoint> bestCandidates = new LinkedList<>();
 	int bestScore = -1;
 
 	logger.debug("Candidates: \n" + candidateEndpoints.toString());
@@ -193,17 +205,51 @@ class OperationHandlerImpl implements OperationHandlerForRollback {
 	    }
 	    logger.debug("Endpoint " + currentCandidate.getEndpointID() + ": Score " + score);
 
-	    if (score >= bestScore) {
-		bestCandidate = currentCandidate;
+	    if (score == bestScore) {
+		bestCandidates.add(currentCandidate);
+		logger.debug("Adding Endpoint to list of best endpoints"
+			+ bestCandidates.get(0).getEndpointID() + " with score " + bestScore);
+	    } else if (score > bestScore) {
+		bestCandidates.clear();
 		bestScore = score;
-		logger.debug("Choosing Endpoint " + bestCandidate.getEndpointID() + " with score "
-			+ bestScore);
+		bestCandidates.add(currentCandidate);
+		logger.debug("Choosing Endpoint " + bestCandidates.get(0).getEndpointID()
+			+ " with score " + bestScore);
 	    }
 	}
 
-	logger.debug("Best candidate - Score: " + bestScore + "\n" + bestCandidate);
+	logger.debug("Best candidates - Score: " + bestScore + "\n" + bestCandidates.toString());
 
-	return bestCandidate;
+	return bestCandidates;
+    }
+
+    /**
+     * Sends the message to the specified endpoint, using the specified
+     * rollbackhandler.
+     * 
+     * @param target
+     * @param wsaSoapMessage
+     * @param rollbackHandler
+     */
+    private void sendToEndpoint(Endpoint target, WsaSoapMessage wsaSoapMessage,
+	    RollbackHandler rollbackHandler) {
+	URL endpointURL = null;
+	try {
+	    endpointURL = new URL(target.getEndpointURL());
+	} catch (MalformedURLException e) {
+	    sendErrorMessage("Chosen endpoint is invalid. URL: " + target.getEndpointURL(),
+		    wsaSoapMessage);
+	    return;
+	}
+	String surrogate = new MessageRouter(wsaSoapMessage).forwardRequest(endpointURL);
+	StorageAccessFactory.getHistoryAccess().appendWorkflowOperationInvocation(target,
+		(surrogate != null));
+	if (surrogate == null) {
+	    sendErrorMessage("Endpoint cannot be reached. " + target, wsaSoapMessage);
+	    return;
+	}
+
+	rollbackManager.registerRollbackHandler(rollbackHandler, target, wsaSoapMessage, surrogate);
     }
 
     /*

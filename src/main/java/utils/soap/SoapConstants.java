@@ -81,6 +81,18 @@ class SoapConstants {
     static final String HEADER_MAX_RETRIES = "MaxRetries";
 
     /**
+     * The name of the soap header element that states the decider that is
+     * contacted in case of endpoint selection ambiguities.
+     */
+    static final String HEADER_DECIDER = "Decider";
+
+    /**
+     * The name of the soap header element that states the decision description
+     * that is sent to the decider in case of endpoint selection ambiguities
+     */
+    static final String HEADER_DECISION_DESCRIPTION = "DecisionDescription";
+
+    /**
      * The name of the header in a request message, that specifies the
      * correlation id of the fault message.
      */
