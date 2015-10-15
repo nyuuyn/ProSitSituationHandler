@@ -65,6 +65,7 @@ class DecisionResultHandler implements Runnable {
     @Override
     public void run() {
 	// use android plugin to send message
+	// TODO: fehlendes Plugin abfangen und route vor dem abschicken erzeugen
 	PluginParams pluginParams = new PluginParams();
 	pluginParams.setParam("type", "decision");
 	String requestId = UUID.randomUUID().toString();
@@ -85,23 +86,14 @@ class DecisionResultHandler implements Runnable {
 	Callable<Map<String, String>> sender = PluginManagerFactory.getPluginManager()
 		.getPluginSender("situationHandler.android", wsaSoapMessage.getDecider(),
 			wsaSoapMessage.getDecisionDescription(), pluginParams);
-	try {
-	    Map<String, String> result = CamelUtil.getCamelExecutorService().submit(sender).get();
-	    if (result.get("success").equals("false")) {
-		logger.warn("Could not send message to decider.");
-		callbackOperationHandler.decisionCallback(-1, wsaSoapMessage, rollbackHandler);
-		return;
-	    }
-	} catch (InterruptedException | ExecutionException e) {
-	    logger.warn("Could not send message to decider.");
+	if (sender == null){
+	    logger.warn("Could not send decision request, because plugin is not available");
 	    callbackOperationHandler.decisionCallback(-1, wsaSoapMessage, rollbackHandler);
-	    return;
 	}
 
-	System.out.println("Waitung for answer....");
 	// TODO: beide Pfade!
 	// TODO: Das config aus dem Pfad rausnehmen
-	String path = "jetty:http://0.0.0.0:8081/situationhandler/config/decisions/" + requestId;
+	String path = "jetty:http://0.0.0.0:8081/situationhandler/decisions/" + requestId;
 	System.out.println("Receiving on path: " + path);
 
 	DecisionResultHandler thisHandler = this;
@@ -131,6 +123,21 @@ class DecisionResultHandler implements Runnable {
 	} catch (Exception e) {
 	    e.printStackTrace();
 	}
+
+	try {
+	    Map<String, String> result = CamelUtil.getCamelExecutorService().submit(sender).get();
+	    if (result.get("success").equals("false")) {
+		logger.warn("Could not send message to decider.");
+		callbackOperationHandler.decisionCallback(-1, wsaSoapMessage, rollbackHandler);
+		return;
+	    }
+	} catch (InterruptedException | ExecutionException e) {
+	    logger.warn("Could not send message to decider.");
+	    callbackOperationHandler.decisionCallback(-1, wsaSoapMessage, rollbackHandler);
+	    return;
+	}
+
+	System.out.println("Waitung for answer....");
 
 	synchronized (this) {
 	    try {
