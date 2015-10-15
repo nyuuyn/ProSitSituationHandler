@@ -109,6 +109,7 @@ class SituationHandlerRouteBuilder extends RouteBuilder {
 	// no conucurrent consumers here!
 	from("seda:situationChange").to("bean:situationEndpoint?method=situationReceived");
     }
+    
 
     /**
      * Helper method to set the cors headers.

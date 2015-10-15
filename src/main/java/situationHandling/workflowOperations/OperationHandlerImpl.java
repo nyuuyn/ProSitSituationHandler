@@ -96,6 +96,7 @@ class OperationHandlerImpl implements OperationHandlerForRollback {
 	} else if (bestEndpoints.size() == 1 || wsaSoapMessage.getDecider() == null) {
 	    sendToEndpoint(bestEndpoints.get(0), wsaSoapMessage, rollbackHandler);
 	} else {
+	    logger.info("Could not decide which endpoint to use. Contacting decider.");
 	    // contact decider
 	    CamelUtil.getCamelExecutorService().submit(new DecisionResultHandler(bestEndpoints,
 		    this, wsaSoapMessage, rollbackHandler));
@@ -114,6 +115,7 @@ class OperationHandlerImpl implements OperationHandlerForRollback {
      */
     public void decisionCallback(int resultEndpointId, WsaSoapMessage wsaSoapMessage,
 	    RollbackHandler rollbackHandler) {
+	logger.info("Decision received. Using endpoint with id: " + resultEndpointId);
 	Endpoint resultEndpoint;
 	// if invalid result, sent error message, else forward request
 	if (resultEndpointId == -1 || (resultEndpoint = StorageAccessFactory

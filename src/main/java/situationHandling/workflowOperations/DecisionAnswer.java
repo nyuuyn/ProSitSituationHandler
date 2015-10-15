@@ -1,13 +1,19 @@
 package situationHandling.workflowOperations;
 
 //TODO
-class DecisionAnswer {
-    
+public class DecisionAnswer {
+
     private String requestId;
     private String choice;
     
     
-    
+
+    /**
+     * 
+     */
+    public DecisionAnswer() {
+    }
+
     /**
      * @param requestId
      * @param choice
@@ -16,19 +22,45 @@ class DecisionAnswer {
 	this.requestId = requestId;
 	this.choice = choice;
     }
+    
+    
+
+    /**
+     * @param requestId the requestId to set
+     */
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
+    }
+
+    /**
+     * @param choice the choice to set
+     */
+    public void setChoice(String choice) {
+        this.choice = choice;
+    }
+
     /**
      * @return the requestId
      */
-    String getRequestId() {
-        return requestId;
+    public String getRequestId() {
+	return requestId;
     }
+
     /**
      * @return the choice
      */
-    String getChoice() {
-        return choice;
+    public String getChoice() {
+	return choice;
     }
-    
-    
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+	return "DecisionAnswer [requestId=" + requestId + ", choice=" + choice + "]";
+    }
 
 }
