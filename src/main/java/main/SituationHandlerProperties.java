@@ -163,8 +163,8 @@ public class SituationHandlerProperties {
     /**
      * Gets the (relative) base path. Used as parent for all other paths.
      * 
-     * @return the base path as specified in the properties or situationhandler as the
-     *         default value.
+     * @return the base path as specified in the properties or situationhandler
+     *         as the default value.
      */
     public static String getRestBasePath() {
 	return properties.getProperty("situationHandler.rest.basepath", "situationhandler");
@@ -241,7 +241,7 @@ public class SituationHandlerProperties {
      * @return the default size of the thread pool.
      */
     public static int getDefaultThreadPoolSize() {
-	return Runtime.getRuntime().availableProcessors();
+	return Runtime.getRuntime().availableProcessors() * 2;
     }
 
     /**

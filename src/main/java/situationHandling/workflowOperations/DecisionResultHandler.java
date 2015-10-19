@@ -171,6 +171,7 @@ class DecisionResultHandler implements Runnable {
 	return true;
     }
 
+    //TODO
     private boolean sendDecisionRequest(Callable<Map<String, String>> sender) {
 	try {
 	    Map<String, String> result = CamelUtil.getCamelExecutorService().submit(sender).get();
