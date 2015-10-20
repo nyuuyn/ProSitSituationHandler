@@ -86,6 +86,7 @@ class OperationHandlerImpl implements OperationHandlerForRollback {
 
 	logger.debug("Handling Operation: " + operationName + ":" + qualifier);
 	List<Endpoint> bestEndpoints = chooseEndpoint(new Operation(operationName, qualifier));
+
 	// either there is no endpoint (error), a definite endpoint (only one or
 	// no decider) or more that one endpoint with a decider specified
 	if (bestEndpoints.size() == 0) {
@@ -97,8 +98,8 @@ class OperationHandlerImpl implements OperationHandlerForRollback {
 	    sendToEndpoint(bestEndpoints.get(0), wsaSoapMessage, rollbackHandler);
 	} else {
 	    logger.info("Could not decide which endpoint to use. Contacting decider.");
-	    // contact decider
-	    CamelUtil.getCamelExecutorService().submit(new DecisionResultHandler(bestEndpoints,
+	    // contact decider and wait for answer
+	    CamelUtil.getCamelExecutorService().submit(new DecisionHandler(bestEndpoints,
 		    this, wsaSoapMessage, rollbackHandler));
 	}
     }

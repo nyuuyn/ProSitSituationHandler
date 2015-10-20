@@ -1,6 +1,3 @@
-/**
- * 
- */
 package situationHandling.workflowOperations;
 
 import java.util.Iterator;
@@ -25,30 +22,70 @@ import utils.soap.WsaSoapMessage;
 
 /**
  * 
- * TODO
+ * The class DecisionHandler is used to send Workflow Decisions and to handle
+ * the Result.
+ * <p>
+ * A decision request is sent to a user, when the situation handler could was
+ * not able to find a unique endpoint to handle a workflow request and when the
+ * workflow request specified a user to make the decision.
+ * <p>
+ * The DecisionHandler is a thread that sends the decision request and then
+ * waits until the result arrives. The receive the result, an http endpoint is
+ * created. The url of the endpoint contains the id of the request and is only
+ * used to recieve a single decision. The endpoint is closed after the decision
+ * was received.
+ * <p>
+ * When processing is finished, a callback to an Instance of
+ * {@code OperationHandlerImpl} is made.
+ * 
+ * @see OperationHandlerImpl
+ * @see DecisionAnswer
  * 
  * @author Stefan
  *
  */
-class DecisionResultHandler implements Runnable {
+class DecisionHandler implements Runnable {
 
     /** The logger. */
     private static final Logger logger = Logger.getLogger(MessageRouter.class);
 
+    /**
+     * The candidates for the decision. One of the candidates must be chosen.
+     */
     private List<Endpoint> candidateEndpoints;
 
+    /**
+     * An instance of OperationHandlerImpl that handles the callback of the
+     * decision handler.
+     */
     private OperationHandlerImpl callbackOperationHandler;
 
+    /**
+     * The request by the workflow
+     */
     private WsaSoapMessage wsaSoapMessage;
 
+    /**
+     * The rollbackhandler used to handle the workflow request.
+     */
     private RollbackHandler rollbackHandler;
 
     /**
+     * Creates a new instance of DecisionHandler.
+     * 
+     * 
+     * @param candidateEndpoints
+     *            The candidates for the decision. One of the candidates must be
+     *            chosen.
      * @param callbackOperationHandler
+     *            An instance of OperationHandlerImpl that handles the callback
+     *            of the decision handler.
      * @param wsaSoapMessage
+     *            The request by the workflow
      * @param rollbackHandler
+     *            The rollbackhandler used to handle the workflow request.
      */
-    DecisionResultHandler(List<Endpoint> candidateEndpoints,
+    DecisionHandler(List<Endpoint> candidateEndpoints,
 	    OperationHandlerImpl callbackOperationHandler, WsaSoapMessage wsaSoapMessage,
 	    RollbackHandler rollbackHandler) {
 
@@ -66,20 +103,23 @@ class DecisionResultHandler implements Runnable {
     @Override
     public void run() {
 	String requestId = UUID.randomUUID().toString();
-	Callable<Map<String, String>> sender = createPluginSender(requestId);
 
+	// create sender and handle error
+	Callable<Map<String, String>> sender = createPluginSender(requestId);
 	if (sender == null) {
 	    logger.warn("Could not send decision request, because plugin is not available");
 	    callbackOperationHandler.decisionCallback(-1, wsaSoapMessage, rollbackHandler);
 	    return;
 	}
 
+	// create callback http endpoint and handle error
 	if (!createCallbackEndpoint(requestId)) {
 	    logger.warn("Could not create callback endpoint");
 	    callbackOperationHandler.decisionCallback(-1, wsaSoapMessage, rollbackHandler);
 	    return;
 	}
 
+	// send request and wait for answer if successful
 	if (!sendDecisionRequest(sender)) {
 	    logger.warn("Could not send message to decider.");
 	    callbackOperationHandler.decisionCallback(-1, wsaSoapMessage, rollbackHandler);
@@ -93,15 +133,18 @@ class DecisionResultHandler implements Runnable {
 		}
 	    }
 	}
-	try {
-	    CamelUtil.getCamelContext().stopRoute(requestId);
-	    CamelUtil.getCamelContext().removeRoute(requestId);
-	} catch (Exception e) {
-	    logger.error("Could not stop/remove route.", e);
-	}
 
+	closeCallbackEndpoint(requestId);
     }
 
+    /**
+     * Creates a Callable that can be used to send the decision request. Uses
+     * the plugin system to do this. The android plugin is required.
+     * 
+     * @param requestId
+     *            the id of the decision request
+     * @return the callable or null if the creation of the callable failed.
+     */
     private Callable<Map<String, String>> createPluginSender(String requestId) {
 	// use android plugin to send message. Create instance of plugin
 	PluginParams pluginParams = new PluginParams();
@@ -126,8 +169,18 @@ class DecisionResultHandler implements Runnable {
 		wsaSoapMessage.getDecider(), wsaSoapMessage.getDecisionDescription(), pluginParams);
     }
 
+    /**
+     * Creates an http endpoint to receive the answer to a decision request. The
+     * url of the endpoint contains the id of the request. The endpoint is
+     * created in a camel route.
+     * 
+     * @param requestId
+     *            the id of the decision request
+     * @return true if the endpoint was successfully created, false else
+     */
     private boolean createCallbackEndpoint(String requestId) {
 	String camelComponent = SituationHandlerProperties.getHttpEndpointComponent();
+	// set path for camel component
 	String path;
 	if (camelComponent.equals("jetty")) {
 	    path = camelComponent + ":http://0.0.0.0:" + SituationHandlerProperties.getNetworkPort()
@@ -141,9 +194,13 @@ class DecisionResultHandler implements Runnable {
 	    return false;
 	}
 
-	DecisionResultHandler thisHandler = this;
+	DecisionHandler thisHandler = this;
 
-	// create processor
+	/*
+	 * Create processor. The processor is used on the camel route to process
+	 * the answer. The processor parses the message and makes a callback to
+	 * this thread (i.e. notifies it)
+	 */
 	Processor resultHandler = new Processor() {
 	    @Override
 	    public void process(Exchange exchange) throws Exception {
@@ -171,7 +228,29 @@ class DecisionResultHandler implements Runnable {
 	return true;
     }
 
-    //TODO
+    /**
+     * Closes the http endpoint that is used to received the answer.
+     * 
+     * @param routeId
+     *            the id of the camel route that provides the endpoint.
+     */
+    private void closeCallbackEndpoint(String routeId) {
+	try {
+	    CamelUtil.getCamelContext().stopRoute(routeId);
+	    CamelUtil.getCamelContext().removeRoute(routeId);
+	} catch (Exception e) {
+	    logger.error("Could not stop/remove route.", e);
+	}
+    }
+
+    /**
+     * Uses the callable to send the request to the decider. Uses the camel
+     * thread pool.
+     * 
+     * @param sender
+     *            the callable to send the request.
+     * @return true, if the request was successfully sent, false else.
+     */
     private boolean sendDecisionRequest(Callable<Map<String, String>> sender) {
 	try {
 	    Map<String, String> result = CamelUtil.getCamelExecutorService().submit(sender).get();
