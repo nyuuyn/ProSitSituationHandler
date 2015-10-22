@@ -272,6 +272,7 @@ public class Endpoint {
      * 
      * @return a list of situations
      */
+    @JsonIgnore
     public List<Situation> getRollbackSituations() {
 	LinkedList<Situation> rollbackSituations = new LinkedList<>();
 	for (HandledSituation handledSit : situations) {

@@ -101,7 +101,7 @@ class SubscriptionHandler {
 	for (Endpoint endpoint : esa.getAllEndpoints()) {
 	    for (HandledSituation handledSituation : endpoint.getSituations()) {
 		subscribe(new Situation(handledSituation.getSituationName(),
-			handledSituation.getObjectName()));
+			handledSituation.getObjectId()));
 	    }
 	}
 

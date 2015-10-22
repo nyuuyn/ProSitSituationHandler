@@ -317,8 +317,8 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageDatabase {
 		return false;
 	    } else {
 		// check for props to update and do update if check successful
-		if (newSituation.getObjectName() != null) {
-		    existingSituation.setObjectId(newSituation.getObjectName());
+		if (newSituation.getObjectId() != null) {
+		    existingSituation.setObjectId(newSituation.getObjectId());
 		}
 		if (newSituation.getSituationName() != null) {
 		    existingSituation.setSituationName(newSituation.getSituationName());

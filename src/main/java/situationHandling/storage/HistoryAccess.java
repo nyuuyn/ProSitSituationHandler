@@ -316,7 +316,7 @@ public class HistoryAccess {
 	for (HandledSituation handledSituation : endpoint.getSituations()) {
 	    situationString.append(
 		    "Situation defined by SituationTemplate: " + handledSituation.getSituationName()
-			    + " and Thing: " + handledSituation.getObjectName() + " is "
+			    + " and Thing: " + handledSituation.getObjectId() + " is "
 			    + handledSituation.isSituationHolds());
 	}
 

@@ -185,7 +185,7 @@ class OperationHandlerImpl implements OperationHandlerForRollback {
 
 		SituationManager situationManager = SituationManagerFactory.getSituationManager();
 		Situation situation = new Situation(handledSituation.getSituationName(),
-			handledSituation.getObjectName());
+			handledSituation.getObjectId());
 
 		if (situationManager.situationOccured(situation) == handledSituation
 			.isSituationHolds()) {

@@ -142,7 +142,7 @@ public class HandledSituation {
 	/**
 	 * @return the object id
 	 */
-	public String getObjectName() {
+	public String getObjectId() {
 		return objectId;
 	}
 
