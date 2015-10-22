@@ -22,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  *
  * An endpoint is decribed by the following information:
  * <ul>
+ * <li>Endpoint name: an expressive name for the endpoint</li>
+ * <li>Endpoint description: describes what the endpoint does</li>
  * <li>One or more handled situations. The situations in which an endpoint is
  * used. A situation consists of a situation name the name of an object.
  * Furthermore a situation can be optional, i.e. the endpoint can also be used
@@ -61,6 +63,18 @@ public class Endpoint {
     private int endpointID;
 
     /**
+     * The name of the endpoint.
+     */
+    @Column(name = "endpoint_name")
+    private String endpointName;
+
+    /**
+     * The description of the endpoint.
+     */
+    @Column(name = "endpoint_description")
+    private String endpointDescription;
+
+    /**
      * The list of situations handled by this endpoint.
      */
     @OneToMany(cascade = CascadeType.ALL)
@@ -83,7 +97,11 @@ public class Endpoint {
     /**
      * Instantiates a new endpoint. Allows to specify the situations etc. See
      * documentation of the class for the description of the parameters.
-     *
+     * 
+     * @param endpointName
+     *            the name of the endpoint.
+     * @param endpointDescription
+     *            the description of the endpoint
      * @param endpointURL
      *            the endpoint url. This MUST be a valid URL. Otherwise,
      *            fowarding the message will fail
@@ -94,8 +112,10 @@ public class Endpoint {
      * @param qualifier
      *            the qualifier
      */
-    public Endpoint(String endpointURL, List<HandledSituation> situations, String operationName,
-	    String qualifier) {
+    public Endpoint(String endpointName, String endpointDescription, String endpointURL,
+	    List<HandledSituation> situations, String operationName, String qualifier) {
+	this.endpointName = endpointName;
+	this.endpointDescription = endpointDescription;
 	this.endpointURL = endpointURL;
 	this.situations = situations;
 	this.operationName = operationName;
@@ -105,7 +125,11 @@ public class Endpoint {
     /**
      * Instantiates a new endpoint. See documentation of the class for the
      * description of the parameters.
-     *
+     * 
+     * @param endpointName
+     *            the name of the endpoint.
+     * @param endpointDescription
+     *            the description of the endpoint
      * @param endpointURL
      *            the endpoint url.This MUST be a valid URL. Otherwise,
      *            fowarding the message will fail.
@@ -114,11 +138,12 @@ public class Endpoint {
      * @param operation
      *            the operation
      */
-    public Endpoint(String endpointURL, List<HandledSituation> situations, Operation operation) {
+    public Endpoint(String endpointName, String endpointDescription, String endpointURL,
+	    List<HandledSituation> situations, Operation operation) {
+	this.endpointName = endpointName;
+	this.endpointDescription = endpointDescription;
 	this.endpointURL = endpointURL;
-
 	this.situations = situations;
-
 	this.operationName = operation.getOperationName();
 	this.qualifier = operation.getQualifier();
 
@@ -130,6 +155,45 @@ public class Endpoint {
      */
     public Endpoint() {
 	super();
+    }
+
+    /**
+     * 
+     * Sets the name of the endpoint.
+     * 
+     * @param endpointName
+     *            the endpointName to set
+     */
+    public void setEndpointName(String endpointName) {
+	this.endpointName = endpointName;
+    }
+
+    /**
+     * Gets the name of the endpoint.
+     * 
+     * @return the endpointName
+     */
+    public String getEndpointName() {
+	return endpointName;
+    }
+
+    /**
+     * Sets the description of the endpoint. Describes what the endpoint does.
+     * 
+     * @param endpointDescription
+     *            the endpointDescription to set
+     */
+    public void setEndpointDescription(String endpointDescription) {
+	this.endpointDescription = endpointDescription;
+    }
+
+    /**
+     * Gets the description of the endpoint. Describes what the endpoint does.
+     * 
+     * @return the endpointDescription
+     */
+    public String getEndpointDescription() {
+	return endpointDescription;
     }
 
     /**
@@ -273,9 +337,10 @@ public class Endpoint {
      */
     @Override
     public String toString() {
-
-	return "[" + endpointID + " | " + operationName + " | " + qualifier + " | "
-		+ endpointURL.toString() + (situations != null ? situations.toString() : "") + "]";
+	return "Endpoint [endpointID=" + endpointID + ", endpointName=" + endpointName
+		+ ", endpointDescription=" + endpointDescription + ", situations=" + situations
+		+ ", operationName=" + operationName + ", qualifier=" + qualifier + ", endpointURL="
+		+ endpointURL + "]";
     }
 
 }

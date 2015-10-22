@@ -167,8 +167,8 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageDatabase {
      * situationHandling.storage.datatypes.Situation, java.net.URL)
      */
     @Override
-    public int addEndpoint(Operation operation, List<HandledSituation> situations,
-	    String endpointURL) throws InvalidEndpointException {
+    public int addEndpoint(String endpointName, String endpointDescription, Operation operation,
+	    List<HandledSituation> situations, String endpointURL) throws InvalidEndpointException {
 
 	// set ids of handled situations to zero. This avoids errors with
 	// manually set ids.
@@ -186,7 +186,8 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageDatabase {
 	Integer endpointID = null;
 	try {
 	    tx = session.beginTransaction();
-	    Endpoint endpoint = new Endpoint(endpointURL, situations, operation);
+	    Endpoint endpoint = new Endpoint(endpointName, endpointDescription, endpointURL,
+		    situations, operation);
 	    logger.debug("Adding endpoint " + endpoint.toString());
 	    endpointID = (Integer) session.save(endpoint);
 	    tx.commit();

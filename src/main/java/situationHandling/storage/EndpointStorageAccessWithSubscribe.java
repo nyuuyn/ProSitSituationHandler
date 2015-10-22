@@ -80,11 +80,12 @@ class EndpointStorageAccessWithSubscribe implements EndpointStorageAccess {
      * java.lang.String)
      */
     @Override
-    public int addEndpoint(Operation operation, List<HandledSituation> situations,
-	    String endpointURL) throws InvalidEndpointException {
+    public int addEndpoint(String endpointName, String endpointDescription, Operation operation,
+	    List<HandledSituation> situations, String endpointURL) throws InvalidEndpointException {
 
 	try {
-	    int id = esa.addEndpoint(operation, situations, endpointURL);
+	    int id = esa.addEndpoint(endpointName, endpointDescription, operation, situations,
+		    endpointURL);
 	    // add a subscription for each of the situations
 	    SituationManager situationManager = SituationManagerFactory.getSituationManager();
 	    if (situations != null) {

@@ -17,52 +17,50 @@ import situationHandling.storage.datatypes.Operation;
  * @author Stefan
  *
  */
-class EndpointStorageAccessAdvancedChecks extends
-		EndpointStorageAccessDefaultImpl {
+class EndpointStorageAccessAdvancedChecks extends EndpointStorageAccessDefaultImpl {
 
-	/**
-	 * Instantiates a new endpoint storage access advanced impl.
-	 *
-	 * @param sessionFactory
-	 *            The session factory used to create database sessions.
-	 */
-	public EndpointStorageAccessAdvancedChecks(SessionFactory sessionFactory) {
-		super(sessionFactory);
-	}
+    /**
+     * Instantiates a new endpoint storage access advanced impl.
+     *
+     * @param sessionFactory
+     *            The session factory used to create database sessions.
+     */
+    public EndpointStorageAccessAdvancedChecks(SessionFactory sessionFactory) {
+	super(sessionFactory);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * situationHandling.storage.EndpointStorageAccessDefaultImpl#addEndpoint
-	 * (situationHandling.storage.datatypes.Operation,
-	 * situationHandling.storage.datatypes.Situation, java.lang.String)
-	 */
-	@Override
-	public int addEndpoint(Operation operation, List<HandledSituation> situations,
-			String endpointURL) throws InvalidEndpointException {
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * situationHandling.storage.EndpointStorageAccessDefaultImpl#addEndpoint
+     * (situationHandling.storage.datatypes.Operation,
+     * situationHandling.storage.datatypes.Situation, java.lang.String)
+     */
+    @Override
+    public int addEndpoint(String endpointName, String endpointDescription, Operation operation,
+	    List<HandledSituation> situations, String endpointURL) throws InvalidEndpointException {
 
-		new EndpointValidityChecker(endpointURL, situations).checkBeforeAdd();
+	new EndpointValidityChecker(endpointURL, situations).checkBeforeAdd();
 
-		return super.addEndpoint(operation, situations, endpointURL);
-	}
+	return super.addEndpoint(endpointName, endpointDescription, operation, situations,
+		endpointURL);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * situationHandling.storage.EndpointStorageAccessDefaultImpl#updateEndpoint
-	 * (int, situationHandling.storage.datatypes.Situation,
-	 * situationHandling.storage.datatypes.Operation, java.lang.String)
-	 */
-	@Override
-	public boolean updateEndpoint(int endpointID, List<HandledSituation> situations,
-			Operation operation, String endpointURL)
-			throws InvalidEndpointException {
-		new EndpointValidityChecker(endpointURL, null).checkBeforeUpdate();
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * situationHandling.storage.EndpointStorageAccessDefaultImpl#updateEndpoint
+     * (int, situationHandling.storage.datatypes.Situation,
+     * situationHandling.storage.datatypes.Operation, java.lang.String)
+     */
+    @Override
+    public boolean updateEndpoint(int endpointID, List<HandledSituation> situations,
+	    Operation operation, String endpointURL) throws InvalidEndpointException {
+	new EndpointValidityChecker(endpointURL, null).checkBeforeUpdate();
 
-		return super.updateEndpoint(endpointID, situations, operation,
-				endpointURL);
-	}
+	return super.updateEndpoint(endpointID, situations, operation, endpointURL);
+    }
 
 }

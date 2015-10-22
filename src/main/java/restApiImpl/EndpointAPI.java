@@ -66,7 +66,8 @@ public class EndpointAPI {
 
 	try {
 	    List<HandledSituation> situations = endpoint.getSituations();
-	    int endpointID = esa.addEndpoint(endpoint.getOperation(),
+	    int endpointID = esa.addEndpoint(endpoint.getEndpointName(),
+		    endpoint.getEndpointDescription(), endpoint.getOperation(),
 		    (situations == null ? new LinkedList<>() : situations),
 		    endpoint.getEndpointURL());
 	    exchange.getIn().setBody(
