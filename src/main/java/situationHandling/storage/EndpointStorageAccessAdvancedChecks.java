@@ -56,11 +56,13 @@ class EndpointStorageAccessAdvancedChecks extends EndpointStorageAccessDefaultIm
      * situationHandling.storage.datatypes.Operation, java.lang.String)
      */
     @Override
-    public boolean updateEndpoint(int endpointID, List<HandledSituation> situations,
-	    Operation operation, String endpointURL) throws InvalidEndpointException {
+    public boolean updateEndpoint(int endpointID, String endpointName, String endpointDescription,
+	    List<HandledSituation> situations, Operation operation, String endpointURL)
+		    throws InvalidEndpointException {
 	new EndpointValidityChecker(endpointURL, null).checkBeforeUpdate();
 
-	return super.updateEndpoint(endpointID, situations, operation, endpointURL);
+	return super.updateEndpoint(endpointID, endpointName, endpointDescription, situations,
+		operation, endpointURL);
     }
 
 }

@@ -242,8 +242,9 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageDatabase {
      * situationHandling.storage.datatypes.Operation, java.net.URL)
      */
     @Override
-    public boolean updateEndpoint(int endpointID, List<HandledSituation> situations,
-	    Operation operation, String endpointURL) throws InvalidEndpointException {
+    public boolean updateEndpoint(int endpointID, String endpointName, String endpointDescription,
+	    List<HandledSituation> situations, Operation operation, String endpointURL)
+		    throws InvalidEndpointException {
 
 	logger.debug("Updating endpoint: " + endpointID);
 	Session session = sessionFactory.openSession();
@@ -258,6 +259,12 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageDatabase {
 	    } else {
 		// params are optional, so check for null..
 
+		if (endpointName != null) {
+		    endpoint.setEndpointName(endpointName);
+		}
+		if (endpointDescription != null) {
+		    endpoint.setEndpointDescription(endpointDescription);
+		}
 		if (operation != null && operation.getOperationName() != null) {
 		    endpoint.setOperationName(operation.getOperationName());
 		}

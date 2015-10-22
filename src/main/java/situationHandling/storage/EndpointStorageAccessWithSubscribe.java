@@ -132,13 +132,15 @@ class EndpointStorageAccessWithSubscribe implements EndpointStorageAccess {
      * java.lang.String)
      */
     @Override
-    public boolean updateEndpoint(int endpointID, List<HandledSituation> situations,
-	    Operation operation, String endpointURL) throws InvalidEndpointException {
+    public boolean updateEndpoint(int endpointID, String endpointName, String endpointDescription,
+	    List<HandledSituation> situations, Operation operation, String endpointURL)
+		    throws InvalidEndpointException {
 
 	List<HandledSituation> oldSituations = esa.getSituationsByEndpoint(endpointID);
 
 	try {
-	    boolean success = esa.updateEndpoint(endpointID, situations, operation, endpointURL);
+	    boolean success = esa.updateEndpoint(endpointID, endpointName, endpointDescription,
+		    situations, operation, endpointURL);
 	    if (success) {
 		// check for each updated handled situation, if the situation
 		// itself changed and update subscriptions if necessary.

@@ -112,7 +112,10 @@ public interface EndpointStorageAccess {
      *
      * @param endpointID
      *            the endpoint id that is used to uniquely identify an endpoint.
-     * 
+     * @param endpointName
+     *            the name of the endpoint.
+     * @param endpointDescription
+     *            the description of the endpoint
      * @param operation
      *            the new operation for this endpoint. If {@code operation} is
      *            {@code null}, the operation will not be updated
@@ -126,8 +129,9 @@ public interface EndpointStorageAccess {
      * @throws InvalidEndpointException
      *             When the specified Endpoint is not valid
      */
-    public boolean updateEndpoint(int endpointID, List<HandledSituation> situations,
-	    Operation operation, String endpointURL) throws InvalidEndpointException;
+    public boolean updateEndpoint(int endpointID, String endpointName, String endpointDescription,
+	    List<HandledSituation> situations, Operation operation, String endpointURL)
+		    throws InvalidEndpointException;
 
     /**
      * Updates an existing situation with the specified id. It is possible to
