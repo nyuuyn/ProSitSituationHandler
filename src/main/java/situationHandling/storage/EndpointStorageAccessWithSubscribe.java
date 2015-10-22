@@ -283,7 +283,7 @@ class EndpointStorageAccessWithSubscribe implements EndpointStorageAccess {
 	    Situation newSituation) {
 
 	String subscriptionSituationName = oldSituation.getSituationName();
-	String subscriptionObjectName = oldSituation.getObjectName();
+	String subscriptionObjectName = oldSituation.getObjectId();
 
 	// check if situation name changed
 	boolean changed = false;
@@ -293,10 +293,10 @@ class EndpointStorageAccessWithSubscribe implements EndpointStorageAccess {
 	    changed = true;
 	}
 	// check if object name changed
-	if (newSituation.getObjectName() != null
-		&& !newSituation.getObjectName().equals(oldSituation.getObjectName())) {
+	if (newSituation.getObjectId() != null
+		&& !newSituation.getObjectId().equals(oldSituation.getObjectId())) {
 	    changed = true;
-	    subscriptionObjectName = newSituation.getObjectName();
+	    subscriptionObjectName = newSituation.getObjectId();
 
 	}
 	// update subscription

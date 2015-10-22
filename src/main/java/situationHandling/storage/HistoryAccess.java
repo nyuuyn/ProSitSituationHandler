@@ -83,7 +83,7 @@ public class HistoryAccess {
 		logger.trace("Creating action history entry:" + situation + action);
 
 		String situationString = "Situation defined by SituationTemplate: "
-			+ situation.getSituationName() + " and Thing: " + situation.getObjectName()
+			+ situation.getSituationName() + " and Thing: " + situation.getObjectId()
 			+ " has " + (state ? "appeared" : "disappeared");
 		String typeOfAction = "Notification with: " + action.getPluginID();
 

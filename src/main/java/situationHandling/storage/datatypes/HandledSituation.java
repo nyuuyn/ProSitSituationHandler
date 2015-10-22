@@ -44,9 +44,9 @@ public class HandledSituation {
 	@Column(name = "situation_name")
 	private String situationName;
 
-	/** The object name. */
-	@Column(name = "object_name")
-	private String objectName;
+	/** The object id. */
+	@Column(name = "object_id")
+	private String objectId;
 
 	/**
 	 * Describes the usage of the situation. When true, the situation occured,
@@ -84,8 +84,8 @@ public class HandledSituation {
 	 *            this value.
 	 * @param situationName
 	 *            The situation name
-	 * @param objectName
-	 *            The object name.
+	 * @param objectId
+	 *            The object id.
 	 * @param situationHolds
 	 *            Describes the usage of the situation. When true, the situation
 	 *            occured, when false not.
@@ -96,11 +96,11 @@ public class HandledSituation {
 	 *            States whether a rollback action has to be done, if the
 	 *            situation changes.
 	 */
-	public HandledSituation(int id, String situationName, String objectName, boolean situationHolds, boolean optional,
+	public HandledSituation(int id, String situationName, String objectId, boolean situationHolds, boolean optional,
 			boolean rollbackOnChange) {
 		this.id = id;
 		this.situationName = situationName;
-		this.objectName = objectName;
+		this.objectId = objectId;
 		this.situationHolds = situationHolds;
 		this.optional = optional;
 		this.rollbackOnChange = rollbackOnChange;
@@ -140,18 +140,18 @@ public class HandledSituation {
 	}
 
 	/**
-	 * @return the objectName
+	 * @return the object id
 	 */
 	public String getObjectName() {
-		return objectName;
+		return objectId;
 	}
 
 	/**
-	 * @param objectName
-	 *            the objectName to set
+	 * @param objectId
+	 *            the object id to set
 	 */
-	public void setObjectName(String objectName) {
-		this.objectName = objectName;
+	public void setObjectId(String objectId) {
+		this.objectId = objectId;
 	}
 
 	/**
@@ -221,7 +221,7 @@ public class HandledSituation {
 	 */
 	@JsonIgnore
 	public Situation getSituation() {
-		return new Situation(situationName, objectName);
+		return new Situation(situationName, objectId);
 	}
 
 	/**
@@ -233,7 +233,7 @@ public class HandledSituation {
 	@JsonIgnore
 	public void setSituation(Situation situation) {
 		this.situationName = situation.getSituationName();
-		this.objectName = situation.getObjectName();
+		this.objectId = situation.getObjectId();
 	}
 
 	/*
@@ -246,7 +246,7 @@ public class HandledSituation {
 		String holds = situationHolds ? "situation holds" : "situation does not hold";
 		String optionalString = optional ? "optional" : "required";
 		String rollback = rollbackOnChange ? "rollback" : "no rollback";
-		return "[" + situationName + " | " + objectName + " | " + holds + " | " + optionalString + " | " + rollback
+		return "[" + situationName + " | " + objectId + " | " + holds + " | " + optionalString + " | " + rollback
 				+ "]";
 	}
 }

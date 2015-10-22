@@ -79,7 +79,7 @@ class RuleStorageAccessDefaultImpl implements RuleStorageDatabase {
 					.add(Restrictions.eq("situationName",
 							situation.getSituationName()))
 					.add(Restrictions.eq("objectName",
-							situation.getObjectName())).list();
+							situation.getObjectId())).list();
 
 			// there is a maximum of one result for this query, since the
 			// combination of situationName and objectName is unique in this
@@ -139,7 +139,7 @@ class RuleStorageAccessDefaultImpl implements RuleStorageDatabase {
 					.add(Restrictions.eq("situationName",
 							situation.getSituationName()))
 					.add(Restrictions.eq("objectName",
-							situation.getObjectName())).list();
+							situation.getObjectId())).list();
 			if (rules.size() == 1) {
 				exists = true;
 			}
@@ -411,7 +411,7 @@ class RuleStorageAccessDefaultImpl implements RuleStorageDatabase {
 					.add(Restrictions.eq("situationName",
 							oldSituation.getSituationName()))
 					.add(Restrictions.eq("objectName",
-							oldSituation.getObjectName())).list();
+							oldSituation.getObjectId())).list();
 			// there is one rule rule with this situation or none
 			if (rules.size() == 1) {
 				Rule rule = (Rule) rules.get(0);
@@ -534,7 +534,7 @@ class RuleStorageAccessDefaultImpl implements RuleStorageDatabase {
 					.add(Restrictions.eq("situationName",
 							situation.getSituationName()))
 					.add(Restrictions.eq("objectName",
-							situation.getObjectName())).list();
+							situation.getObjectId())).list();
 
 			tx.commit();
 			// there is max one rule for this situation (or there isn't a rule
@@ -576,8 +576,8 @@ class RuleStorageAccessDefaultImpl implements RuleStorageDatabase {
 			SQLQuery query = session
 					.createSQLQuery("SELECT actions.* FROM rules, actions WHERE rules.id = actions.rule_id AND rules.situation_name = '"
 							+ situation.getSituationName()
-							+ "' AND rules.object_name = '"
-							+ situation.getObjectName()
+							+ "' AND rules.object_id = '"
+							+ situation.getObjectId()
 							+ "' AND (actions.execution_time = '"
 							+ executionTime
 							+ "' OR actions.execution_time = 'onSituationChange')");

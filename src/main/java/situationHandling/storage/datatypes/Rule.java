@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * are to be executed when the rule is used. <div> Therefore, a rule consists of
  * a single situation and several actions that should be executed when this
  * situation occurs. A Situation is described by the situation name and an
- * object name. <div> The situation is represented by {@link Situation} and one
+ * object id. <div> The situation is represented by {@link Situation} and one
  * or more {@link Action}s. <div> The situation uniquely identifies a rule, i.e.
  * there cannot be two rules with the same situation. The situation can be used
  * to look up a rule.
@@ -49,9 +49,9 @@ public class Rule {
 	@Column(name = "situation_name")
 	private String situationName;
 
-	/** The object name. */
-	@Column(name = "object_name")
-	private String objectName;
+	/** The object id. */
+	@Column(name = "object_id")
+	private String objectId;
 
 	/**
 	 * The actions. The actions are mapped to the table actions, using the id of
@@ -71,18 +71,18 @@ public class Rule {
 
 	/**
 	 * Instantiates a new rule. Specifies the situation by the situation name
-	 * and the object name. No actions are specified in this case. Actions can
+	 * and the object id. No actions are specified in this case. Actions can
 	 * be added using the method {@link #setActions(List)} or
 	 * {@link #addAction(Action)}.
 	 *
 	 * @param situationName
 	 *            the situation name
-	 * @param objectName
-	 *            the object name
+	 * @param objectId
+	 *            the object id
 	 */
-	public Rule(String situationName, String objectName) {
+	public Rule(String situationName, String objectId) {
 		this.situationName = situationName;
-		this.objectName = objectName;
+		this.objectId = objectId;
 	}
 
 	/**
@@ -96,7 +96,7 @@ public class Rule {
 	 */
 	public Rule(Situation situation, List<Action> actions) {
 		this.situationName = situation.getSituationName();
-		this.objectName = situation.getObjectName();
+		this.objectId = situation.getObjectId();
 		this.actions = actions;
 	}
 
@@ -110,12 +110,12 @@ public class Rule {
 	 */
 	public Rule(Situation situation) {
 		this.situationName = situation.getSituationName();
-		this.objectName = situation.getObjectName();
+		this.objectId = situation.getObjectId();
 	}
 
 	/**
 	 * Gets the situation name. The situation name specifies a situation
-	 * together with the object name.<div>
+	 * together with the object id.<div>
 	 * 
 	 * The situation uniquely identifies a rule, i.e. there cannot be two rules
 	 * with the same situation. The situation can be used to look up a rule.
@@ -128,7 +128,7 @@ public class Rule {
 
 	/**
 	 * Sets the situation name. The situation name specifies a situation
-	 * together with the object name.<div>
+	 * together with the object id.<div>
 	 * 
 	 * The situation uniquely identifies a rule, i.e. there cannot be two rules
 	 * with the same situation. The situation can be used to look up a rule.
@@ -141,30 +141,30 @@ public class Rule {
 	}
 
 	/**
-	 * Gets the object name. The object name specifies a situation together with
+	 * Gets the object id. The object id specifies a situation together with
 	 * the situation name.<div>
 	 * 
 	 * The situation uniquely identifies a rule, i.e. there cannot be two rules
 	 * with the same situation. The situation can be used to look up a rule.
 	 *
-	 * @return the object name
+	 * @return the object id
 	 */
-	public String getObjectName() {
-		return objectName;
+	public String getobjectId() {
+		return objectId;
 	}
 
 	/**
-	 * Sets the object name. The object name specifies a situation together with
+	 * Sets the object id. The object id specifies a situation together with
 	 * the situation name.<div>
 	 * 
 	 * The situation uniquely identifies a rule, i.e. there cannot be two rules
 	 * with the same situation. The situation can be used to look up a rule.
 	 *
-	 * @param objectName
-	 *            the new object name
+	 * @param objectId
+	 *            the new object id
 	 */
-	public void setObjectName(String objectName) {
-		this.objectName = objectName;
+	public void setobjectId(String objectId) {
+		this.objectId = objectId;
 	}
 
 	/**
@@ -197,7 +197,7 @@ public class Rule {
 	 */
 	@JsonIgnore
 	public Situation getSituation() {
-		return new Situation(situationName, objectName);
+		return new Situation(situationName, objectId);
 	}
 
 	/**
@@ -211,7 +211,7 @@ public class Rule {
 	@JsonIgnore
 	public void setSituation(Situation situation) {
 		this.situationName = situation.getSituationName();
-		this.objectName = situation.getObjectName();
+		this.objectId = situation.getObjectId();
 	}
 
 	/**
@@ -260,7 +260,7 @@ public class Rule {
 		sb.append("---------------------------------------------%n");
 		sb.append("---------------------------------------------%n");
 		sb.append("Rule: [id=" + id + ", situationName=" + situationName
-				+ ", objectName=" + objectName + ", actions: ");
+				+ ", objectId=" + objectId + ", actions: ");
 
 		for (Action action : actions) {
 			sb.append("%n-------------------------------------%n");

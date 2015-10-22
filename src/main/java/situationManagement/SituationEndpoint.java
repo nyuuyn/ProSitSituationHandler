@@ -51,7 +51,7 @@ public class SituationEndpoint {
 			logger.debug("Received notification about situation change: Template: "
 					+ situation.getSituationName()
 					+ " | thing: "
-					+ situation.getObjectName()
+					+ situation.getObjectId()
 					+ " | occured: "
 					+ situationResult.isOccured());
 
@@ -62,7 +62,7 @@ public class SituationEndpoint {
 				SituationManagerWithCache cache = (SituationManagerWithCache) situationManager;
 				cache.updateSituationCache(
 						new Situation(situation.getSituationName(), situation
-								.getObjectName()), situationResult.isOccured());
+								.getObjectId()), situationResult.isOccured());
 			}
 
 			// notify notification and workflow handling

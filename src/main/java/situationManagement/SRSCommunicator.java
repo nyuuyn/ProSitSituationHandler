@@ -54,7 +54,7 @@ class SRSCommunicator {
 		ProducerTemplate pt = CamelUtil.getProducerTemplate();
 
 		// query string
-		String query = "SitTempID=" + situation.getSituationName() + "&ThingID=" + situation.getObjectName()
+		String query = "SitTempID=" + situation.getSituationName() + "&ThingID=" + situation.getObjectId()
 				+ "&CallbackURL=" + address + "&once=false";
 
 		// set headers
@@ -106,7 +106,7 @@ class SRSCommunicator {
 		ProducerTemplate pt = CamelUtil.getProducerTemplate();
 
 		// query string
-		String query = "SitTempID=" + situation.getSituationName() + "&ThingID=" + situation.getObjectName()
+		String query = "SitTempID=" + situation.getSituationName() + "&ThingID=" + situation.getObjectId()
 				+ "&CallbackURL=" + address;
 
 		// set headers
@@ -148,7 +148,7 @@ class SRSCommunicator {
 		ProducerTemplate pt = CamelUtil.getProducerTemplate();
 
 		// query
-		String query = "thing=" + situation.getObjectName() + "&situationtemplate=" + situation.getSituationName();
+		String query = "thing=" + situation.getObjectId() + "&situationtemplate=" + situation.getSituationName();
 
 		// set headers
 		Map<String, Object> headers = new HashMap<>();
