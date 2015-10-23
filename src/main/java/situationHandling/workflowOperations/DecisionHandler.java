@@ -158,6 +158,10 @@ class DecisionHandler implements Runnable {
 	while (choiceIterator.hasNext()) {
 	    Endpoint candidate = choiceIterator.next();
 	    choicesString.append(candidate.getEndpointID());
+	    choicesString.append("$");
+	    choicesString.append(candidate.getEndpointName());
+	    choicesString.append("$");
+	    choicesString.append(candidate.getEndpointDescription());
 	    if (choiceIterator.hasNext()) {
 		choicesString.append("$");
 	    }
