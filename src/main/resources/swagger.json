@@ -1,9 +1,9 @@
 {
     "swagger": "2.0",
     "info": {
-        "version": "0.0.1",
+        "version": "1.0.0",
         "title": "Situation Handler",
-        "description": "This is the Rest Api to configure the Situation Handler. It allows to\n  - View, edit and create endpoints\n  - View, edit and create notification rules and actions\n  - View, add and remove plugins at runtime\n  - View the history of executed actions/operations\n"
+        "description": "This is the Rest Api to configure the Sitpuation Handler. It allows to\n  - View, edit and create endpoints\n  - View, edit and create notification rules and actions\n  - View, add and remove plugins at runtime\n  - View the history of executed actions/operations\n"
     },
     "host": "localhost:8081",
     "basePath": "/situationhandler/config",
@@ -903,6 +903,38 @@
                 }
             }
         },
+        "/plugins/{pluginId}/manual": {
+            "get": {
+                "summary": "Gets the manual of the plugin. Should be a html string.",
+                "tags": [
+                    "plugin"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/PluginPath"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Operation successful.",
+                        "schema": {
+                            "type": "string",
+                            "description": "the manual"
+                        }
+                    },
+                    "404": {
+                        "description": "Manual not found.",
+                        "schema": {
+                            "type": "string",
+                            "description": "An error message."
+                        }
+                    }
+                }
+            }
+        },
         "/history": {
             "get": {
                 "summary": "Get the history.",
@@ -964,6 +996,14 @@
                     "type": "integer",
                     "description": "the unique ID of this endpoint"
                 },
+                "endpointName": {
+                    "type": "string",
+                    "description": "an expressive name for the endpoint"
+                },
+                "endpointDescription": {
+                    "type": "string",
+                    "description": "a description for the endpoint"
+                },
                 "operationName": {
                     "type": "string"
                 },
@@ -991,7 +1031,7 @@
                 "situationName": {
                     "type": "string"
                 },
-                "objectName": {
+                "objectId": {
                     "type": "string"
                 },
                 "actions": {
@@ -1033,7 +1073,7 @@
                 "situationName": {
                     "type": "string"
                 },
-                "objectName": {
+                "objectId": {
                     "type": "string"
                 }
             }
@@ -1044,7 +1084,7 @@
                 "situationName": {
                     "type": "string"
                 },
-                "objectName": {
+                "objectId": {
                     "type": "string"
                 },
                 "situationHolds": {
