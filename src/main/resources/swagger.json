@@ -1088,15 +1088,15 @@
                     "type": "string"
                 },
                 "situationHolds": {
-                    "type": "string",
+                    "type": "boolean",
                     "description": "boolean value. Use 'true' or 'false'"
                 },
                 "optional": {
-                    "type": "string",
+                    "type": "boolean",
                     "description": "boolean value. Use 'true' or 'false'"
                 },
                 "rollbackOnChange": {
-                    "type": "string",
+                    "type": "boolean",
                     "description": "boolean value. Use 'true' or 'false'"
                 }
             }
