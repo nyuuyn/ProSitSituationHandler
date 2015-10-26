@@ -78,11 +78,11 @@ class RuleStorageAccessDefaultImpl implements RuleStorageDatabase {
 					.createCriteria(Rule.class)
 					.add(Restrictions.eq("situationName",
 							situation.getSituationName()))
-					.add(Restrictions.eq("objectName",
+					.add(Restrictions.eq("objectId",
 							situation.getObjectId())).list();
 
 			// there is a maximum of one result for this query, since the
-			// combination of situationName and objectName is unique in this
+			// combination of situationName and objectId is unique in this
 			// DB table
 			if (rules.size() == 1) {
 				rule = (Rule) rules.iterator().next();
@@ -138,7 +138,7 @@ class RuleStorageAccessDefaultImpl implements RuleStorageDatabase {
 					.createCriteria(Rule.class)
 					.add(Restrictions.eq("situationName",
 							situation.getSituationName()))
-					.add(Restrictions.eq("objectName",
+					.add(Restrictions.eq("objectId",
 							situation.getObjectId())).list();
 			if (rules.size() == 1) {
 				exists = true;
@@ -410,7 +410,7 @@ class RuleStorageAccessDefaultImpl implements RuleStorageDatabase {
 					.createCriteria(Rule.class)
 					.add(Restrictions.eq("situationName",
 							oldSituation.getSituationName()))
-					.add(Restrictions.eq("objectName",
+					.add(Restrictions.eq("objectId",
 							oldSituation.getObjectId())).list();
 			// there is one rule rule with this situation or none
 			if (rules.size() == 1) {
@@ -533,7 +533,7 @@ class RuleStorageAccessDefaultImpl implements RuleStorageDatabase {
 					.createCriteria(Rule.class)
 					.add(Restrictions.eq("situationName",
 							situation.getSituationName()))
-					.add(Restrictions.eq("objectName",
+					.add(Restrictions.eq("objectId",
 							situation.getObjectId())).list();
 
 			tx.commit();
@@ -584,24 +584,6 @@ class RuleStorageAccessDefaultImpl implements RuleStorageDatabase {
 			query.addEntity(Action.class);
 			@SuppressWarnings("rawtypes")
 			List result = query.list();
-
-			// alternative to the above expression that does not work
-			// @SuppressWarnings("rawtypes")
-			// List rules = session
-			// .createCriteria(Rule.class)
-			// .add(Restrictions.eq("situationName",
-			// situation.getSituationName()))
-			// .add(Restrictions.eq("objectName",
-			// situation.getObjectName()))
-			// .createAlias(
-			// "actions",
-			// "act",
-			// JoinType.INNER_JOIN,
-			// Restrictions.or(Restrictions.eq(
-			// "act.executionTime",
-			// ExecutionTime.onSituationChange),
-			// Restrictions.eq("act.executionTime",
-			// executionTime))).list();
 
 			actions = new LinkedList<>();
 			for (Object o : result) {

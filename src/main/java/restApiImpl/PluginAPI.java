@@ -143,6 +143,14 @@ public class PluginAPI {
 	}
     }
 
+    /**
+     * Gets the manual of a plugin as a string.
+     * 
+     * @param pluginId
+     *            the id of the plugin
+     * @param exchange
+     *            the exchange that contains the plugin
+     */
     public void getPluginManual(String pluginId, Exchange exchange) {
 	URL manualURL = pm.getPluginManual(pluginId);
 
