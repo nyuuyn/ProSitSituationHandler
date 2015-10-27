@@ -2,6 +2,7 @@ package situationHandling.workflowOperations;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -99,8 +100,8 @@ class OperationHandlerImpl implements OperationHandlerForRollback {
 	} else {
 	    logger.info("Could not decide which endpoint to use. Contacting decider.");
 	    // contact decider and wait for answer
-	    CamelUtil.getCamelExecutorService().submit(new DecisionHandler(bestEndpoints,
-		    this, wsaSoapMessage, rollbackHandler));
+	    CamelUtil.getCamelExecutorService().submit(
+		    new DecisionHandler(bestEndpoints, this, wsaSoapMessage, rollbackHandler));
 	}
     }
 
@@ -121,9 +122,17 @@ class OperationHandlerImpl implements OperationHandlerForRollback {
 	// if invalid result, sent error message, else forward request
 	if (resultEndpointId == -1 || (resultEndpoint = StorageAccessFactory
 		.getEndpointStorageAccess().getEndpointByID(resultEndpointId)) == null) {
+	    logger.warn("Invalid decision retrieved.");
 	    sendErrorMessage("Decision was requested but not result was received.", wsaSoapMessage);
 	} else {
-	    sendToEndpoint(resultEndpoint, wsaSoapMessage, rollbackHandler);
+	    // check if endpoint is still valid and send request
+	    if (rateEndpoint(resultEndpoint, new HashMap<>()) >= 0) {
+		sendToEndpoint(resultEndpoint, wsaSoapMessage, rollbackHandler);
+	    } else {
+		logger.info(
+			"Valid decision received, but endpoint became invalid. Determine new endpoint");
+		handleOperation(wsaSoapMessage, rollbackHandler);
+	    }
 	}
     }
 
@@ -162,7 +171,8 @@ class OperationHandlerImpl implements OperationHandlerForRollback {
      * If an endpoint specifies one situation and another optional situation, an
      * endpoint with two non-optional situations will be prefered.</li>
      * <li>If there are several endpoints to fulfill these criteria, an
-     * arbitrary endpoint from these endpoints is chosen.</li>
+     * arbitrary endpoint from these endpoints is chosen (or a decider is
+     * contacted. Depends on the request).</li>
      * </ul>
      * 
      * @param operation
@@ -175,40 +185,23 @@ class OperationHandlerImpl implements OperationHandlerForRollback {
 		.getCandidateEndpoints(operation);
 	LinkedList<Endpoint> bestCandidates = new LinkedList<>();
 	int bestScore = -1;
-
 	logger.debug("Candidates: \n" + candidateEndpoints.toString());
+
+	// we store the state of the situations when we evaluated the endpoint.
+	// If the state is changed at the end, we have to start again...
+	HashMap<Situation, Boolean> ratedSituationStates = new HashMap<>();
 
 	for (Endpoint currentCandidate : candidateEndpoints) {
 	    logger.debug("Candidate: " + currentCandidate.getEndpointID());
-	    int score = 0;
-	    for (HandledSituation handledSituation : currentCandidate.getSituations()) {
 
-		SituationManager situationManager = SituationManagerFactory.getSituationManager();
-		Situation situation = new Situation(handledSituation.getSituationName(),
-			handledSituation.getObjectId());
-
-		if (situationManager.situationOccured(situation) == handledSituation
-			.isSituationHolds()) {
-		    logger.debug(situation.toString() + " is " + handledSituation.isSituationHolds()
-			    + " occured.");
-		    score += handledSituation.isOptional() ? 1 : 2;
-		} else {
-		    if (!handledSituation.isOptional()) {
-			logger.debug(situation.toString() + " is "
-				+ handledSituation.isSituationHolds() + " not occured --> stop.");
-			// abort computation if situation is not fulfilled.
-			score = -2;
-			break;
-		    } else {
-			logger.debug(
-				situation.toString() + " is " + handledSituation.isSituationHolds()
-					+ " not occured but optional.");
-		    }
-		}
-	    }
+	    int score = rateEndpoint(currentCandidate, ratedSituationStates);
+	    // situation changed when rating the endpoints. Start again.
 	    logger.debug("Endpoint " + currentCandidate.getEndpointID() + ": Score " + score);
-
-	    if (score == bestScore) {
+	    if (score == -3) {
+		logger.info(
+			"A relevant situation changed while rating an endpoint. Start again...");
+		return chooseEndpoint(operation);
+	    } else if (score == bestScore) {
 		bestCandidates.add(currentCandidate);
 		logger.debug("Adding Endpoint to list of best endpoints"
 			+ bestCandidates.get(0).getEndpointID() + " with score " + bestScore);
@@ -220,10 +213,72 @@ class OperationHandlerImpl implements OperationHandlerForRollback {
 			+ " with score " + bestScore);
 	    }
 	}
-
 	logger.debug("Best candidates - Score: " + bestScore + "\n" + bestCandidates.toString());
 
+	// if a situation changed, i.e. its state differs from the state that it
+	// had when it was rated, the score MUST be computed again to get the
+	// best result.
+	SituationManager situationManager = SituationManagerFactory.getSituationManager();
+	for (Situation toCheck : ratedSituationStates.keySet()) {
+	    if (ratedSituationStates.get(toCheck) != situationManager.situationOccured(toCheck)) {
+		logger.info(
+			"Rating of endpoints finished, but a relevant situation changed meanwhile. Restart rating...");
+		return chooseEndpoint(operation);
+	    }
+	}
+
 	return bestCandidates;
+    }
+
+    /**
+     * Rates an endpoint, i.e. determines the score for an endpoint. Considers
+     * the states that were used to rate other endpoints.
+     * 
+     * @param candidate
+     *            the endpoint to rate
+     * @param states
+     *            the states of other endpoints. If no states are available, use
+     *            an emtpy hashmap!
+     * @return the score of the endpoint. The score is a number > 0. Returns -2,
+     *         if an endpoint is not suitable. Returns -3 if a situation change
+     *         was recognized.
+     */
+    private int rateEndpoint(Endpoint candidate, HashMap<Situation, Boolean> states) {
+	int score = 0;
+	for (HandledSituation handledSituation : candidate.getSituations()) {
+	    SituationManager situationManager = SituationManagerFactory.getSituationManager();
+	    Situation situation = new Situation(handledSituation.getSituationName(),
+		    handledSituation.getObjectId());
+
+	    boolean currentState = situationManager.situationOccured(situation);
+
+	    // if we already used a situation to rate an endpoint, the state
+	    // must be the same. So we compare the state here and abort if the
+	    // state changed..
+	    if (states.containsKey(situation) && states.get(situation) != currentState) {
+		logger.debug(situation.toString() + " changed when rating an endpoint");
+		return -3;
+	    } else {
+		states.put(situation, currentState);
+	    }
+
+	    if (currentState == handledSituation.isSituationHolds()) {
+		logger.debug(situation.toString() + " is " + handledSituation.isSituationHolds()
+			+ " occured.");
+		score += handledSituation.isOptional() ? 1 : 2;
+	    } else {
+		if (!handledSituation.isOptional()) {
+		    logger.debug(situation.toString() + " is " + handledSituation.isSituationHolds()
+			    + " not occured --> stop.");
+		    // abort computation if situation is not fulfilled.
+		    return -2;
+		} else {
+		    logger.debug(situation.toString() + " is " + handledSituation.isSituationHolds()
+			    + " not occured but optional.");
+		}
+	    }
+	}
+	return score;
     }
 
     /**
@@ -231,8 +286,11 @@ class OperationHandlerImpl implements OperationHandlerForRollback {
      * rollbackhandler.
      * 
      * @param target
+     *            the used endpoint
      * @param wsaSoapMessage
+     *            the request
      * @param rollbackHandler
+     *            the rollbackhandler to use
      */
     private void sendToEndpoint(Endpoint target, WsaSoapMessage wsaSoapMessage,
 	    RollbackHandler rollbackHandler) {
