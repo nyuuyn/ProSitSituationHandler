@@ -216,6 +216,10 @@ class DecisionHandler implements Runnable {
 		callbackOperationHandler.decisionCallback(answerEndpointId, wsaSoapMessage,
 			rollbackHandler);
 
+		// create answer (useless JSON object to follow conventions..)
+		exchange.getIn().setBody("{\"result\" : \"success\"}");
+		exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 200);
+
 		synchronized (thisHandler) {
 		    thisHandler.notify();
 		}
