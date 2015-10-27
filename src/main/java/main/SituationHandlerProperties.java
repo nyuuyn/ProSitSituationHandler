@@ -171,6 +171,17 @@ public class SituationHandlerProperties {
     }
 
     /**
+     * Gets the The (relative) base path for the definitions. Definitions are
+     * then available under &lt;basepath&gt;/&lt;definitions&gt;
+     * 
+     * @return the path as specified in the properties or definitions as the
+     *         default value.
+     */
+    public static String getDefinitionsPath() {
+	return properties.getProperty("situationHandler.rest.api.definitions", "definitions");
+    }
+
+    /**
      * Gets the path to the root folder that contains the web app.
      * <p>
      * Only relevant when the situation handler is used without an application

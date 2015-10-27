@@ -41,13 +41,31 @@ public class RestApiRoutes extends RouteBuilder {
      */
     private String component;
 
+    /**
+     * The base path for the rest api.
+     */
     private final String restApiBasePath;
+
+    /**
+     * The base path for definition files, e.g. wsdl files ...
+     */
+    private final String definitionsBasePath;
 
     /**
      * Contains the swagger.json loaded from the file system.
      * 
      */
     private Object swaggerDoc;
+
+    /**
+     * Contains the RollbackMessages.wsdl loaded from the file system.
+     */
+    private Object rollbackMessagesWsdl;
+
+    /**
+     * Contains the SituationHandlerFaults.wsdl loaded from the file system.
+     */
+    private Object faultMessagesWsdl;
 
     /**
      * Creates a new instance of RestApiRoutes and does the initialization. Add
@@ -62,9 +80,12 @@ public class RestApiRoutes extends RouteBuilder {
 	    path = "jetty:http://0.0.0.0:" + SituationHandlerProperties.getNetworkPort();
 	    restApiBasePath = SituationHandlerProperties.getRestBasePath() + "/"
 		    + SituationHandlerProperties.getRestApiBasePath();
+	    definitionsBasePath = SituationHandlerProperties.getRestBasePath() + "/"
+		    + SituationHandlerProperties.getDefinitionsPath();
 	} else if (component.equals("servlet")) {
 	    path = "servlet://";
 	    restApiBasePath = SituationHandlerProperties.getRestApiBasePath();
+	    definitionsBasePath = SituationHandlerProperties.getDefinitionsPath();
 	} else {
 	    throw new IllegalArgumentException("Unsupported Component: " + component);
 	}
@@ -86,6 +107,7 @@ public class RestApiRoutes extends RouteBuilder {
 	createHistoryApi();
 
 	provideDocumentation();
+	provideWsdlFiles();
     }
 
     /**
@@ -268,17 +290,18 @@ public class RestApiRoutes extends RouteBuilder {
     }
 
     /**
-     * provides the documentation (as swagger file) for the rest api
+     * Provides the documentation (as swagger file) for the rest api
      */
     private void provideDocumentation() {
 	from(path + "/" + restApiBasePath + "/swagger.json").process(new Processor() {
-
 	    @Override
 	    public void process(Exchange exchange) throws Exception {
 		if (swaggerDoc == null) {
 		    swaggerDoc = IOUtils.toString(
 			    this.getClass().getClassLoader().getResourceAsStream("swagger.json"));
 		}
+
+		// fix bugged headers and set body..
 		exchange.getIn().removeHeader("Access-Control-Allow-Origin");
 		exchange.getIn().setBody(swaggerDoc);
 		exchange.getIn().setHeader("Content-Type", "application/json;charset=UTF-8");
@@ -291,4 +314,33 @@ public class RestApiRoutes extends RouteBuilder {
 	    }
 	});
     }
+
+    /**
+     * Provides the wsdl files that define messages and so on.
+     */
+    private void provideWsdlFiles() {
+	from(path + "/" + definitionsBasePath + "/SituationHandlerFaults.wsdl")
+		.process(new Processor() {
+		    @Override
+		    public void process(Exchange exchange) throws Exception {
+			if (faultMessagesWsdl == null) {
+			    faultMessagesWsdl = IOUtils.toString(this.getClass().getClassLoader()
+				    .getResourceAsStream("SituationHandlerFaults.wsdl"));
+			}
+			exchange.getIn().setBody(faultMessagesWsdl);
+		    }
+		});
+
+	from(path + "/" + definitionsBasePath + "/RollbackMessages.wsdl").process(new Processor() {
+	    @Override
+	    public void process(Exchange exchange) throws Exception {
+		if (rollbackMessagesWsdl == null) {
+		    rollbackMessagesWsdl = IOUtils.toString(this.getClass().getClassLoader()
+			    .getResourceAsStream("RollbackMessages.wsdl"));
+		}
+		exchange.getIn().setBody(rollbackMessagesWsdl);
+	    }
+	});
+    }
+
 }
