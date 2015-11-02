@@ -2,6 +2,8 @@ package situationManagement;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import situationHandling.storage.datatypes.Situation;
 
 /**
@@ -10,6 +12,7 @@ import situationHandling.storage.datatypes.Situation;
  * delivered by the SRS and allows a direct mapping from the JSON Answer of the
  * SRS to an instance of this class.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 class SituationResult {
 
 	/** The id of the situation. */

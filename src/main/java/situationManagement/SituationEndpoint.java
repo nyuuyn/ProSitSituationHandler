@@ -72,7 +72,7 @@ public class SituationEndpoint {
 					situation, situationResult.isOccured());
 
 		} catch (IOException e) {
-			logger.warn("Received invalid message from Situation Recognition System."
+			logger.warn("Received invalid message from Situation Recognition System. "
 					+ e.getMessage());
 		}
 
