@@ -75,7 +75,7 @@ class SRSCommunicator {
 			if (e.getCause() instanceof HttpOperationFailedException) {
 				HttpOperationFailedException httpOperationFailedException = (HttpOperationFailedException) e.getCause();
 				if (httpOperationFailedException.getStatusCode() == 400
-						&& httpOperationFailedException.getResponseBody().equals("\"Already registrated\"")) {
+						&& httpOperationFailedException.getResponseBody().equals("\"Already registered\"")) {
 					logger.debug("Already registered on: " + situation);
 					return true;
 				} else if (httpOperationFailedException.getStatusCode() == 404) {
