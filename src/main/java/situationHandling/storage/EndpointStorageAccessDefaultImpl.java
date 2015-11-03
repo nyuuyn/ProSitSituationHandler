@@ -68,7 +68,8 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageDatabase {
 	    @SuppressWarnings("rawtypes")
 	    List candidates = session.createCriteria(Endpoint.class)
 		    .add(Restrictions.eq("operationName", operation.getOperationName()))
-		    .add(Restrictions.eq("qualifier", operation.getQualifier())).list();
+		    .add(Restrictions.eq("qualifier", operation.getQualifier()))
+		    .add(Restrictions.eq("endpointStatus", endpointStatus)).list();
 
 	    // initialize endpoints and add to returned list
 	    @SuppressWarnings("rawtypes")

@@ -27,6 +27,12 @@ interface OperationHandlerForRollback extends OperationHandler {
      * @param rollbackHandler
      *            the rollback handler that was responsible for the last
      *            rollback.
+     * @param checkOnlyAvailable
+     *            determines which endpoints are considered: if true, only
+     *            available endpoints are used, if false only archived endpoints
+     *            are used. Always use true, except when the endpoint selection
+     *            already failed one time.
      */
-    public void handleOperation(WsaSoapMessage wsaSoapMessage, RollbackHandler rollbackHandler);
+    public void handleOperation(WsaSoapMessage wsaSoapMessage, RollbackHandler rollbackHandler,
+	    boolean checkOnlyAvailable);
 }

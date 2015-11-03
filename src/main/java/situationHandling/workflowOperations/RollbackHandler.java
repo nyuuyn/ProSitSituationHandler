@@ -106,7 +106,7 @@ class RollbackHandler {
 	    } else {
 		// init handling
 		OperationHandlerFactory.getOperationHandlerWithRollback()
-			.handleOperation(originalMessage, this);
+			.handleOperation(originalMessage, this, true);
 		StorageAccessFactory.getHistoryAccess().appendWorkflowRollbackAnswer(endpoint,
 			true, "");
 	    }

@@ -61,7 +61,7 @@ class OperationHandlerImpl implements OperationHandlerForRollback {
      */
     @Override
     public void handleOperation(WsaSoapMessage wsaSoapMessage) {
-	handleOperation(wsaSoapMessage, null);
+	handleOperation(wsaSoapMessage, null, true);
     }
 
     /*
@@ -73,7 +73,8 @@ class OperationHandlerImpl implements OperationHandlerForRollback {
      * situationHandling.workflowOperations.RollbackHandler)
      */
     @Override
-    public void handleOperation(WsaSoapMessage wsaSoapMessage, RollbackHandler rollbackHandler) {
+    public void handleOperation(WsaSoapMessage wsaSoapMessage, RollbackHandler rollbackHandler,
+	    boolean checkOnlyAvailable) {
 
 	String operationName;
 	String qualifier;
@@ -87,22 +88,54 @@ class OperationHandlerImpl implements OperationHandlerForRollback {
 	}
 
 	logger.debug("Handling Operation: " + operationName + ":" + qualifier);
-	List<Endpoint> bestEndpoints = chooseEndpoint(new Operation(operationName, qualifier));
+	Operation toCheck = new Operation(operationName, qualifier);
 
+	// check either archives or available endpoints
+	List<Endpoint> bestEndpoints;
+	if (checkOnlyAvailable) {
+	    bestEndpoints = chooseEndpoint(toCheck, EndpointStatus.available);
+	} else {
+	    bestEndpoints = chooseEndpoint(toCheck, EndpointStatus.archive);
+	}
+
+	// TODO comment ändern
 	// either there is no endpoint (error), a definite endpoint (only one or
 	// no decider) or more that one endpoint with a decider specified
-	if (bestEndpoints.size() == 0) {
+	if (bestEndpoints.size() == 0 && checkOnlyAvailable) {
+	    // selection of available endpoints failed: check deployment
+	    logger.info("No endpoint found for Operation: " + operationName + ":" + qualifier
+		    + " . Trying to deploy a new endpoint.");
+	    handleOperation(wsaSoapMessage, rollbackHandler, false);
+	} else if (bestEndpoints.size() == 0 && !checkOnlyAvailable) {
+	    // selection of archive failed: no endpoints available
 	    logger.warn("No endpoint found for Operation: " + operationName + ":" + qualifier);
 	    sendErrorMessage("No endpoint found for " + operationName + ":" + qualifier
 		    + ". Nothing executed.", wsaSoapMessage);
 	    return;
-	} else if (bestEndpoints.size() == 1 || wsaSoapMessage.getDecider() == null) {
+	} else if (checkOnlyAvailable
+		&& (bestEndpoints.size() == 1 || wsaSoapMessage.getDecider() == null)) {
+	    // available endpoint selected and no decision required: send
+	    // message to endpoint
 	    sendToEndpoint(bestEndpoints.get(0), wsaSoapMessage, rollbackHandler);
-	} else {
+	} else if (checkOnlyAvailable
+		&& !((bestEndpoints.size() == 1 || wsaSoapMessage.getDecider() == null))) {
+	    // several endpoints available: decision required
 	    logger.info("Could not decide which endpoint to use. Contacting decider.");
 	    // contact decider and wait for answer
 	    CamelUtil.getCamelExecutorService().submit(
 		    new DecisionHandler(bestEndpoints, this, wsaSoapMessage, rollbackHandler));
+	} else if (!checkOnlyAvailable
+		&& (bestEndpoints.size() == 1 || wsaSoapMessage.getDecider() == null)) {
+	    // an archive for deployment was found and no decision has to be
+	    // made --> deploy
+	    // direct deploy
+	} else if (!checkOnlyAvailable
+		&& !(bestEndpoints.size() == 1 || wsaSoapMessage.getDecider() == null)) {
+	    // several archives were found --> decision required
+	    // contact decider for deployment. (TODO : Nachricht verändern
+	} else {
+	    // this should never happen :) :)
+	    logger.error("No decision could be made for uncertain reason (this is bad).");
 	}
     }
 
@@ -126,15 +159,23 @@ class OperationHandlerImpl implements OperationHandlerForRollback {
 	    logger.warn("Invalid decision retrieved.");
 	    sendErrorMessage("Decision was requested but not result was received.", wsaSoapMessage);
 	} else {
+	    // TODO: Unterscheidung Deployment oder fertig!
 	    // check if endpoint is still valid and send request
 	    if (rateEndpoint(resultEndpoint, new HashMap<>()) >= 0) {
 		sendToEndpoint(resultEndpoint, wsaSoapMessage, rollbackHandler);
 	    } else {
 		logger.info(
 			"Valid decision received, but endpoint became invalid. Determine new endpoint");
-		handleOperation(wsaSoapMessage, rollbackHandler);
+		handleOperation(wsaSoapMessage, rollbackHandler, true);
 	    }
 	}
+    }
+
+    // TODO
+    public void deploymentCallback(boolean success, WsaSoapMessage wsaSoapMessage,
+	    RollbackHandler rollbackHandler) {
+	logger.info("Checking endpoints after deployment.");
+	handleOperation(wsaSoapMessage, rollbackHandler, true);
     }
 
     /**
@@ -181,10 +222,9 @@ class OperationHandlerImpl implements OperationHandlerForRollback {
      * @return The endpoint chosen by the criteria listed above or {@code Null}
      *         if no endpoint matching these criteria was found.
      */
-    private List<Endpoint> chooseEndpoint(Operation operation) {
-	//TODO festlegen, wann welche Endpunkte verwendet werden sollen
+    private List<Endpoint> chooseEndpoint(Operation operation, EndpointStatus endpointStatus) {
 	List<Endpoint> candidateEndpoints = StorageAccessFactory.getEndpointStorageAccess()
-		.getCandidateEndpoints(operation, EndpointStatus.available);
+		.getCandidateEndpoints(operation, endpointStatus);
 	LinkedList<Endpoint> bestCandidates = new LinkedList<>();
 	int bestScore = -1;
 	logger.debug("Candidates: \n" + candidateEndpoints.toString());
@@ -202,7 +242,7 @@ class OperationHandlerImpl implements OperationHandlerForRollback {
 	    if (score == -3) {
 		logger.info(
 			"A relevant situation changed while rating an endpoint. Start again...");
-		return chooseEndpoint(operation);
+		return chooseEndpoint(operation, endpointStatus);
 	    } else if (score == bestScore) {
 		bestCandidates.add(currentCandidate);
 		logger.debug("Adding Endpoint to list of best endpoints"
@@ -225,7 +265,7 @@ class OperationHandlerImpl implements OperationHandlerForRollback {
 	    if (ratedSituationStates.get(toCheck) != situationManager.situationOccured(toCheck)) {
 		logger.info(
 			"Rating of endpoints finished, but a relevant situation changed meanwhile. Restart rating...");
-		return chooseEndpoint(operation);
+		return chooseEndpoint(operation, endpointStatus);
 	    }
 	}
 

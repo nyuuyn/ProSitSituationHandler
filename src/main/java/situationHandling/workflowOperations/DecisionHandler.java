@@ -47,7 +47,7 @@ import utils.soap.WsaSoapMessage;
 class DecisionHandler implements Runnable {
 
     /** The logger. */
-    private static final Logger logger = Logger.getLogger(MessageRouter.class);
+    private static final Logger logger = Logger.getLogger(DecisionHandler.class);
 
     /**
      * The candidates for the decision. One of the candidates must be chosen.
