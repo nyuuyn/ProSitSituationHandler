@@ -4,6 +4,7 @@ import java.util.List;
 
 import situationHandling.exceptions.InvalidEndpointException;
 import situationHandling.storage.datatypes.Endpoint;
+import situationHandling.storage.datatypes.Endpoint.EndpointStatus;
 import situationHandling.storage.datatypes.HandledSituation;
 import situationHandling.storage.datatypes.Operation;
 import situationHandling.storage.datatypes.Situation;
@@ -30,14 +31,17 @@ import situationHandling.storage.datatypes.Situation;
 public interface EndpointStorageAccess {
 
     /**
-     * Gets the endpoints that offer the specified operation
+     * Gets the endpoints that offer the specified operation and have the
+     * specified status.
      * 
      * @param operation
      *            the operation that should be executed
+     * @param endpointStatus
+     *            the required status
      * @return A list of endpoints that implement the specified operation.
      *         Returns an empty list if no endpoint was found.
      */
-    public List<Endpoint> getCandidateEndpoints(Operation operation);
+    public List<Endpoint> getCandidateEndpoints(Operation operation, EndpointStatus endpointStatus);
 
     /**
      * Gets all endpoints that are currently stored, independent of the
@@ -72,7 +76,12 @@ public interface EndpointStorageAccess {
      * @param operation
      *            the operation that is implemented by this endpoint
      * @param endpointURL
-     *            the endpoint url
+     *            the endpoint url (status: "available)
+     * @param archiveFilename
+     *            the name of the archive file, in case the endpoint has status
+     *            "archive".
+     * @param endpointStatus
+     *            the status of the endpoint
      * @param situations
      *            the situations handled by this endpoint
      * @return the id that was assigned to the endpoint.
@@ -81,7 +90,8 @@ public interface EndpointStorageAccess {
      *             When the specified Endpoint is not valid
      */
     public int addEndpoint(String endpointName, String endpointDescription, Operation operation,
-	    List<HandledSituation> situations, String endpointURL) throws InvalidEndpointException;
+	    List<HandledSituation> situations, String endpointURL, String archiveFilename,
+	    EndpointStatus endpointStatus) throws InvalidEndpointException;
 
     /**
      * Deletes the endpoint with the given id from the directory, so it will not
@@ -121,7 +131,13 @@ public interface EndpointStorageAccess {
      *            {@code null}, the operation will not be updated
      * @param endpointURL
      *            the new endpoint url for this endpoint. If {@code endpointURL}
-     *            is {@code null}, the endpoint url will not be updated
+     *            is {@code null}, the endpoint url will not be updated (status:
+     *            "available)
+     * @param archiveFilename
+     *            the name of the archive file, in case the endpoint has status
+     *            "archive". Not updated, if null.
+     * @param endpointStatus
+     *            the status of the endpoint.
      * @param situations
      *            the situations to update.
      * @return {@code true}, if the update was successful, {@code false} else
@@ -130,8 +146,8 @@ public interface EndpointStorageAccess {
      *             When the specified Endpoint is not valid
      */
     public boolean updateEndpoint(int endpointID, String endpointName, String endpointDescription,
-	    List<HandledSituation> situations, Operation operation, String endpointURL)
-		    throws InvalidEndpointException;
+	    List<HandledSituation> situations, Operation operation, String endpointURL,
+	    String archiveFilename, EndpointStatus endpointStatus) throws InvalidEndpointException;
 
     /**
      * Updates an existing situation with the specified id. It is possible to

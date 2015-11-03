@@ -69,7 +69,8 @@ public class EndpointAPI {
 	    int endpointID = esa.addEndpoint(endpoint.getEndpointName(),
 		    endpoint.getEndpointDescription(), endpoint.getOperation(),
 		    (situations == null ? new LinkedList<>() : situations),
-		    endpoint.getEndpointURL());
+		    endpoint.getEndpointURL(), endpoint.getArchiveFilename(),
+		    endpoint.getEndpointStatus());
 	    exchange.getIn().setBody(
 		    new RestAnswer("Endpoint successfully added.", String.valueOf(endpointID)));
 	} catch (InvalidEndpointException e) {
@@ -150,7 +151,8 @@ public class EndpointAPI {
 	try {
 	    if (esa.updateEndpoint(endpointID, endpoint.getEndpointName(),
 		    endpoint.getEndpointDescription(), endpoint.getSituations(),
-		    endpoint.getOperation(), endpoint.getEndpointURL())) {
+		    endpoint.getOperation(), endpoint.getEndpointURL(),
+		    endpoint.getArchiveFilename(), endpoint.getEndpointStatus())) {
 		exchange.getIn().setBody(new RestAnswer("Endpoint successfully updated",
 			String.valueOf(endpointID)));
 	    } else {

@@ -6,6 +6,8 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -39,12 +41,20 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * <li>The endpoint URL. Messages will be forwarded to the URL.</li>
  * </ul>
  * 
+ * An endpoint can have different states:
+ * <ul>
+ * <li>available: in this case the endpoint is available for immediate use. An
+ * endpoint URL MUST be stated.</li>
+ * <li>archive: In this case, the endpoint is available as archive and must be
+ * deployed before using it. An archiveFilename MUST be stated.</li>
+ * </ul>
  * 
  *
  * @author Stefan
  * @see Situation
  * @see HandledSituation
  * @see Operation
+ * @see EndpointStatus
  */
 /*
  * An instance of Endpoint can be mapped to the table endpoints using JPA.
@@ -52,6 +62,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Entity
 @Table(name = "endpoints")
 public class Endpoint {
+
+    /**
+     * The status of an endpoint. An endpoint is either "available" for
+     * immediate use or it is only available as "archive" and needs to be
+     * deployed before using it.
+     */
+    public enum EndpointStatus {
+	archive, available
+    }
 
     /**
      * The endpoint id. Used as primary key in the database. Never set this
@@ -95,6 +114,20 @@ public class Endpoint {
     private String endpointURL;
 
     /**
+     * the name of the archive that contains the proces, in case the status is
+     * "archive"
+     */
+    @Column(name = "archive_filename")
+    private String archiveFilename;
+
+    /**
+     * The status of the endpoint
+     */
+    @Column(name = "endpoint_status")
+    @Enumerated(EnumType.STRING)
+    private EndpointStatus endpointStatus;
+
+    /**
      * Instantiates a new endpoint. Allows to specify the situations etc. See
      * documentation of the class for the description of the parameters.
      * 
@@ -104,22 +137,31 @@ public class Endpoint {
      *            the description of the endpoint
      * @param endpointURL
      *            the endpoint url. This MUST be a valid URL. Otherwise,
-     *            fowarding the message will fail
+     *            fowarding the message will fail. Only necessary, when the
+     *            status of the endpoint is "available".
      * @param operationName
      *            the operation name
      * @param situations
      *            list of situations handled by this endpoint.
+     * @param endpointStatus
+     *            the status of the endpoint
+     * @param archiveFilename
+     *            the name of the archive that contains the proces, in case the
+     *            status is "archive"
      * @param qualifier
      *            the qualifier
      */
     public Endpoint(String endpointName, String endpointDescription, String endpointURL,
-	    List<HandledSituation> situations, String operationName, String qualifier) {
+	    List<HandledSituation> situations, String operationName, String qualifier,
+	    String archiveFilename, EndpointStatus endpointStatus) {
 	this.endpointName = endpointName;
 	this.endpointDescription = endpointDescription;
 	this.endpointURL = endpointURL;
 	this.situations = situations;
 	this.operationName = operationName;
 	this.qualifier = qualifier;
+	this.archiveFilename = archiveFilename;
+	this.endpointStatus = endpointStatus;
     }
 
     /**
@@ -135,18 +177,25 @@ public class Endpoint {
      *            fowarding the message will fail.
      * @param situations
      *            of situations handled by this endpoint.
+     * @param endpointStatus
+     *            the status of the endpoint
+     * @param archiveFilename
+     *            the name of the archive that contains the proces, in case the
+     *            status is "archive"
      * @param operation
      *            the operation
      */
     public Endpoint(String endpointName, String endpointDescription, String endpointURL,
-	    List<HandledSituation> situations, Operation operation) {
+	    List<HandledSituation> situations, Operation operation, String archiveFilename,
+	    EndpointStatus endpointStatus) {
 	this.endpointName = endpointName;
 	this.endpointDescription = endpointDescription;
 	this.endpointURL = endpointURL;
 	this.situations = situations;
 	this.operationName = operation.getOperationName();
 	this.qualifier = operation.getQualifier();
-
+	this.archiveFilename = archiveFilename;
+	this.endpointStatus = endpointStatus;
     }
 
     /**
@@ -331,6 +380,36 @@ public class Endpoint {
 	this.qualifier = qualifier;
     }
 
+    /**
+     * @return the archiveFilename
+     */
+    public String getArchiveFilename() {
+	return archiveFilename;
+    }
+
+    /**
+     * @param archiveFilename
+     *            the archiveFilename to set
+     */
+    public void setArchiveFilename(String archiveFilename) {
+	this.archiveFilename = archiveFilename;
+    }
+
+    /**
+     * @return the endpointStatus
+     */
+    public EndpointStatus getEndpointStatus() {
+	return endpointStatus;
+    }
+
+    /**
+     * @param endpointStatus
+     *            the endpointStatus to set
+     */
+    public void setEndpointStatus(EndpointStatus endpointStatus) {
+	this.endpointStatus = endpointStatus;
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -341,7 +420,8 @@ public class Endpoint {
 	return "Endpoint [endpointID=" + endpointID + ", endpointName=" + endpointName
 		+ ", endpointDescription=" + endpointDescription + ", situations=" + situations
 		+ ", operationName=" + operationName + ", qualifier=" + qualifier + ", endpointURL="
-		+ endpointURL + "]";
+		+ endpointURL + ", archiveFilename=" + archiveFilename + ", endpointStatus="
+		+ endpointStatus + "]";
     }
 
 }

@@ -17,6 +17,7 @@ import situationHandling.exceptions.InvalidEndpointException;
 import situationHandling.storage.datatypes.Endpoint;
 import situationHandling.storage.datatypes.HandledSituation;
 import situationHandling.storage.datatypes.Operation;
+import situationHandling.storage.datatypes.Endpoint.EndpointStatus;
 
 /**
  * The Class EndpointStorageAccessDefaultImpl provides the standard
@@ -54,7 +55,8 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageDatabase {
      * situationHandling.storage.datatypes.Operation)
      */
     @Override
-    public List<Endpoint> getCandidateEndpoints(Operation operation) {
+    public List<Endpoint> getCandidateEndpoints(Operation operation,
+	    EndpointStatus endpointStatus) {
 	Session session = sessionFactory.openSession();
 	logger.debug("Getting all endpoints for Operation: " + operation);
 	Transaction tx = null;
@@ -168,7 +170,8 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageDatabase {
      */
     @Override
     public int addEndpoint(String endpointName, String endpointDescription, Operation operation,
-	    List<HandledSituation> situations, String endpointURL) throws InvalidEndpointException {
+	    List<HandledSituation> situations, String endpointURL, String archiveFilename,
+	    EndpointStatus endpointStatus) throws InvalidEndpointException {
 
 	// set ids of handled situations to zero. This avoids errors with
 	// manually set ids.
@@ -187,7 +190,7 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageDatabase {
 	try {
 	    tx = session.beginTransaction();
 	    Endpoint endpoint = new Endpoint(endpointName, endpointDescription, endpointURL,
-		    situations, operation);
+		    situations, operation, archiveFilename, endpointStatus);
 	    logger.debug("Adding endpoint " + endpoint.toString());
 	    endpointID = (Integer) session.save(endpoint);
 	    tx.commit();
@@ -243,8 +246,8 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageDatabase {
      */
     @Override
     public boolean updateEndpoint(int endpointID, String endpointName, String endpointDescription,
-	    List<HandledSituation> situations, Operation operation, String endpointURL)
-		    throws InvalidEndpointException {
+	    List<HandledSituation> situations, Operation operation, String endpointURL,
+	    String archiveFilename, EndpointStatus endpointStatus) throws InvalidEndpointException {
 
 	logger.debug("Updating endpoint: " + endpointID);
 	Session session = sessionFactory.openSession();
@@ -273,6 +276,12 @@ class EndpointStorageAccessDefaultImpl implements EndpointStorageDatabase {
 		}
 		if (endpointURL != null) {
 		    endpoint.setEndpointURL(endpointURL);
+		}
+		if (archiveFilename != null) {
+		    endpoint.setArchiveFilename(archiveFilename);
+		}
+		if (endpointStatus != null) {
+		    endpoint.setEndpointStatus(endpointStatus);
 		}
 		session.update(endpoint);
 	    }

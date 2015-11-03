@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import main.CamelUtil;
 import situationHandling.storage.StorageAccessFactory;
 import situationHandling.storage.datatypes.Endpoint;
+import situationHandling.storage.datatypes.Endpoint.EndpointStatus;
 import situationHandling.storage.datatypes.HandledSituation;
 import situationHandling.storage.datatypes.Operation;
 import situationHandling.storage.datatypes.Situation;
@@ -181,8 +182,9 @@ class OperationHandlerImpl implements OperationHandlerForRollback {
      *         if no endpoint matching these criteria was found.
      */
     private List<Endpoint> chooseEndpoint(Operation operation) {
+	//TODO festlegen, wann welche Endpunkte verwendet werden sollen
 	List<Endpoint> candidateEndpoints = StorageAccessFactory.getEndpointStorageAccess()
-		.getCandidateEndpoints(operation);
+		.getCandidateEndpoints(operation, EndpointStatus.available);
 	LinkedList<Endpoint> bestCandidates = new LinkedList<>();
 	int bestScore = -1;
 	logger.debug("Candidates: \n" + candidateEndpoints.toString());

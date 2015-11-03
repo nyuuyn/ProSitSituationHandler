@@ -2,23 +2,22 @@ package situationHandling.storage;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.List;
 
 import org.apache.log4j.Logger;
 
 import situationHandling.exceptions.InvalidEndpointException;
 import situationHandling.storage.datatypes.Endpoint;
+import situationHandling.storage.datatypes.Endpoint.EndpointStatus;
 import situationHandling.storage.datatypes.HandledSituation;
 
 /**
  * The Class Endpoint ValidityChecker is used to do semantic checks on an
  * endpoint. <br>
  * 
- * Semantic checks refer to the URL and the situations of an endpoint. It is
- * checked if:
+ * Semantic checks refer to the status, url and archive name. It is checked if:
  * <ol>
+ * <li>the right values are set</li>
  * <li>The URL is valid</li>
- * <li>There is at least one handled situation specified.</li>
  * </ol>
  * 
  * Uses the {@link InvalidEndpointException} to signalize constraint violations.
@@ -32,10 +31,16 @@ class EndpointValidityChecker {
      * The endpoint url.
      */
     private String endpointUrl;
+
     /**
-     * Situations handled
+     * The name of the archive file
      */
-    private List<HandledSituation> situations;
+    private String archiveFilename;
+
+    /**
+     * The status of the endpoint.
+     */
+    private EndpointStatus endpointStatus;
 
     /**
      * logger
@@ -48,13 +53,34 @@ class EndpointValidityChecker {
      * 
      * @param endpointURL
      *            the endpoint url
-     * @param situations
-     *            the situations to check. Can be null, if the check is done
-     *            before an update.
+     * @param archiveFilename
+     *            the archive
+     * @param endpointStatus
+     *            the status
      */
-    EndpointValidityChecker(String endpointURL, List<HandledSituation> situations) {
+    EndpointValidityChecker(String endpointURL, String archiveFilename,
+	    EndpointStatus endpointStatus) {
 	this.endpointUrl = endpointURL;
-	this.situations = situations;
+	this.archiveFilename = archiveFilename;
+	this.endpointStatus = endpointStatus;
+    }
+
+    /**
+     * Checks the endpoint status and filename/url
+     * 
+     * @throws InvalidEndpointException
+     *             When status/url/filename is invalid
+     */
+    private void checkStatus() throws InvalidEndpointException {
+	if (endpointStatus == null) {
+	    throw new InvalidEndpointException("No endpoint status set");
+	} else if (endpointStatus == EndpointStatus.archive && archiveFilename == null) {
+	    throw new InvalidEndpointException("Status archive but no filename");
+	} else if (endpointStatus == EndpointStatus.available && endpointUrl != null) {
+	    checkUrl();
+	} else if (endpointStatus == EndpointStatus.available && endpointUrl == null) {
+	    throw new InvalidEndpointException("Status available, but no url specified");
+	}
     }
 
     /**
@@ -73,24 +99,6 @@ class EndpointValidityChecker {
     }
 
     /**
-     * Check situation validity.
-     *
-     * 
-     * @throws InvalidEndpointException
-     *             when <1 situations are specified.
-     * 
-     * @Deprecated This check is not be used any more
-     */
-    @SuppressWarnings("unused")
-    @Deprecated
-    private void checkSituations() throws InvalidEndpointException {
-	if (situations == null || situations.size() < 1) {
-	    logger.info("Endpoint not valid. An endpoint must contain at least one situation. ");
-	    throw new InvalidEndpointException("An endpoint must contain at least one situation.");
-	}
-    }
-
-    /**
      * 
      * Does the described checks {@link EndpointValidityChecker}. Intended to
      * use before adding a new endpoint.
@@ -99,7 +107,7 @@ class EndpointValidityChecker {
      *             when the endpoint is invalid for the described reasons.
      */
     public void checkBeforeAdd() throws InvalidEndpointException {
-	checkUrl();
+	checkStatus();
 	// checkSituations();
     }
 
@@ -116,5 +124,4 @@ class EndpointValidityChecker {
 	    checkUrl();
 	}
     }
-
 }

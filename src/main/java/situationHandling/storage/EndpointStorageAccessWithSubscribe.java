@@ -7,6 +7,7 @@ import java.util.List;
 
 import situationHandling.exceptions.InvalidEndpointException;
 import situationHandling.storage.datatypes.Endpoint;
+import situationHandling.storage.datatypes.Endpoint.EndpointStatus;
 import situationHandling.storage.datatypes.HandledSituation;
 import situationHandling.storage.datatypes.Operation;
 import situationHandling.storage.datatypes.Situation;
@@ -48,8 +49,9 @@ class EndpointStorageAccessWithSubscribe implements EndpointStorageAccess {
      * (situationHandling.storage.datatypes.Operation)
      */
     @Override
-    public List<Endpoint> getCandidateEndpoints(Operation operation) {
-	return esa.getCandidateEndpoints(operation);
+    public List<Endpoint> getCandidateEndpoints(Operation operation,
+	    EndpointStatus endpointStatus) {
+	return esa.getCandidateEndpoints(operation, endpointStatus);
     }
 
     /*
@@ -81,11 +83,12 @@ class EndpointStorageAccessWithSubscribe implements EndpointStorageAccess {
      */
     @Override
     public int addEndpoint(String endpointName, String endpointDescription, Operation operation,
-	    List<HandledSituation> situations, String endpointURL) throws InvalidEndpointException {
+	    List<HandledSituation> situations, String endpointURL, String archiveFilename,
+	    EndpointStatus endpointStatus) throws InvalidEndpointException {
 
 	try {
 	    int id = esa.addEndpoint(endpointName, endpointDescription, operation, situations,
-		    endpointURL);
+		    endpointURL, archiveFilename, endpointStatus);
 	    // add a subscription for each of the situations
 	    SituationManager situationManager = SituationManagerFactory.getSituationManager();
 	    if (situations != null) {
@@ -133,14 +136,14 @@ class EndpointStorageAccessWithSubscribe implements EndpointStorageAccess {
      */
     @Override
     public boolean updateEndpoint(int endpointID, String endpointName, String endpointDescription,
-	    List<HandledSituation> situations, Operation operation, String endpointURL)
-		    throws InvalidEndpointException {
+	    List<HandledSituation> situations, Operation operation, String endpointURL,
+	    String archiveFilename, EndpointStatus endpointStatus) throws InvalidEndpointException {
 
 	List<HandledSituation> oldSituations = esa.getSituationsByEndpoint(endpointID);
 
 	try {
 	    boolean success = esa.updateEndpoint(endpointID, endpointName, endpointDescription,
-		    situations, operation, endpointURL);
+		    situations, operation, endpointURL, archiveFilename, endpointStatus);
 	    if (success) {
 		// check for each updated handled situation, if the situation
 		// itself changed and update subscriptions if necessary.
@@ -188,8 +191,8 @@ class EndpointStorageAccessWithSubscribe implements EndpointStorageAccess {
 		Situation oldSituation = new Situation(oldHandledSituation.getSituationName(),
 			oldHandledSituation.getObjectId());
 
-		compareSituationAndUpdateSubscription(oldSituation, new Situation(
-			newSituation.getSituationName(), newSituation.getObjectId()));
+		compareSituationAndUpdateSubscription(oldSituation,
+			new Situation(newSituation.getSituationName(), newSituation.getObjectId()));
 	    }
 
 	    return success;

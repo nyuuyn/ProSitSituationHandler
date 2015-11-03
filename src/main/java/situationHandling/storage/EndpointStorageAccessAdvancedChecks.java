@@ -7,6 +7,7 @@ import org.hibernate.SessionFactory;
 import situationHandling.exceptions.InvalidEndpointException;
 import situationHandling.storage.datatypes.HandledSituation;
 import situationHandling.storage.datatypes.Operation;
+import situationHandling.storage.datatypes.Endpoint.EndpointStatus;
 
 /**
  * 
@@ -39,12 +40,13 @@ class EndpointStorageAccessAdvancedChecks extends EndpointStorageAccessDefaultIm
      */
     @Override
     public int addEndpoint(String endpointName, String endpointDescription, Operation operation,
-	    List<HandledSituation> situations, String endpointURL) throws InvalidEndpointException {
+	    List<HandledSituation> situations, String endpointURL, String archiveFilename,
+	    EndpointStatus endpointStatus) throws InvalidEndpointException {
 
-	new EndpointValidityChecker(endpointURL, situations).checkBeforeAdd();
+	new EndpointValidityChecker(endpointURL, archiveFilename, endpointStatus).checkBeforeAdd();
 
 	return super.addEndpoint(endpointName, endpointDescription, operation, situations,
-		endpointURL);
+		endpointURL, archiveFilename, endpointStatus);
     }
 
     /*
@@ -57,12 +59,13 @@ class EndpointStorageAccessAdvancedChecks extends EndpointStorageAccessDefaultIm
      */
     @Override
     public boolean updateEndpoint(int endpointID, String endpointName, String endpointDescription,
-	    List<HandledSituation> situations, Operation operation, String endpointURL)
-		    throws InvalidEndpointException {
-	new EndpointValidityChecker(endpointURL, null).checkBeforeUpdate();
+	    List<HandledSituation> situations, Operation operation, String endpointURL,
+	    String archiveFilename, EndpointStatus endpointStatus) throws InvalidEndpointException {
 
+	new EndpointValidityChecker(endpointURL, archiveFilename, endpointStatus)
+		.checkBeforeUpdate();
 	return super.updateEndpoint(endpointID, endpointName, endpointDescription, situations,
-		operation, endpointURL);
+		operation, endpointURL, archiveFilename, endpointStatus);
     }
 
 }
