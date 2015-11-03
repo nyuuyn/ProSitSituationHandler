@@ -98,9 +98,8 @@ class OperationHandlerImpl implements OperationHandlerForRollback {
 	    bestEndpoints = chooseEndpoint(toCheck, EndpointStatus.archive);
 	}
 
-	// TODO comment ändern
-	// either there is no endpoint (error), a definite endpoint (only one or
-	// no decider) or more that one endpoint with a decider specified
+	// different cases: found endpoint or not? look for available endpoints
+	// or archives? decision required or not
 	if (bestEndpoints.size() == 0 && checkOnlyAvailable) {
 	    // selection of available endpoints failed: check deployment
 	    logger.info("No endpoint found for Operation: " + operationName + ":" + qualifier
@@ -122,17 +121,19 @@ class OperationHandlerImpl implements OperationHandlerForRollback {
 	    // several endpoints available: decision required
 	    logger.info("Could not decide which endpoint to use. Contacting decider.");
 	    // contact decider and wait for answer
-	    CamelUtil.getCamelExecutorService().submit(
-		    new DecisionHandler(bestEndpoints, this, wsaSoapMessage, rollbackHandler));
+	    CamelUtil.getCamelExecutorService().submit(new DecisionHandler(bestEndpoints, this,
+		    wsaSoapMessage, rollbackHandler, EndpointStatus.available));
 	} else if (!checkOnlyAvailable
 		&& (bestEndpoints.size() == 1 || wsaSoapMessage.getDecider() == null)) {
 	    // an archive for deployment was found and no decision has to be
 	    // made --> deploy
-	    // direct deploy
+	    CamelUtil.getCamelExecutorService().submit(new DeploymentHandler(this, wsaSoapMessage,
+		    rollbackHandler, bestEndpoints.get(0)));
 	} else if (!checkOnlyAvailable
 		&& !(bestEndpoints.size() == 1 || wsaSoapMessage.getDecider() == null)) {
 	    // several archives were found --> decision required
-	    // contact decider for deployment. (TODO : Nachricht verändern
+	    CamelUtil.getCamelExecutorService().submit(new DecisionHandler(bestEndpoints, this,
+		    wsaSoapMessage, rollbackHandler, EndpointStatus.archive));
 	} else {
 	    // this should never happen :) :)
 	    logger.error("No decision could be made for uncertain reason (this is bad).");
@@ -159,10 +160,14 @@ class OperationHandlerImpl implements OperationHandlerForRollback {
 	    logger.warn("Invalid decision retrieved.");
 	    sendErrorMessage("Decision was requested but not result was received.", wsaSoapMessage);
 	} else {
-	    // TODO: Unterscheidung Deployment oder fertig!
-	    // check if endpoint is still valid and send request
+	    // check if endpoint is still valid and send request (or deploy it)
 	    if (rateEndpoint(resultEndpoint, new HashMap<>()) >= 0) {
-		sendToEndpoint(resultEndpoint, wsaSoapMessage, rollbackHandler);
+		if (resultEndpoint.getEndpointStatus() == EndpointStatus.available) {
+		    sendToEndpoint(resultEndpoint, wsaSoapMessage, rollbackHandler);
+		} else {
+		    CamelUtil.getCamelExecutorService().submit(new DeploymentHandler(this,
+			    wsaSoapMessage, rollbackHandler, resultEndpoint));
+		}
 	    } else {
 		logger.info(
 			"Valid decision received, but endpoint became invalid. Determine new endpoint");
@@ -171,11 +176,26 @@ class OperationHandlerImpl implements OperationHandlerForRollback {
 	}
     }
 
-    // TODO
+    /**
+     * The callback method to be used by deployment handlers, when the
+     * deployment of a process archive is finished (or failed)
+     * 
+     * @param success
+     *            true, when the deployment was successful, false else
+     * @param wsaSoapMessage
+     *            the handled message
+     * @param rollbackHandler
+     *            the rollback handler
+     */
     public void deploymentCallback(boolean success, WsaSoapMessage wsaSoapMessage,
 	    RollbackHandler rollbackHandler) {
-	logger.info("Checking endpoints after deployment.");
-	handleOperation(wsaSoapMessage, rollbackHandler, true);
+	if (success) {
+	    logger.info("Checking endpoints after deployment.");
+	    handleOperation(wsaSoapMessage, rollbackHandler, true);
+	} else {
+	    sendErrorMessage("Deploying a endpoint failed. Cannot continue processing",
+		    wsaSoapMessage);
+	}
     }
 
     /**

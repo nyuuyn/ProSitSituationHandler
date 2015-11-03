@@ -150,6 +150,18 @@ public class SituationHandlerProperties {
     }
 
     /**
+     * Gets the relative path of the http endpoint that is used to receive
+     * callbacks by the deployment web service..
+     * 
+     * @return The path as stated in the properties or "deploymentCallback" as
+     *         default.
+     */
+    public static String getDeploymentCallbackPath() {
+	return properties.getProperty("situationHandler.endpoints.DeploymentCallbacktPath",
+		"deploymentCallback");
+    }
+
+    /**
      * Gets the (relative) base path for the rest api. Api is available under
      * <basepath>/<api basepath>
      * 
@@ -274,6 +286,18 @@ public class SituationHandlerProperties {
      */
     static void setHttpEndpointComponent(String httpEndpointComponent) {
 	SituationHandlerProperties.httpEndpointComponent = httpEndpointComponent;
+    }
+
+    /**
+     * Gets the address of the Bpeldeploymentservice, i.e. the service that is
+     * responsible for packing and deploying bpel archives.
+     * 
+     * @return The address as stated in the properties or
+     *         "http://localhost:8083/bpeldeploymentservice" as default.
+     */
+    public static String getDeploymentServiceAddress() {
+	return properties.getProperty("situationHandler.external.deploymentService.address",
+		"http://localhost:8083/bpeldeploymentservice");
     }
 
 }

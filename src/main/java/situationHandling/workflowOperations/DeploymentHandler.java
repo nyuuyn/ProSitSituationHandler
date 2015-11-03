@@ -1,25 +1,37 @@
 package situationHandling.workflowOperations;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
+import org.apache.camel.CamelExecutionException;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.apache.camel.ProducerTemplate;
 import org.apache.log4j.Logger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import main.CamelUtil;
 import main.SituationHandlerProperties;
+import situationHandling.storage.StorageAccessFactory;
 import situationHandling.storage.datatypes.Endpoint;
+import situationHandling.storage.datatypes.Endpoint.EndpointStatus;
 import utils.soap.WsaSoapMessage;
 
 /**
- * TODO
+ * The class DeploymentHandler is used to communicate with the deployment web
+ * service. It sends a deploy request to the service and waits for its callback.
+ * The callback is then forwarded to an instance of {@code OperationHandlerImpl}
+ * .
  * 
  * @author Stefan
  *
  */
 class DeploymentHandler implements Runnable {
+
     /** The logger. */
     private static final Logger logger = Logger.getLogger(DeploymentHandler.class);
 
@@ -34,13 +46,23 @@ class DeploymentHandler implements Runnable {
      */
     private RollbackHandler rollbackHandler;
 
+    /**
+     * The endpoint that is to be deployed.
+     */
     private Endpoint endpointToDeploy;
 
     /**
+     * 
+     * Creates a new instance of DeploymentHandler.
+     * 
      * @param callbackHandler
+     *            the operationhandler for callback
      * @param wsaSoapMessage
+     *            the message that is handler
      * @param rollbackHandler
+     *            the rollbackhandler to use
      * @param endpointToDeploy
+     *            the endpoint (archive) to deploy
      */
     DeploymentHandler(OperationHandlerImpl callbackHandler, WsaSoapMessage wsaSoapMessage,
 	    RollbackHandler rollbackHandler, Endpoint endpointToDeploy) {
@@ -67,7 +89,7 @@ class DeploymentHandler implements Runnable {
 	}
 
 	// send request and wait for answer if successful
-	if (!sendDecisionRequest()) {
+	if (!sendDeploymentRequest(requestId)) {
 	    logger.warn("Could not send message to decider.");
 	    callbackHandler.deploymentCallback(false, wsaSoapMessage, rollbackHandler);
 	} else {
@@ -80,8 +102,6 @@ class DeploymentHandler implements Runnable {
 		}
 	    }
 	}
-	
-	//TODO: irgendwo muss ich dann noch den Endpunkt updaten
 
 	closeCallbackEndpoint(requestId);
     }
@@ -102,9 +122,9 @@ class DeploymentHandler implements Runnable {
 	if (camelComponent.equals("jetty")) {
 	    path = camelComponent + ":http://0.0.0.0:" + SituationHandlerProperties.getNetworkPort()
 		    + "/" + SituationHandlerProperties.getRestBasePath() + "/"
-		    + SituationHandlerProperties.getDecisionsEndpointPath() + "/" + requestId;
+		    + SituationHandlerProperties.getDeploymentCallbackPath() + "/" + requestId;
 	} else if (camelComponent.equals("servlet")) {
-	    path = camelComponent + ":///" + SituationHandlerProperties.getDecisionsEndpointPath()
+	    path = camelComponent + ":///" + SituationHandlerProperties.getDeploymentCallbackPath()
 		    + "/" + requestId;
 	} else {
 	    logger.warn("Invalid camel component: " + camelComponent);
@@ -124,6 +144,19 @@ class DeploymentHandler implements Runnable {
 		String answerString = exchange.getIn().getBody(String.class);
 		ObjectMapper mapper = new ObjectMapper();
 		DeployResponse answer = mapper.readValue(answerString, DeployResponse.class);
+
+		// update Endpoint
+		if (answer.isSuccess()) {
+		    StorageAccessFactory.getEndpointStorageAccess().updateEndpoint(
+			    endpointToDeploy.getEndpointID(), null, null, null, null,
+			    answer.getEndpointUrl(), null, EndpointStatus.available);
+		    logger.info("Successfully deployed process archive "
+			    + endpointToDeploy.getArchiveFilename() + ". New Url is: "
+			    + answer.getEndpointUrl());
+		} else {
+		    logger.warn("Deployment failed for process archive "
+			    + endpointToDeploy.getArchiveFilename());
+		}
 
 		callbackHandler.deploymentCallback(answer.isSuccess(), wsaSoapMessage,
 			rollbackHandler);
@@ -149,6 +182,42 @@ class DeploymentHandler implements Runnable {
     }
 
     /**
+     * Sends a deployment request to the deployment web service.
+     * 
+     * @param requestId
+     *            the request id (must be the same than used in the endpoint)
+     * @return true, when the request was sent successfully, false else.
+     */
+    private boolean sendDeploymentRequest(String requestId) {
+	ProducerTemplate pt = CamelUtil.getProducerTemplate();
+
+	// set headers
+	Map<String, Object> headers = new HashMap<>();
+	headers.put(Exchange.HTTP_METHOD, "POST");
+	headers.put(Exchange.HTTP_PATH, "/deploy"); // path
+	headers.put("Content-Type", "application/json");
+	headers.put("Accept", "text/plain");
+
+	try {
+	    // create path for callback and send request
+	    String callbackUrl = "http://" + InetAddress.getLocalHost().getHostAddress() + ":"
+		    + SituationHandlerProperties.getNetworkPort() + "/"
+		    + SituationHandlerProperties.getRestBasePath() + "/"
+		    + SituationHandlerProperties.getDeploymentCallbackPath() + "/" + requestId;
+	    pt.requestBodyAndHeaders(SituationHandlerProperties.getDeploymentServiceAddress(),
+		    new DeployRequest(endpointToDeploy.getArchiveFilename(), callbackUrl), headers,
+		    String.class);
+	    logger.debug("Successfully sent deploy request for fragment archive "
+		    + endpointToDeploy.getArchiveFilename());
+	    return true;
+	} catch (CamelExecutionException | UnknownHostException e) {
+	    logger.error("Error sending deploy request for fragment "
+		    + endpointToDeploy.getArchiveFilename(), e);
+	    return false;
+	}
+    }
+
+    /**
      * Closes the http endpoint that is used to received the answer.
      * 
      * @param routeId
@@ -161,15 +230,6 @@ class DeploymentHandler implements Runnable {
 	} catch (Exception e) {
 	    logger.error("Could not stop/remove route.", e);
 	}
-    }
-
-    /**
-     * TODO
-     */
-    private boolean sendDecisionRequest() {
-	// send request
-	// TODO
-	return false;
     }
 
 }

@@ -18,6 +18,7 @@ import main.SituationHandlerProperties;
 import pluginManagement.PluginManagerFactory;
 import situationHandler.plugin.PluginParams;
 import situationHandling.storage.datatypes.Endpoint;
+import situationHandling.storage.datatypes.Endpoint.EndpointStatus;
 import utils.soap.WsaSoapMessage;
 
 /**
@@ -71,6 +72,11 @@ class DecisionHandler implements Runnable {
     private RollbackHandler rollbackHandler;
 
     /**
+     * the status of the endpoints (available or to deploy)
+     */
+    private EndpointStatus endpointStatus;
+
+    /**
      * Creates a new instance of DecisionHandler.
      * 
      * 
@@ -84,15 +90,18 @@ class DecisionHandler implements Runnable {
      *            The request by the workflow
      * @param rollbackHandler
      *            The rollbackhandler used to handle the workflow request.
+     * @param endpointStatus
+     *            the status of the endpoints (available or to deploy)
      */
     DecisionHandler(List<Endpoint> candidateEndpoints,
 	    OperationHandlerImpl callbackOperationHandler, WsaSoapMessage wsaSoapMessage,
-	    RollbackHandler rollbackHandler) {
+	    RollbackHandler rollbackHandler, EndpointStatus endpointStatus) {
 
 	this.candidateEndpoints = candidateEndpoints;
 	this.callbackOperationHandler = callbackOperationHandler;
 	this.wsaSoapMessage = wsaSoapMessage;
 	this.rollbackHandler = rollbackHandler;
+	this.endpointStatus = endpointStatus;
     }
 
     /*
@@ -169,8 +178,14 @@ class DecisionHandler implements Runnable {
 
 	pluginParams.setParam("choices", choicesString.toString());
 
+	String descisionDescription = wsaSoapMessage.getDecisionDescription();
+	if (endpointStatus == EndpointStatus.archive) {
+	    descisionDescription += " (The endpoints are NOT available at the moment. "
+		    + "The selected endpoint will be deployed.)";
+	}
+
 	return PluginManagerFactory.getPluginManager().getPluginSender("situationHandler.android",
-		wsaSoapMessage.getDecider(), wsaSoapMessage.getDecisionDescription(), pluginParams);
+		wsaSoapMessage.getDecider(), descisionDescription, pluginParams);
     }
 
     /**
