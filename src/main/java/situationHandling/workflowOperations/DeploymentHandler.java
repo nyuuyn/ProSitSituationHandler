@@ -12,6 +12,7 @@ import org.apache.camel.Processor;
 import org.apache.camel.ProducerTemplate;
 import org.apache.log4j.Logger;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import main.CamelUtil;
@@ -81,6 +82,7 @@ class DeploymentHandler implements Runnable {
     public void run() {
 	String requestId = UUID.randomUUID().toString();
 
+	logger.info("Deploying new endpoint: " + endpointToDeploy.toString());
 	// create callback http endpoint and handle error
 	if (!createCallbackEndpoint(requestId)) {
 	    logger.warn("Could not create callback endpoint");
@@ -88,6 +90,7 @@ class DeploymentHandler implements Runnable {
 	    return;
 	}
 
+	logger.info("Sending deployment request for " + endpointToDeploy.toString());
 	// send request and wait for answer if successful
 	if (!sendDeploymentRequest(requestId)) {
 	    logger.warn("Could not send message to decider.");
@@ -199,18 +202,22 @@ class DeploymentHandler implements Runnable {
 	headers.put("Accept", "text/plain");
 
 	try {
+
 	    // create path for callback and send request
 	    String callbackUrl = "http://" + InetAddress.getLocalHost().getHostAddress() + ":"
 		    + SituationHandlerProperties.getNetworkPort() + "/"
 		    + SituationHandlerProperties.getRestBasePath() + "/"
 		    + SituationHandlerProperties.getDeploymentCallbackPath() + "/" + requestId;
+	    DeployRequest deployRequest = new DeployRequest(endpointToDeploy.getArchiveFilename(),
+		    callbackUrl);
+
 	    pt.requestBodyAndHeaders(SituationHandlerProperties.getDeploymentServiceAddress(),
-		    new DeployRequest(endpointToDeploy.getArchiveFilename(), callbackUrl), headers,
+		    new ObjectMapper().writer().writeValueAsString(deployRequest), headers,
 		    String.class);
 	    logger.debug("Successfully sent deploy request for fragment archive "
 		    + endpointToDeploy.getArchiveFilename());
 	    return true;
-	} catch (CamelExecutionException | UnknownHostException e) {
+	} catch (CamelExecutionException | UnknownHostException | JsonProcessingException e) {
 	    logger.error("Error sending deploy request for fragment "
 		    + endpointToDeploy.getArchiveFilename(), e);
 	    return false;

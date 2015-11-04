@@ -132,6 +132,7 @@ class OperationHandlerImpl implements OperationHandlerForRollback {
 	} else if (!checkOnlyAvailable
 		&& !(bestEndpoints.size() == 1 || wsaSoapMessage.getDecider() == null)) {
 	    // several archives were found --> decision required
+	    logger.info("Could not decide which endpoint to deploy. Contacting decider.");
 	    CamelUtil.getCamelExecutorService().submit(new DecisionHandler(bestEndpoints, this,
 		    wsaSoapMessage, rollbackHandler, EndpointStatus.archive));
 	} else {
