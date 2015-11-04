@@ -97,20 +97,10 @@
 		</dependency>
 
 
-
-
-
 		<!-- Camel -->
 		<dependency>
 			<groupId>org.apache.camel</groupId>
 			<artifactId>camel-jetty</artifactId>
-			<version>${camel.version}</version>
-		</dependency>
-
-		<!-- TODO: entfernen?! -->
-		<dependency>
-			<groupId>org.apache.camel</groupId>
-			<artifactId>camel-netty4-http</artifactId>
 			<version>${camel.version}</version>
 		</dependency>
 
@@ -144,10 +134,6 @@
 			<artifactId>camel-http</artifactId>
 			<version>${camel.version}</version>
 		</dependency>
-
-		<!-- TODO -->
-		<!-- <dependency> <groupId>org.apache.camel</groupId> <artifactId>camel-http4</artifactId> 
-			<version>${camel.version}</version> </dependency> -->
 
 		<dependency>
 			<groupId>org.apache.camel</groupId>
