@@ -43,6 +43,11 @@ class EndpointValidityChecker {
     private EndpointStatus endpointStatus;
 
     /**
+     * The id of the endpoint, if available (for updates)
+     */
+    private int endpointId;
+
+    /**
      * logger
      */
     private static final Logger logger = Logger.getLogger(EndpointValidityChecker.class);
@@ -51,6 +56,9 @@ class EndpointValidityChecker {
      * 
      * Creates a new instance of {@link EndpointValidityChecker}.
      * 
+     * @param The
+     *            id of the endpoint, if available (for updates). For new
+     *            endpoints, this value is ignored.
      * @param endpointURL
      *            the endpoint url
      * @param archiveFilename
@@ -58,8 +66,9 @@ class EndpointValidityChecker {
      * @param endpointStatus
      *            the status
      */
-    EndpointValidityChecker(String endpointURL, String archiveFilename,
+    EndpointValidityChecker(int endpointId, String endpointURL, String archiveFilename,
 	    EndpointStatus endpointStatus) {
+	this.endpointId = endpointId;
 	this.endpointUrl = endpointURL;
 	this.archiveFilename = archiveFilename;
 	this.endpointStatus = endpointStatus;
@@ -122,6 +131,26 @@ class EndpointValidityChecker {
     public void checkBeforeUpdate() throws InvalidEndpointException {
 	if (endpointUrl != null) {
 	    checkUrl();
+	}
+	Endpoint oldEndpoint = StorageAccessFactory.getEndpointStorageAccess()
+		.getEndpointByID(endpointId);
+	if (oldEndpoint == null) {
+	    throw new InvalidEndpointException("Invalid endpoint id: " + endpointId);
+	}
+	// if a new endpoint status is set, check if there is a value for the
+	// url/ fragment archive
+	if (endpointStatus != null && endpointStatus != oldEndpoint.getEndpointStatus()) {
+	    if (endpointStatus == EndpointStatus.archive && oldEndpoint.getArchiveFilename() == null
+		    && archiveFilename == null) {
+		throw new InvalidEndpointException(
+			"Could not update endpoint: Updating endpoint to new status "
+				+ endpointStatus.toString() + " but no archive name set!");
+	    } else if (endpointStatus == EndpointStatus.available
+		    && oldEndpoint.getEndpointURL() == null && endpointUrl == null) {
+		throw new InvalidEndpointException(
+			"Could not update endpoint: Updating endpoint to new status "
+				+ endpointStatus.toString() + " but no url set!");
+	    }
 	}
     }
 }

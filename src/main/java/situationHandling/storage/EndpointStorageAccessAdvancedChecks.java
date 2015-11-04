@@ -43,7 +43,8 @@ class EndpointStorageAccessAdvancedChecks extends EndpointStorageAccessDefaultIm
 	    List<HandledSituation> situations, String endpointURL, String archiveFilename,
 	    EndpointStatus endpointStatus) throws InvalidEndpointException {
 
-	new EndpointValidityChecker(endpointURL, archiveFilename, endpointStatus).checkBeforeAdd();
+	new EndpointValidityChecker(-1, endpointURL, archiveFilename, endpointStatus)
+		.checkBeforeAdd();
 
 	return super.addEndpoint(endpointName, endpointDescription, operation, situations,
 		endpointURL, archiveFilename, endpointStatus);
@@ -62,7 +63,7 @@ class EndpointStorageAccessAdvancedChecks extends EndpointStorageAccessDefaultIm
 	    List<HandledSituation> situations, Operation operation, String endpointURL,
 	    String archiveFilename, EndpointStatus endpointStatus) throws InvalidEndpointException {
 
-	new EndpointValidityChecker(endpointURL, archiveFilename, endpointStatus)
+	new EndpointValidityChecker(endpointID, endpointURL, archiveFilename, endpointStatus)
 		.checkBeforeUpdate();
 	return super.updateEndpoint(endpointID, endpointName, endpointDescription, situations,
 		operation, endpointURL, archiveFilename, endpointStatus);

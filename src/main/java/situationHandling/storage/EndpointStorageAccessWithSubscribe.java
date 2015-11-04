@@ -144,7 +144,8 @@ class EndpointStorageAccessWithSubscribe implements EndpointStorageAccess {
 	try {
 	    boolean success = esa.updateEndpoint(endpointID, endpointName, endpointDescription,
 		    situations, operation, endpointURL, archiveFilename, endpointStatus);
-	    if (success) {
+	    //update subscriptions
+	    if (success && situations != null) {
 		// check for each updated handled situation, if the situation
 		// itself changed and update subscriptions if necessary.
 		for (HandledSituation handledSituation : situations) {
