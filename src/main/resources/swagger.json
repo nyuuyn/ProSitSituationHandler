@@ -990,7 +990,7 @@
     },
     "definitions": {
         "Endpoint": {
-            "description": "Represents an endpoint for workflow operations. Note that there are two ways to define an operation:either with a combination of namespace and operation name (as stated in the soap message) or with the wsa:Action header. Latter is the prefered variant. In case namespace and operation name are used, the qualifier is the namespace. In case the wsa:Action header is used, the qualifier must be \"wsa:Action\" and the operation name is the url or whatever is defined by the service.",
+            "description": "Represents an endpoint for workflow operations. Note that there are two ways to define an operation:either with a combination of namespace and operation name (as stated in the soap message) or with the wsa:Action header. Latter is the prefered variant. In case namespace and operation name are used, the qualifier is the namespace. In case the wsa:Action header is used, the qualifier must be \"wsa:Action\" and the operation name is the url or whatever is defined by the service. An endpoint can be provided as archive file or as running endpoint. EndpointStatus is used to differ between those two types. If status is \"archive\", a filename MUST be provided (url is optional and not used!). If status is \"available\", an url MUST be provided (archive name is optional and not used). Note that if status is set to \"archive\", it is necessary to deploy the endpoint. The deployment procedure will take some time.",
             "properties": {
                 "endpointID": {
                     "type": "integer",
@@ -1012,7 +1012,19 @@
                 },
                 "endpointURL": {
                     "type": "string",
-                    "description": "A valid url."
+                    "description": "A valid url (Required for endpoint status \"available\")."
+                },
+                "archiveFilename": {
+                    "type": "string",
+                    "description": "The name of an archive that contains the bpel process (Required for endpoint status \"archive\")."
+                },
+                "endpointStatus": {
+                    "type": "string",
+                    "enum": [
+                        "archive",
+                        "available"
+                    ],
+                    "description": "States whether the endpoint is \"available\" (URL required) or if it is an \"archive\" (archive name required)."
                 },
                 "situations": {
                     "type": "array",
