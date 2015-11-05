@@ -184,6 +184,12 @@
 			<version>${hibernate.version}</version>
 		</dependency>
 
+		<!-- WSDL parsing -->
+		<dependency>
+			<groupId>com.predic8</groupId>
+			<artifactId>soa-model-core</artifactId>
+			<version>1.5.4</version>
+		</dependency>
 
 	</dependencies>
 </project>

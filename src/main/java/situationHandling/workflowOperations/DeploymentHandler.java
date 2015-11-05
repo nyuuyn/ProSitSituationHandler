@@ -14,6 +14,10 @@ import org.apache.log4j.Logger;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.predic8.wsdl.Definitions;
+import com.predic8.wsdl.Port;
+import com.predic8.wsdl.Service;
+import com.predic8.wsdl.WSDLParser;
 
 import main.CamelUtil;
 import main.SituationHandlerProperties;
@@ -148,14 +152,17 @@ class DeploymentHandler implements Runnable {
 		ObjectMapper mapper = new ObjectMapper();
 		DeployResponse answer = mapper.readValue(answerString, DeployResponse.class);
 
+		String portAddress = null;
 		// update Endpoint
-		if (answer.isSuccess()) {
+		if (answer.isSuccess() && (portAddress = parseAddressFromWsdl(
+			answer.getEndpointUrl() + "?wsdl")) != null) {
+
 		    StorageAccessFactory.getEndpointStorageAccess().updateEndpoint(
-			    endpointToDeploy.getEndpointID(), null, null, null, null,
-			    answer.getEndpointUrl(), null, EndpointStatus.available);
+			    endpointToDeploy.getEndpointID(), null, null, null, null, portAddress,
+			    null, EndpointStatus.available);
 		    logger.info("Successfully deployed process archive "
-			    + endpointToDeploy.getArchiveFilename() + ". New Url is: "
-			    + answer.getEndpointUrl());
+			    + endpointToDeploy.getArchiveFilename()
+			    + ". New Url (port address) is: " + portAddress);
 		} else {
 		    logger.warn("Deployment failed for process archive "
 			    + endpointToDeploy.getArchiveFilename());
@@ -172,6 +179,7 @@ class DeploymentHandler implements Runnable {
 		    thisHandler.notify();
 		}
 	    }
+
 	};
 	// create camel route
 	try {
@@ -236,6 +244,37 @@ class DeploymentHandler implements Runnable {
 	    CamelUtil.getCamelContext().removeRoute(routeId);
 	} catch (Exception e) {
 	    logger.error("Could not stop/remove route.", e);
+	}
+    }
+
+    /**
+     * Parses a wsdl file and returns the first port address in the file
+     * 
+     * @param wsdlUrl
+     *            the url of the wsdl
+     * @return the address or null
+     */
+    private String parseAddressFromWsdl(String wsdlUrl) {
+	try {
+	    WSDLParser parser = new WSDLParser();
+	    Definitions defs = parser.parse(wsdlUrl);
+
+	    // parse address
+	    String portAddress = null;
+	    for (Service service : defs.getServices()) {
+		for (Port port : service.getPorts()) {
+		    // possibly more than one port is available, we just take
+		    // the first
+		    portAddress = port.getAddress().getLocation();
+		    break;
+		}
+	    }
+	    return portAddress;
+	} catch (Exception e) {
+	    // wsdl library does not declare the exceptions that are thrown -->
+	    // catch all :(
+	    logger.warn("Could not parse wsdl at: " + wsdlUrl, e);
+	    return null;
 	}
     }
 
