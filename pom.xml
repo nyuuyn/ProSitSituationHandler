@@ -191,5 +191,16 @@
 			<version>1.5.4</version>
 		</dependency>
 
+		<!-- Important: This dependency is not required by the situation handler, 
+			but forces "soa-model-core" to use a new version of http-client. This avaids 
+			conflicts with other dependencies, that need an up-to-date version of http 
+			client (e.g. plugins!). Do NOT remove this, until you remove soa-model-core!. 
+			(this might not be a beautiful solution,but a simple one that works...) -->
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.5</version>
+		</dependency>
+
 	</dependencies>
 </project>

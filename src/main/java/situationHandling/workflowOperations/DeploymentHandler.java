@@ -276,6 +276,7 @@ class DeploymentHandler implements Runnable {
 	    logger.warn("Could not parse wsdl at: " + wsdlUrl, e);
 	    return null;
 	}
+
     }
 
 }
