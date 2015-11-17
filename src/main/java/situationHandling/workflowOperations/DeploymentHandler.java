@@ -153,6 +153,7 @@ class DeploymentHandler implements Runnable {
 		DeployResponse answer = mapper.readValue(answerString, DeployResponse.class);
 
 		String portAddress = null;
+		boolean setEndpointSuccess = false;
 		// update Endpoint
 		if (answer.isSuccess() && (portAddress = parseAddressFromWsdl(
 			answer.getEndpointUrl() + "?wsdl")) != null) {
@@ -163,12 +164,13 @@ class DeploymentHandler implements Runnable {
 		    logger.info("Successfully deployed process archive "
 			    + endpointToDeploy.getArchiveFilename()
 			    + ". New Url (port address) is: " + portAddress);
+		    setEndpointSuccess = true;
 		} else {
 		    logger.warn("Deployment failed for process archive "
 			    + endpointToDeploy.getArchiveFilename());
 		}
 
-		callbackHandler.deploymentCallback(answer.isSuccess(), wsaSoapMessage,
+		callbackHandler.deploymentCallback(setEndpointSuccess, wsaSoapMessage,
 			rollbackHandler);
 
 		// create answer (useless JSON object to follow conventions..)
