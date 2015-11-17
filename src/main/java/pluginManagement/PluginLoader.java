@@ -73,18 +73,6 @@ class PluginLoader {
     /** The class loader used for {@link #serviceLoader}. */
     private DynamicURLClassLoader urlClassLoader;
 
-    /*
-     * * TODO: Prinzipiell sollte das "unloaden funktionieren. Leider gibt es
-     * irgendwo immer noch Instanzen von den Klassen, wodurch die JAR geöffnet
-     * bleibt und sich nie löschen lässt. --> CleanupMethode dürfte die Lösung
-     * sein, damit die Plugins auch sauber zu machen.
-     */
-
-    // TODO: Problem hier: Dadurch das der ganze Class Loader zugemacht wird,
-    // könnte es auch sein das noch laufen threads verrecken (insbesondere dann
-    // auch durch das Shutdown --> Lösung: Eigener Class Loader? Für jedes
-    // Plugin und dann etwas gezielter Schließen und neu laden?
-
     /**
      * Creates a new instance of Plugin loader.
      * 
@@ -252,12 +240,6 @@ class PluginLoader {
 	// remove mappings (and shutdown)
 	pluginUrls.remove(ID);
 	plugins.remove(ID).shutdown();
-	// TODO: Reicht es nur diesen zu shutten oder müssten auch alle anderen
-	// geshutted werden? Die Frage ist ober bei der Reiniitierung ein völlig
-	// neues Objekt erstellt wird oder ob das immer noch irgendwie dasselbe
-	// ist. Wenn es nicht dasselbe ist, kann man auf dieses nämlich nicht
-	// mehr zugreifen um eventuelle Hintergrundthreads zu schließen usw.
-	// (Mit einem Multiclassloader sollte diese Frage ausgeräumt sein)
 
 	// a classloader cannot "unload" a class, therefore a new classloader is
 	// created, that does not load the removed plugin. The old class loader

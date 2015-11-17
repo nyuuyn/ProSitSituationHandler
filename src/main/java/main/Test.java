@@ -12,7 +12,7 @@ public class Test {
     public static void main(String[] args) {
 	WSDLParser parser = new WSDLParser();
 
-	Definitions defs = parser.parse("http://asdsadasd:8080/ode/processes/TargetWorkflow1?wsdl");
+	Definitions defs = parser.parse("http://localhost:8080/ode/processes/RequestingWorkflow?wsdl");
 
 	String portAddress = null;
 
